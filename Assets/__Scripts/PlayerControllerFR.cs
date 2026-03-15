@@ -11,16 +11,13 @@ public class PlayerControllerFR : MonoBehaviour
 
     public float moveSpeed = 5f;
     public float rotateSpeed = 10f;
-    public float jumpForce = 5f;
+    public float jumpForce = 10f;
     public float gravity = -30f;
     public float grappleCheckDistance = 30f;
     public float grappleScreenCenterToleranceX = 0.22f;
     public float grappleScreenCenterToleranceY = 0.34f;
     public float grapplePullSpeed = 18f;
-    public float grappleStopDistance = 0.6f;
-    public float grappleSurfacePadding = 0.08f;
-    public float grappleVerticalClearance = 0.8f;
-    public bool snapToDestinationOnGrappleEnd = false;
+    public float grappleStopDistance = 0.2f;
     public bool uprightOnGrappleEnd = true;
     public bool pauseOnGrappleEnd = false;
     public float grappleLineWidth = 0.04f;
@@ -34,9 +31,7 @@ public class PlayerControllerFR : MonoBehaviour
     private float verticalVelocity;
     private bool isGrappling;
     private Transform grappleTarget;
-    private Collider grappleTargetCollider;
-    private Collider grappleDestinationCollider;
-    private Vector3 grappleAnchorPoint;
+    private Transform grapplePawnPositionTarget;
     private Vector3 grappleDestinationCenter;
     private float playerBottomToCenterOffset;
 
@@ -70,6 +65,12 @@ public class PlayerControllerFR : MonoBehaviour
 
         Vector3 currentCenter = transform.position + characterController.center;
         playerBottomToCenterOffset = currentCenter.y - GetPlayerBottomWorldY();
+        rotationY = transform.eulerAngles.y;
+
+        if (playerCamera != null)
+        {
+            rotationX = NormalizeAngle(playerCamera.transform.localEulerAngles.x);
+        }
 
     }
     void OnEnable()
@@ -256,15 +257,20 @@ public class PlayerControllerFR : MonoBehaviour
             return;
         }
 
-        grappleTargetCollider = targetCollider;
-        grappleDestinationCollider = ResolveDestinationCollider(targetCollider);
+        Transform candidateDestination = FindGrapplePawnPositionSibling(targetCollider.transform);
+        if (candidateDestination == null)
+        {
+            Debug.LogWarning($"No sibling with tag GrapplePawnPosition found for {targetCollider.gameObject.name}");
+            return;
+        }
+
         grappleTarget = targetCollider.transform;
+        grapplePawnPositionTarget = candidateDestination;
         isGrappling = true;
         verticalVelocity = 0f;
         Vector3 playerCenter = transform.position + characterController.center;
         playerBottomToCenterOffset = playerCenter.y - GetPlayerBottomWorldY();
-        grappleAnchorPoint = grappleTarget.position;
-        grappleDestinationCenter = GetCurrentGrappleDestinationCenter(playerCenter);
+        grappleDestinationCenter = GetGrapplePawnDestinationCenter();
 
         if (grappleLineRenderer != null)
         {
@@ -276,21 +282,19 @@ public class PlayerControllerFR : MonoBehaviour
 
     void UpdateGrapple()
     {
-        if (grappleTarget == null || grappleTargetCollider == null)
+        if (grappleTarget == null || grapplePawnPositionTarget == null)
         {
             StopGrapple(true);
             return;
         }
 
+        grappleDestinationCenter = GetGrapplePawnDestinationCenter();
         Vector3 playerCenter = transform.position + characterController.center;
         Vector3 toTarget = grappleDestinationCenter - playerCenter;
         float distance = toTarget.magnitude;
         if (distance <= grappleStopDistance)
         {
-            if (snapToDestinationOnGrappleEnd)
-            {
-                CompleteGrappleAtDestination();
-            }
+            CompleteGrappleAtDestination();
             StopGrapple(true);
             return;
         }
@@ -313,7 +317,7 @@ public class PlayerControllerFR : MonoBehaviour
         grappleLineRenderer.endWidth = grappleLineWidth;
 
         Vector3 lineStart = GetGrappleLineStartPoint();
-        Vector3 lineEnd = grappleTarget != null ? grappleTarget.position : grappleAnchorPoint;
+        Vector3 lineEnd = grappleTarget.position;
         grappleLineRenderer.SetPosition(0, lineStart);
         grappleLineRenderer.SetPosition(1, lineEnd);
     }
@@ -323,8 +327,7 @@ public class PlayerControllerFR : MonoBehaviour
         bool wasGrappling = isGrappling;
         isGrappling = false;
         grappleTarget = null;
-        grappleTargetCollider = null;
-        grappleDestinationCollider = null;
+        grapplePawnPositionTarget = null;
 
         if (wasGrappling && uprightOnGrappleEnd)
         {
@@ -356,7 +359,27 @@ public class PlayerControllerFR : MonoBehaviour
     {
         rotationY = transform.eulerAngles.y;
         rotationX = 0f;
+        ApplyLookRotation();
+    }
+
+    void ApplyLookRotation()
+    {
         transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);
+
+        if (playerCamera != null)
+        {
+            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
+        }
+    }
+
+    float NormalizeAngle(float angle)
+    {
+        if (angle > 180f)
+        {
+            angle -= 360f;
+        }
+
+        return angle;
     }
 
     void SetPlayerCenterPosition(Vector3 worldCenterPosition)
@@ -368,47 +391,48 @@ public class PlayerControllerFR : MonoBehaviour
         characterController.enabled = wasEnabled;
     }
 
-    Vector3 GetCurrentGrappleAnchor(Vector3 fromPoint)
+    Transform FindGrapplePawnPositionSibling(Transform grapplePointTransform)
     {
-        if (grappleTargetCollider == null)
+        if (grapplePointTransform == null)
         {
-            return grappleTarget != null ? grappleTarget.position : fromPoint;
+            return null;
         }
 
-        return grappleTargetCollider.ClosestPoint(fromPoint);
+        Transform parent = grapplePointTransform.parent;
+        if (parent == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform sibling = parent.GetChild(i);
+            if (sibling == grapplePointTransform)
+            {
+                continue;
+            }
+
+            if (sibling.CompareTag("GrapplePawnPosition"))
+            {
+                return sibling;
+            }
+        }
+
+        return null;
     }
 
-    Vector3 GetCurrentGrappleDestinationCenter(Vector3 fromPoint)
+    Vector3 GetGrapplePawnDestinationCenter()
     {
-        Collider destinationCollider = grappleDestinationCollider != null ? grappleDestinationCollider : grappleTargetCollider;
-        if (destinationCollider == null)
+        if (grapplePawnPositionTarget == null)
         {
-            return GetCurrentGrappleAnchor(fromPoint);
+            return transform.position + characterController.center;
         }
 
-        Vector3 referencePoint = grappleTarget != null ? grappleTarget.position : fromPoint;
-        Vector3 surfacePoint = destinationCollider.ClosestPoint(referencePoint);
-        Vector3 toPlayer = fromPoint - surfacePoint;
-        Vector3 horizontalDirection = new Vector3(toPlayer.x, 0f, toPlayer.z);
-        if (horizontalDirection.sqrMagnitude < 0.0001f)
-        {
-            Vector3 outward = surfacePoint - destinationCollider.bounds.center;
-            horizontalDirection = new Vector3(outward.x, 0f, outward.z);
-        }
-
-        if (horizontalDirection.sqrMagnitude < 0.0001f)
-        {
-            horizontalDirection = -Vector3.forward;
-        }
-
-        float horizontalClearance = Mathf.Max(grappleSurfacePadding, characterController.radius + characterController.skinWidth);
-        Vector3 horizontalOffset = horizontalDirection.normalized * horizontalClearance;
-        Vector3 destination = surfacePoint + horizontalOffset;
-
-        float targetBottomY = destinationCollider.bounds.min.y;
-        float desiredCenterY = targetBottomY + playerBottomToCenterOffset + grappleVerticalClearance;
-        destination.y = desiredCenterY;
-        return destination;
+        Vector3 targetCenter = GetWorldCenter(grapplePawnPositionTarget);
+        Transform parent = grapplePawnPositionTarget.parent;
+        float targetBottomY = parent != null ? GetTopWorldY(parent) : GetBottomWorldY(grapplePawnPositionTarget);
+        float desiredCenterY = targetBottomY + playerBottomToCenterOffset;
+        return new Vector3(targetCenter.x, desiredCenterY, targetCenter.z);
     }
 
     float GetPlayerBottomWorldY()
@@ -439,36 +463,70 @@ public class PlayerControllerFR : MonoBehaviour
         return characterController.bounds.min.y;
     }
 
-    Collider ResolveDestinationCollider(Collider grappleHitCollider)
+    float GetBottomWorldY(Transform target)
     {
-        if (grappleHitCollider == null)
+        if (target == null)
         {
-            return null;
+            return transform.position.y;
         }
 
-        Transform current = grappleHitCollider.transform;
-        while (current != null)
+        Collider targetCollider = target.GetComponent<Collider>();
+        if (targetCollider != null)
         {
-            Collider[] colliders = current.GetComponents<Collider>();
-            foreach (Collider candidate in colliders)
-            {
-                if (!candidate.enabled || candidate.isTrigger)
-                {
-                    continue;
-                }
-
-                if (candidate == grappleHitCollider)
-                {
-                    continue;
-                }
-
-                return candidate;
-            }
-
-            current = current.parent;
+            return targetCollider.bounds.min.y;
         }
 
-        return grappleHitCollider;
+        Renderer targetRenderer = target.GetComponent<Renderer>();
+        if (targetRenderer != null)
+        {
+            return targetRenderer.bounds.min.y;
+        }
+
+        return target.position.y;
+    }
+
+    float GetTopWorldY(Transform target)
+    {
+        if (target == null)
+        {
+            return transform.position.y;
+        }
+
+        Collider targetCollider = target.GetComponent<Collider>();
+        if (targetCollider != null)
+        {
+            return targetCollider.bounds.max.y;
+        }
+
+        Renderer targetRenderer = target.GetComponent<Renderer>();
+        if (targetRenderer != null)
+        {
+            return targetRenderer.bounds.max.y;
+        }
+
+        return target.position.y;
+    }
+
+    Vector3 GetWorldCenter(Transform target)
+    {
+        if (target == null)
+        {
+            return transform.position + characterController.center;
+        }
+
+        Collider targetCollider = target.GetComponent<Collider>();
+        if (targetCollider != null)
+        {
+            return targetCollider.bounds.center;
+        }
+
+        Renderer targetRenderer = target.GetComponent<Renderer>();
+        if (targetRenderer != null)
+        {
+            return targetRenderer.bounds.center;
+        }
+
+        return target.position;
     }
 
     Vector3 GetGrappleLineStartPoint()
@@ -520,11 +578,9 @@ public class PlayerControllerFR : MonoBehaviour
     {
         // x-axis of mouse controls pitch (looking up/down)
         rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
-        // make sure to clamp the x rotation to prevent flipping over
-        rotationX = Mathf.Clamp(rotationX, -90f, 90f);        
         rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
-        //rotationX = Mathf.Clamp(rotationX, -90f, 90f);
-        transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
+        rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+        ApplyLookRotation();
     }
 
 }
