@@ -18,6 +18,8 @@ public class PlayerControllerFR : MonoBehaviour
     public float grappleScreenCenterToleranceY = 0.34f;
     public float grapplePullSpeed = 18f;
     public float grappleStopDistance = 0.2f;
+    public float grappleActivationRadius = 6f;
+    public bool keepLineAfterGrapple = false;
     public bool uprightOnGrappleEnd = true;
     public bool pauseOnGrappleEnd = false;
     public float grappleLineWidth = 0.04f;
@@ -30,8 +32,17 @@ public class PlayerControllerFR : MonoBehaviour
     private float rotationY;
     private float verticalVelocity;
     private bool isGrappling;
+    private bool isPlatformLocked;
     private Transform grappleTarget;
     private Transform grapplePawnPositionTarget;
+    private Transform nearestGrappleSource;
+    private Transform lockedPlatformTransform;
+    private FragmentConnection lockedPlatformFragment;
+    private Transform lockedPlatformSourcePoint;
+    private Transform lockedPlatformTargetPoint;
+    private Transform playerOriginalParent;
+    private Vector3 lockedPlatformLastPosition;
+    private float lockedPlatformStillTime;
     private Vector3 grappleDestinationCenter;
     private float playerBottomToCenterOffset;
 
@@ -104,6 +115,12 @@ public class PlayerControllerFR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isPlatformLocked)
+        {
+            UpdatePlatformLock();
+            return;
+        }
+
         if (isGrappling)
         {
             UpdateGrapple();
@@ -123,6 +140,11 @@ public class PlayerControllerFR : MonoBehaviour
 
     void JumpAction(InputAction.CallbackContext context)
     {
+        if (isPlatformLocked)
+        {
+            return;
+        }
+
         Debug.Log("Jump button pressed");
         if (characterController.isGrounded)
         {
@@ -132,7 +154,19 @@ public class PlayerControllerFR : MonoBehaviour
 
     void AttackAction(InputAction.CallbackContext context)
     {
+        if (isPlatformLocked)
+        {
+            return;
+        }
+
         Debug.Log("Attack button pressed");
+
+        Vector3 playerCenter = transform.position + characterController.center;
+        if (FindNearestGrapplePoint(playerCenter, grappleActivationRadius) == null)
+        {
+            Debug.Log("No GrapplePoint within activation radius");
+            return;
+        }
 
         Camera activeCamera = playerCamera != null ? playerCamera : Camera.main;
         if (activeCamera == null)
@@ -264,11 +298,24 @@ public class PlayerControllerFR : MonoBehaviour
             return;
         }
 
+        Vector3 playerCenter = transform.position + characterController.center;
+        Transform sourcePoint = FindNearestGrapplePoint(playerCenter, grappleActivationRadius);
+        if (sourcePoint == targetCollider.transform)
+        {
+            Debug.Log($"Source and target GrapplePoint are the same ({targetCollider.gameObject.name}), ignoring grapple");
+            return;
+        }
+
+        if (TryConnectParentFragments(sourcePoint, targetCollider.transform))
+        {
+            return;
+        }
+
         grappleTarget = targetCollider.transform;
         grapplePawnPositionTarget = candidateDestination;
+        nearestGrappleSource = sourcePoint;
         isGrappling = true;
         verticalVelocity = 0f;
-        Vector3 playerCenter = transform.position + characterController.center;
         playerBottomToCenterOffset = playerCenter.y - GetPlayerBottomWorldY();
         grappleDestinationCenter = GetGrapplePawnDestinationCenter();
 
@@ -328,13 +375,14 @@ public class PlayerControllerFR : MonoBehaviour
         isGrappling = false;
         grappleTarget = null;
         grapplePawnPositionTarget = null;
+        nearestGrappleSource = null;
 
         if (wasGrappling && uprightOnGrappleEnd)
         {
             SnapPlayerUpright();
         }
 
-        if (grappleLineRenderer != null)
+        if (grappleLineRenderer != null && !keepLineAfterGrapple)
         {
             grappleLineRenderer.enabled = false;
         }
@@ -531,9 +579,153 @@ public class PlayerControllerFR : MonoBehaviour
 
     Vector3 GetGrappleLineStartPoint()
     {
+        if (nearestGrappleSource != null)
+        {
+            return nearestGrappleSource.position;
+        }
+
         Vector3 basePoint = characterController.bounds.min;
         Vector3 horizontalOffset = (transform.right * grappleLineStartOffset.x) + (transform.forward * grappleLineStartOffset.z);
         return basePoint + Vector3.up * grappleLineStartOffset.y + horizontalOffset;
+    }
+
+    Transform FindNearestGrapplePoint(Vector3 worldPosition, float radius)
+    {
+        Collider[] candidates = Physics.OverlapSphere(worldPosition, radius, grappleCheckMask, QueryTriggerInteraction.Collide);
+        Transform nearest = null;
+        float nearestSqDist = float.MaxValue;
+
+        foreach (Collider candidate in candidates)
+        {
+            if (!candidate.CompareTag("GrapplePoint"))
+            {
+                continue;
+            }
+
+            float sqDist = (candidate.bounds.center - worldPosition).sqrMagnitude;
+            if (sqDist < nearestSqDist)
+            {
+                nearestSqDist = sqDist;
+                nearest = candidate.transform;
+            }
+        }
+
+        return nearest;
+    }
+
+    bool TryConnectParentFragments(Transform sourcePoint, Transform targetPoint)
+    {
+        if (sourcePoint == null || targetPoint == null)
+        {
+            return false;
+        }
+
+        Transform sourceParent = sourcePoint.parent;
+        Transform targetParent = targetPoint.parent;
+        if (sourceParent == null || targetParent == null)
+        {
+            return false;
+        }
+
+        FragmentConnection sourceFragment = sourceParent.GetComponent<FragmentConnection>();
+        FragmentConnection targetFragment = targetParent.GetComponent<FragmentConnection>();
+        if (sourceFragment == null || targetFragment == null)
+        {
+            return false;
+        }
+
+        bool isMatch = sourceFragment.fragmentToConnectTo == targetFragment || targetFragment.fragmentToConnectTo == sourceFragment;
+        if (!isMatch)
+        {
+            return false;
+        }
+
+        sourceFragment.ConnectToFragment(targetFragment);
+        BeginPlatformLock(sourceParent, sourceFragment, sourcePoint, targetPoint);
+        return true;
+    }
+
+    void BeginPlatformLock(Transform platformTransform, FragmentConnection platformFragment, Transform sourcePoint, Transform targetPoint)
+    {
+        if (platformTransform == null || platformFragment == null)
+        {
+            return;
+        }
+
+        isPlatformLocked = true;
+        lockedPlatformTransform = platformTransform;
+        lockedPlatformFragment = platformFragment;
+        lockedPlatformSourcePoint = sourcePoint;
+        lockedPlatformTargetPoint = targetPoint;
+        playerOriginalParent = transform.parent;
+        lockedPlatformLastPosition = platformTransform.position;
+        lockedPlatformStillTime = 0f;
+
+        StopGrapple(false);
+        transform.SetParent(platformTransform, true);
+
+        if (grappleLineRenderer != null && lockedPlatformSourcePoint != null && lockedPlatformTargetPoint != null)
+        {
+            grappleLineRenderer.enabled = true;
+            grappleLineRenderer.positionCount = 2;
+            grappleLineRenderer.widthMultiplier = 1f;
+            grappleLineRenderer.startWidth = grappleLineWidth;
+            grappleLineRenderer.endWidth = grappleLineWidth;
+            grappleLineRenderer.SetPosition(0, lockedPlatformSourcePoint.position);
+            grappleLineRenderer.SetPosition(1, lockedPlatformTargetPoint.position);
+        }
+    }
+
+    void UpdatePlatformLock()
+    {
+        if (grappleLineRenderer != null && grappleLineRenderer.enabled && lockedPlatformSourcePoint != null && lockedPlatformTargetPoint != null)
+        {
+            grappleLineRenderer.SetPosition(0, lockedPlatformSourcePoint.position);
+            grappleLineRenderer.SetPosition(1, lockedPlatformTargetPoint.position);
+        }
+
+        if (lockedPlatformTransform == null || lockedPlatformFragment == null)
+        {
+            EndPlatformLock();
+            return;
+        }
+
+        float movedDistance = Vector3.Distance(lockedPlatformTransform.position, lockedPlatformLastPosition);
+        if (movedDistance <= 0.0005f)
+        {
+            lockedPlatformStillTime += Time.deltaTime;
+        }
+        else
+        {
+            lockedPlatformStillTime = 0f;
+        }
+
+        lockedPlatformLastPosition = lockedPlatformTransform.position;
+
+        // End lock as soon as the fragment reports connected, or when the platform has stopped moving.
+        if (lockedPlatformFragment.isConnected || lockedPlatformStillTime >= 0.15f)
+        {
+            EndPlatformLock();
+        }
+    }
+
+    void EndPlatformLock()
+    {
+        transform.SetParent(playerOriginalParent, true);
+
+        if (grappleLineRenderer != null)
+        {
+            grappleLineRenderer.enabled = false;
+        }
+
+        isPlatformLocked = false;
+        lockedPlatformTransform = null;
+        lockedPlatformFragment = null;
+        lockedPlatformSourcePoint = null;
+        lockedPlatformTargetPoint = null;
+        playerOriginalParent = null;
+        lockedPlatformStillTime = 0f;
+        lockedPlatformLastPosition = Vector3.zero;
     }
 
     void ConfigureGrappleLineRenderer()
