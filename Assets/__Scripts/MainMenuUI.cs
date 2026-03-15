@@ -79,6 +79,16 @@ public class MainMenuUI : MonoBehaviour
         GameManager.Instance.LoadScene(Scenes.Game);
     }
 
+    public void OptionsButton()
+    {
+        //GameManager.Instance.LoadScene(Scenes.Options);
+    }
+
+    public void ContinueButton()
+    {
+        //GameManager.Instance.LoadScene(Scenes.Game);
+    }
+
     public void QuitButton()
     {
         GameManager.Quit();
