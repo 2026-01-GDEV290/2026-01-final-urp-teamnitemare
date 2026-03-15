@@ -34,9 +34,22 @@ public enum GameStates
     Online
  };
 
+ [Serializable]
+ public enum GameLevels
+ {
+    Interlude,
+    Level1,
+    Level2,
+    Level3,
+    Level4,
+    Level5,
+    Experimental,
+    None
+ };
+
 public class GameState
 {
-    public static string GameName = "Team Nitemare's Caged? Game";
+    public string GameName = "Team Nitemare's Caged? Game";
 
     public GameStates currentGameState = GameStates.Loading;
 
@@ -45,5 +58,5 @@ public class GameState
     public Scenes currentScene = Scenes.LoadingScreen;
     public Scenes previousScene = Scenes.LoadingScreen;
 
-
+    public GameLevels currentLevel = GameLevels.None;
 }

@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
 #endif
     }
 
-    public void LoadScene(Scenes scene)
+    public void LoadScene(Scenes scene, int sceneIndex = -1)
     {
         Debug.Log("GM->LoadScene(): " + scene.ToString());
         if (gameState.currentGameState == GameStates.Paused)
@@ -101,7 +101,8 @@ public class GameManager : MonoBehaviour
                 gameState.currentGameState = GameStates.UI;
                 break;
             case Scenes.Game:
-                SceneManager.LoadScene(GameState.scenesSO.gameScene);
+                sceneIndex = sceneIndex >= 0 && sceneIndex < GameState.scenesSO.gameScenes.Count ? sceneIndex : 0;
+                SceneManager.LoadScene(GameState.scenesSO.gameScenes[sceneIndex]);
                 //currentScene = Scenes.Game;
                 gameState.currentScene = GameState.scenesSO.gameSceneEnum;
                 gameState.currentGameState = GameStates.Playing;
@@ -149,13 +150,15 @@ public class GameManager : MonoBehaviour
                 gameState.currentGameState = GameStates.UI;
             }
         }
-        else if (activeSceneName == GameState.scenesSO.gameScene)
+        else if (GameState.scenesSO.gameScenes.Contains(activeSceneName))
         {
             if (gameState.currentScene != Scenes.Game)
             {
                 Debug.Log("currentScene mismatch; currentScene set to " + gameState.currentScene.ToString() + "; updating to " + Scenes.Game.ToString());
                 gameState.currentScene = Scenes.Game;
                 gameState.currentGameState = GameStates.Playing;
+                // Assuming gameScenes are ordered by level and start at Level1
+                gameState.currentLevel = (GameLevels)GameState.scenesSO.gameScenes.IndexOf(activeSceneName) + 1;
             }
         }
         else if (activeSceneName == GameState.scenesSO.gameOverScene)

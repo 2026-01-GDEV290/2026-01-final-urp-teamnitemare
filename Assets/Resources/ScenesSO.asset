@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuScene: MainMenuX
   mainMenuSceneEnum: 1
-  gameScene: gmm
+  gameScenes:
+  - gmm
   gameSceneEnum: 2
   gameOverScene: 
   gameOverSceneEnum: 3
