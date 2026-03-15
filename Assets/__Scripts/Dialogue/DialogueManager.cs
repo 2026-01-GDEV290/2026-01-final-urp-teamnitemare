@@ -64,7 +64,7 @@ public class DialogueManager : MonoBehaviour
         }
 
         //handle continuing to the next line in the dialog when interact is pressed
-        if (Input.GetKeyUp(KeyCode.E))
+        if (currentStory.currentChoices.Count == 0 && Input.GetKeyUp(KeyCode.E))
         {
             ContinueStory();
         }
@@ -141,6 +141,8 @@ public class DialogueManager : MonoBehaviour
     public void MakeChoice(int choiceIndex)
     {
         currentStory.ChooseChoiceIndex(choiceIndex);
+        Input.GetKeyUp(KeyCode.E);
+        ContinueStory();
     }
 
 }
