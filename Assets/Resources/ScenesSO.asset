@@ -15,7 +15,7 @@ MonoBehaviour:
   mainMenuScene: MainMenuX
   mainMenuSceneEnum: 1
   gameScenes:
-  - gmm
+  - FractureTest
   gameSceneEnum: 2
   gameOverScene: 
   gameOverSceneEnum: 3

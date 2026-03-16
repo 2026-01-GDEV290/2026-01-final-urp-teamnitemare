@@ -135,6 +135,52 @@ public class GameManager : MonoBehaviour
                 Debug.LogError("Unknown scene: " + scene);
                 break;
         }
+        if (gameState.currentGameState == GameStates.UI)
+        {
+            // restore time-scale in case it was changed
+            //Time.timeScale = 1f;
+            // Ensure pause menu is closed when loading UI scenes
+            uiManager.PauseMenuClose();
+            // restore mouse cursor in case it was hidden
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (gameState.currentGameState == GameStates.Playing)
+        {
+            // Hide mouse cursor in game scenes
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    public void LoadNextScene()
+    {
+        Debug.Log("GM->LoadNextScene() from scene: " + gameState.currentScene.ToString());
+        // if game scene, get index
+        
+        if (gameState.currentScene == Scenes.Game)
+        {
+            int currentIndex = GameState.scenesSO.gameScenes.IndexOf(SceneManager.GetActiveScene().name);
+            if (currentIndex == -1)
+            {
+                Debug.LogError("Current scene is marked as Game but not found in gameScenes list: " + SceneManager.GetActiveScene().name);
+                currentIndex = 0; // default to first scene
+            }
+            if (currentIndex + 1 >= GameState.scenesSO.gameScenes.Count)
+            {
+                Debug.LogWarning("No next scene in gameScenes list, returning to main menu (maybe gameover(?)).");
+                LoadScene(Scenes.MainMenu);
+                return;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("LoadNextScene() called but current scene is not a Game scene: " + gameState.currentScene.ToString() +
+                "; loading MainMenu scene.");
+            // Optionally, could decide what to do based on currentScene (e.g. if MainMenu, start first game scene)
+            LoadScene(Scenes.MainMenu);
+            return;
+        }
     }
 
     public void VerifyCurrentScene()
@@ -200,6 +246,18 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogWarning("Active scene does not match any known scenes in ScenesSO: " + activeSceneName);
+        }
+        if (gameState.currentGameState == GameStates.UI)
+        {
+            // restore mouse cursor in case it was hidden
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (gameState.currentGameState == GameStates.Playing)
+        {
+            // Hide mouse cursor in game scenes
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 

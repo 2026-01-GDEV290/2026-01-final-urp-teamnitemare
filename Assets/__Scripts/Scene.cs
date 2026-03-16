@@ -21,4 +21,14 @@ public class Scene : MonoBehaviour
     {
         GameManager.Instance.SceneDestroyed();
     }
+
+    // For use with Events in the inspector:
+    public void LoadNextScene()
+    {
+        GameManager.Instance.LoadNextScene();
+    }
+    public void LoadScene(Scenes scene)
+    {
+        GameManager.Instance.LoadScene(scene);
+    }
 }

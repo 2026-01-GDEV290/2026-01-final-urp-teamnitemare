@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/_Scenes/MainMenuX.unity
     guid: 3b55c7f3b690668469095d1c9d7e26e2
   - enabled: 1
+    path: Assets/_Scenes/FractureTest.unity
+    guid: fea19949adab9fe4da5fcb7fe115f220
+  - enabled: 1
     path: Assets/_Scenes/gmm.unity
     guid: c1333b4cbe5b5c741a78d68ed98a2489
   m_configObjects:
