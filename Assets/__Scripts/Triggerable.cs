@@ -4,13 +4,17 @@ using UnityEngine;
 public class Triggerable : MonoBehaviour
 {
     public bool isActive = true;
+    public GameObject playerOrNullForAll = null;
     public UnityEngine.Events.UnityEvent onTrigger;
 
     private void OnTriggerEnter(Collider other)
     {
         if (isActive)
         {
-            onTrigger.Invoke();
+            if (playerOrNullForAll == null || other.gameObject == playerOrNullForAll)  
+            {
+                onTrigger.Invoke();
+            }
         }
     }
 }

@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/gmm.unity
     guid: c1333b4cbe5b5c741a78d68ed98a2489
+  - enabled: 1
+    path: Assets/_Scenes/PitchBlackX.unity
+    guid: 084b5c72056e49948b93ec81a6ecc702
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: e733fc5e8db162f40a4fd4d7871f9296,
       type: 2}
