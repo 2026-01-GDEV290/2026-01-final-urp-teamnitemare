@@ -18,9 +18,9 @@ public class InteractCollider : MonoBehaviour
     {
         if (interactText == null)
         {
-            interactText = GetComponentInChildren<TMP_Text>(true);
-            SetInteractText("");
+            interactText = GetComponentInChildren<TMP_Text>(true);            
         }
+        SetInteractText("");
     }
 
     public void SetInteractText(string text)
