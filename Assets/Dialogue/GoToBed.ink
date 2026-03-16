@@ -1,3 +1,5 @@
+INCLUDE globals.ink
+
 -> endnight
 
 ===endnight===
@@ -8,5 +10,6 @@ Do you want to go to sleep?
     + [Not yet.]
     -> sleep ("Stay awake.")
     ===sleep(answer)===
+    ~ bed = bed
     You chose to {answer}
     -> END

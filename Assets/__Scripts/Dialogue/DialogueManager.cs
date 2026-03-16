@@ -25,6 +25,8 @@ public class DialogueManager : MonoBehaviour
 
     private static DialogueManager instance;
 
+    private DialogueVariables dialogueVariables;
+
     private void Awake()
     {
         if (instance != null)
@@ -32,6 +34,8 @@ public class DialogueManager : MonoBehaviour
             Debug.LogWarning("Found more than one Dialogue Manager in the Scene");
         }
         instance = this;
+
+        dialogueVariables = new DialogueVariables();
     }
 
     public static DialogueManager GetInstance()
@@ -76,12 +80,16 @@ public class DialogueManager : MonoBehaviour
         dialogueIsPlaying = true;
         dialoguePanel.SetActive(true);
 
+        dialogueVariables.StartListening(currentStory);
+
         ContinueStory();
     }
 
     private IEnumerator ExitDialogueMode()
     {
         yield return new WaitForSeconds(0.2f);
+
+        dialogueVariables.StopListening(currentStory);
 
         dialogueIsPlaying = false;
         dialoguePanel.SetActive(false);
