@@ -59,4 +59,8 @@ public class GameState
     public Scenes previousScene = Scenes.LoadingScreen;
 
     public GameLevels currentLevel = GameLevels.None;
+
+    public int numCurrentLevelObjectivesCompleted = 0;
+    public int totalCurrentLevelObjectives = 0;
+    public bool currentLevelCompleted = false;
 }

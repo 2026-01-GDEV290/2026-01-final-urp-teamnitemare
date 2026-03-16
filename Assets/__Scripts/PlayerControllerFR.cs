@@ -1,6 +1,7 @@
 //using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerFR : MonoBehaviour
@@ -48,6 +49,12 @@ public class PlayerControllerFR : MonoBehaviour
 
     private CharacterController characterController;
 
+    private InteractCollider interactCollider;
+
+    bool lookingAtInteractable = false;
+    InteractableObject currentInteractable = null;
+    
+
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
@@ -94,9 +101,56 @@ public class PlayerControllerFR : MonoBehaviour
         hitAction.performed += AttackAction;
         jumpAction.performed += JumpAction;
         //playerControls.Player.Jump.performed += JumpAction;
+
+        // get child InteractArea's InteractCollider and subscribe to its event
+        InteractCollider[] interactColliders = GetComponentsInChildren<InteractCollider>();
+        if (interactColliders.Length > 0)
+        {
+            interactCollider = interactColliders[0];
+            interactCollider.OnPlayerHitInteractable += InteractTrigger;
+            interactCollider.OnPlayerLeaveInteractable += InteractLeaveTrigger;
+        }
+        else
+        {
+            Debug.LogWarning("PlayerControllerFR could not find a InteractCollider for interaction events.");
+        }
+
+    }
+    void InteractTrigger(InteractableObject interactable)
+    {
+        if (interactable == null)
+        {
+            return;
+        }
+
+        Debug.Log($"PlayerControllerFR received InteractTrigger from {interactable.gameObject.name}");
+        Debug.Log($"PlayerControllerFR found InteractableObject: {interactable.gameObject.name}");
+        Debug.Log($"Interactable text: {interactable.interactText}");
+        interactCollider.SetInteractText(interactable.interactText);
+        lookingAtInteractable = true;
+        currentInteractable = interactable;
+
+        // (on Interact button): interactable.Interact();
+    }
+    void InteractLeaveTrigger(InteractableObject interactable)
+    {
+        if (interactable != null)
+        {
+            Debug.Log($"PlayerControllerFR received InteractLeaveTrigger from {interactable.gameObject.name}");
+        }
+        lookingAtInteractable = false;
+        currentInteractable = null;
+        interactCollider.SetInteractText("");
     }
     void OnDisable()
     {
+        // unsubscribe from interactCollider events
+        if (interactCollider != null)
+        {
+            interactCollider.OnPlayerHitInteractable -= InteractTrigger;
+            interactCollider.OnPlayerLeaveInteractable -= InteractLeaveTrigger;
+        }
+
         hitAction.performed -= AttackAction;
         jumpAction.performed -= JumpAction;
         //playerControls.Player.Jump.performed -= JumpAction;
@@ -118,6 +172,10 @@ public class PlayerControllerFR : MonoBehaviour
         if (isPlatformLocked)
         {
             UpdatePlatformLock();
+
+            // Keep look active while the platform is auto-moving.
+            Vector2 lockedLookVector = lookAction.ReadValue<Vector2>();
+            Rotate(lockedLookVector);
             return;
         }
 
@@ -159,6 +217,13 @@ public class PlayerControllerFR : MonoBehaviour
             return;
         }
 
+        if (lookingAtInteractable && currentInteractable != null)
+        {
+            Debug.Log($"Interacting with {currentInteractable.gameObject.name}");
+            currentInteractable.Interact();
+            return;
+        }
+
         Debug.Log("Attack button pressed");
 
         Vector3 playerCenter = transform.position + characterController.center;
@@ -178,22 +243,12 @@ public class PlayerControllerFR : MonoBehaviour
         Vector3 origin = activeCamera.transform.position;
         Vector3 forward = activeCamera.transform.forward;
 
-        // Prefer exact center hit first.
-        if (Physics.Raycast(
-            origin,
-            forward,
-            out RaycastHit centerHit,
-            grappleCheckDistance,
-            grappleCheckMask,
-            QueryTriggerInteraction.Collide
-        ))
+        // Prefer exact center hit first, but ignore hidden collider-only blockers.
+        if (TryFindGrapplePointOnRay(origin, forward, grappleCheckDistance, out Collider centerGrappleTarget))
         {
-            if (centerHit.collider.CompareTag("GrapplePoint"))
-            {
-                Debug.Log($"Found GrapplePoint (center): {centerHit.collider.gameObject.name}");
-                StartGrapple(centerHit.collider);
-                return;
-            }
+            Debug.Log($"Found GrapplePoint (center): {centerGrappleTarget.gameObject.name}");
+            StartGrapple(centerGrappleTarget);
+            return;
         }
 
         // Fallback: choose visible GrapplePoints near the screen center, with LOS.
@@ -249,19 +304,7 @@ public class PlayerControllerFR : MonoBehaviour
 
             Vector3 directionToTarget = toTarget / distanceToTarget;
 
-            if (!Physics.Raycast(
-                origin,
-                directionToTarget,
-                out RaycastHit lineOfSightHit,
-                distanceToTarget,
-                grappleCheckMask,
-                QueryTriggerInteraction.Collide
-            ))
-            {
-                continue;
-            }
-
-            if (lineOfSightHit.collider != candidate)
+            if (!HasLineOfSightToCandidate(origin, directionToTarget, distanceToTarget, candidate))
             {
                 continue;
             }
@@ -589,6 +632,113 @@ public class PlayerControllerFR : MonoBehaviour
         return basePoint + Vector3.up * grappleLineStartOffset.y + horizontalOffset;
     }
 
+    bool TryFindGrapplePointOnRay(Vector3 origin, Vector3 direction, float maxDistance, out Collider grapplePoint)
+    {
+        grapplePoint = null;
+
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin,
+            direction,
+            maxDistance,
+            grappleCheckMask,
+            QueryTriggerInteraction.Ignore
+        );
+
+        if (hits == null || hits.Length == 0)
+        {
+            return false;
+        }
+
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            Collider hitCollider = hit.collider;
+            if (hitCollider == null)
+            {
+                continue;
+            }
+
+            if (hitCollider.CompareTag("GrapplePoint"))
+            {
+                grapplePoint = hitCollider;
+                return true;
+            }
+
+            if (ShouldIgnoreAsInvisibleLosBlocker(hitCollider))
+            {
+                continue;
+            }
+
+            // A visible non-grapple collider blocks center line of sight.
+            return false;
+        }
+
+        return false;
+    }
+
+    bool HasLineOfSightToCandidate(Vector3 origin, Vector3 directionToTarget, float distanceToTarget, Collider candidate)
+    {
+        RaycastHit[] hits = Physics.RaycastAll(
+            origin,
+            directionToTarget,
+            distanceToTarget,
+            grappleCheckMask,
+            QueryTriggerInteraction.Ignore
+        );
+
+        if (hits == null || hits.Length == 0)
+        {
+            return false;
+        }
+
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (RaycastHit hit in hits)
+        {
+            Collider hitCollider = hit.collider;
+            if (hitCollider == null)
+            {
+                continue;
+            }
+
+            if (hitCollider == candidate)
+            {
+                return true;
+            }
+
+            if (ShouldIgnoreAsInvisibleLosBlocker(hitCollider))
+            {
+                continue;
+            }
+
+            return false;
+        }
+
+        return false;
+    }
+
+    bool ShouldIgnoreAsInvisibleLosBlocker(Collider hitCollider)
+    {
+        if (hitCollider == null)
+        {
+            return false;
+        }
+
+        if (hitCollider.CompareTag("GrapplePoint"))
+        {
+            return false;
+        }
+
+        Renderer hitRenderer = hitCollider.GetComponent<Renderer>();
+        if (hitRenderer == null)
+        {
+            return false;
+        }
+
+        return !hitRenderer.enabled;
+    }
+
     Transform FindNearestGrapplePoint(Vector3 worldPosition, float radius)
     {
         Collider[] candidates = Physics.OverlapSphere(worldPosition, radius, grappleCheckMask, QueryTriggerInteraction.Collide);
@@ -773,6 +923,11 @@ public class PlayerControllerFR : MonoBehaviour
         rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);
         ApplyLookRotation();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log($"Entered trigger: {other.gameObject.name}");
     }
 
 }
