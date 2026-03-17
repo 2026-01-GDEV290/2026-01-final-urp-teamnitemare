@@ -26,10 +26,10 @@ public class FirstPersonMovement : MonoBehaviour
     void FixedUpdate()
     {
         //Freeze player when dialogue is open
-        //if (DialogueManager.GetInstance().dialogueIsPlaying)
-        //{
-        //    return;
-        //}
+        if (DialogueManager.GetInstance().dialogueIsPlaying)
+        {
+            return;
+        }
 
         // Update IsRunning from input.
         IsRunning = canRun && Input.GetKey(runningKey);
