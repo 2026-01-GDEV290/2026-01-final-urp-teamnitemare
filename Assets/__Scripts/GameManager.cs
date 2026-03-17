@@ -339,6 +339,9 @@ public class GameManager : MonoBehaviour
             return;
         }
         //flipOutGame.GameEventSaveStateAndTransition(FlipOutGameEvents.Paused);
+        // enable mouse cursor for pause menu
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         // Show pause menu UI
         uiManager.PauseMenuOpen();
         gameState.currentGameState = GameStates.Paused;
