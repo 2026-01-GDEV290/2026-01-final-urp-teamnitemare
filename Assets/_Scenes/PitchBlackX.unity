@@ -813,6 +813,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SceneTaskObjects: []
+  onTasksCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &803315842
 Transform:
   m_ObjectHideFlags: 0
@@ -1667,7 +1671,7 @@ GameObject:
   - component: {fileID: 1764494535}
   - component: {fileID: 1764494539}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: InteractSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

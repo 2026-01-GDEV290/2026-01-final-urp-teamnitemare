@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 //using UnityEditor;
 
 [Serializable]
@@ -47,6 +48,7 @@ public enum GameStates
     None
  };
 
+[Serializable]
 public class GameState
 {
     public string GameName = "Team Nitemare's Caged? Game";
@@ -58,9 +60,14 @@ public class GameState
     public Scenes currentScene = Scenes.LoadingScreen;
     public Scenes previousScene = Scenes.LoadingScreen;
 
+    public Scene currentSceneScript = null;
+    //public GameObject playerPawn = null;
     public GameLevels currentLevel = GameLevels.None;
+
+    [field: SerializeField] public Dictionary<string, List<string>> sceneProgressionInfo = new Dictionary<string, List<string>>();
 
     public int numCurrentLevelObjectivesCompleted = 0;
     public int totalCurrentLevelObjectives = 0;
     public bool currentLevelCompleted = false;
+
 }

@@ -7,19 +7,21 @@ public class PauseScript : MonoBehaviour
     public void ResumeGamePressed()
     {
         Debug.Log("Resume menu button!");
-        GameManager.Instance.uiManager.PauseMenuClose();
+        //GameManager.Instance.uiManager.PauseMenuClose();
         //var inputManager = GameObject.FindFirstObjectByType<InputManager>();
         //if (inputManager != null)
         //{            
          //   inputManager.GetComponent<InputManager>().PauseMenuClose();
         //}
-        //GameManager.Instance.ResumeGame();
+        GameManager.Instance.ResumeGame();
     }
     public void MainMenuButtonPressed()
     {
         Debug.Log("Main menu button!");
+        //GameManager.Instance.UnpauseAndRestoreCursor();
         //GameManager.Instance.ResumeGame();
-        GameManager.Instance.uiManager.PauseMenuClose();
+        // LoadScene detects and does this:
+        //GameManager.Instance.ClosePauseMenuAndResumeTime();
         GameManager.Instance.LoadScene(Scenes.MainMenu);
     }
 }

@@ -48,6 +48,7 @@ public class UIManager : MonoBehaviour
         
     }
 
+    // called from GameManager when PauseGame is triggered
     public bool PauseMenuClose()
     {
         if (pauseMenuOpen)
@@ -56,23 +57,16 @@ public class UIManager : MonoBehaviour
             Destroy(pauseMenuInstance);
             pauseMenuInstance = null;
             Debug.Log("UI->Pause menu closed!");
-            // Unfreeze game
-            //Time.timeScale = 1;
-            // This can call this function - but PauseScript typically does:    
-            //GameManager.Instance.ResumeGame();
             pauseMenuOpen = false;
-            GameManager.Instance.gameState.currentGameState = GameStates.Playing;
-            // hide mouse cursor when resuming game
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
         }
         return true;
     }
+    // called from GameManager when PauseGame is triggered
     public bool PauseMenuOpen()
     {
         if (pauseMenuOpen)
         {
-            return PauseMenuClose();                
+            return true;    // previously toggleable: with PauseMenuClose(); (but should call GameManager.Instance.ResumeGame())
         }
         else if (GameManager.Instance.gameState.currentGameState == GameStates.Playing)
         {

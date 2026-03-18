@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 //using TMPro;
 
 
-
+[Serializable]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -32,8 +33,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] public UIManager uiManager = null;
 
     //[SerializeField] public CagedGame cagedGame = null;
-    public GameState gameState = new GameState();
-    public PlayerState playerState = new PlayerState();
+    [SerializeField] public GameState gameState = new GameState();
+    [SerializeField] public PlayerState playerState = new PlayerState();
+
+    bool mouseHideForGameScenes = true;
+    bool timeScaleFreezeForPause = true;
 
 
     // Awake - Called before *FIRST* Scene, not destroyed or recreated on other Scene loads
@@ -82,9 +86,9 @@ public class GameManager : MonoBehaviour
         if (gameState.currentGameState == GameStates.Paused)
         {
             Debug.LogWarning("GM->LoadScene(): Game is paused, closing pause menu.");
-            uiManager.PauseMenuClose();
             //playerState.SceneDestroyed();
             //gameState.SceneDestroyed();
+            ClosePauseMenuAndResumeTime(true);
             SceneLoadingGameCleanup();
         }
         if (gameState.currentGameState == GameStates.Playing)
@@ -137,29 +141,33 @@ public class GameManager : MonoBehaviour
         }
         if (gameState.currentGameState == GameStates.UI)
         {
-            // restore time-scale in case it was changed
-            //Time.timeScale = 1f;
-            // Ensure pause menu is closed when loading UI scenes
-            uiManager.PauseMenuClose();
-            // restore mouse cursor in case it was hidden
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            // Ensure pause menu is closed when loading UI scenes (done above)
+            //ClosePauseMenuAndResumeTime(false);
+            MouseCursorSetForUI();
         }
         else if (gameState.currentGameState == GameStates.Playing)
         {
             // Hide mouse cursor in game scenes
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            MouseCursorSetForGame();
         }
     }
 
     public void LoadNextScene()
     {
         Debug.Log("GM->LoadNextScene() from scene: " + gameState.currentScene.ToString());
-        // if game scene, get index
         
+        if (gameState.currentGameState == GameStates.Paused)
+        {
+            Debug.LogWarning("GM->LoadScene(): Game is paused, closing pause menu.");
+            //playerState.SceneDestroyed();
+            //gameState.SceneDestroyed();
+            ClosePauseMenuAndResumeTime(true);
+            SceneLoadingGameCleanup();
+        }
+    
         if (gameState.currentScene == Scenes.Game)
         {
+            // get index of current scene
             int currentIndex = GameState.scenesSO.gameScenes.IndexOf(SceneManager.GetActiveScene().name);
             if (currentIndex == -1)
             {
@@ -254,15 +262,13 @@ public class GameManager : MonoBehaviour
         }
         if (gameState.currentGameState == GameStates.UI)
         {
-            // restore mouse cursor in case it was hidden
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
+            // Ensure pause menu is closed when loading UI scenes
+            ClosePauseMenuAndResumeTime(false);
+            MouseCursorSetForUI();
         }
         else if (gameState.currentGameState == GameStates.Playing)
         {
-            // Hide mouse cursor in game scenes
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            MouseCursorSetForGame();
         }
     }
 
@@ -274,10 +280,11 @@ public class GameManager : MonoBehaviour
     }
 
    // Scene -> Scene script (in each level) calls the following Awake/Start/Destroyed functions
-    public void SceneAwake()
+    public void SceneAwake(Scene sceneScript)
     {
         VerifyCurrentScene();
         Debug.Log("GM->SceneAwake() for scene: " + SceneManager.GetActiveScene().name + " currentScene: " + gameState.currentScene.ToString());
+        gameState.currentSceneScript = sceneScript;
         if (gameState.currentScene == Scenes.Game)
         {
             // For now, we can have these in the level or created here if missing
@@ -291,6 +298,11 @@ public class GameManager : MonoBehaviour
                     uIManagerGO = new GameObject("UIManager", typeof(UIManager));
                 }
                 uiManager = uIManagerGO.GetComponent<UIManager>();
+            }
+            // add scene to gameState.sceneProgressionInfo if not already there
+            if (!gameState.sceneProgressionInfo.ContainsKey(SceneManager.GetActiveScene().name))
+            {
+                gameState.sceneProgressionInfo.Add(SceneManager.GetActiveScene().name, new List<string>());
             }
         }
     }
@@ -331,9 +343,20 @@ public class GameManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    //void Update() {}
 
+    public void ClosePauseMenuAndResumeTime(bool enableMouseCursorForGame = true)
+    {
+        uiManager.PauseMenuClose();
+        if (timeScaleFreezeForPause)
+        {
+            Time.timeScale = 1f;
+        }
+        if (enableMouseCursorForGame)
+        {
+            MouseCursorSetForGame();
+        }
+        gameState.currentGameState = GameStates.Playing;
     }
 
     public void PauseGame()
@@ -345,13 +368,16 @@ public class GameManager : MonoBehaviour
         }
         //flipOutGame.GameEventSaveStateAndTransition(FlipOutGameEvents.Paused);
         // enable mouse cursor for pause menu
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        MouseCursorSetForUI();
         // Show pause menu UI
         uiManager.PauseMenuOpen();
         gameState.currentGameState = GameStates.Paused;
-        // Freeze game time
-        //Time.timeScale = 0f;
+
+        // Freeze game time?
+        if (timeScaleFreezeForPause)
+        {
+            Time.timeScale = 0f;
+        }
     }
 
     public void ResumeGame()
@@ -363,10 +389,26 @@ public class GameManager : MonoBehaviour
         }
         //flipOutGame.GameEventRestoreState();
         // Hide pause menu UI
-        uiManager.PauseMenuClose();
-        gameState.currentGameState = GameStates.Playing;
-        // Resume game time
-        //Time.timeScale = 1f;
+        ClosePauseMenuAndResumeTime(true);
+    }
+
+    public void MouseCursorSetForUI()
+    {
+        if (mouseHideForGameScenes)
+        {
+            //Debug.Log("GM->Setting mouse cursor for UI (visible/unlocked).");
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
+    public void MouseCursorSetForGame()
+    {
+        if (mouseHideForGameScenes)
+        {
+            //Debug.Log("GM->Setting mouse cursor for Game (hidden/locked).");
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
 }

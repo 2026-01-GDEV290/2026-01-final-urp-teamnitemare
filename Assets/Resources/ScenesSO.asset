@@ -16,6 +16,7 @@ MonoBehaviour:
   mainMenuSceneEnum: 1
   gameScenes:
   - FractureTest
+  - PitchBlackX
   gameSceneEnum: 2
   gameOverScene: 
   gameOverSceneEnum: 3
