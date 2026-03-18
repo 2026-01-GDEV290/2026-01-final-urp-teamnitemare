@@ -57,6 +57,12 @@ public class InteractCollider : MonoBehaviour
             Debug.Log($"InteractCollider found InteractableObject: {interactable.gameObject.name}");
             Debug.Log($"Interactable text: {interactable.interactText}");
         }
+        /*else if (other.TryGetComponent(out BillboardText billboard))
+        {
+            Debug.Log($"InteractCollider found BillboardText: {billboard.gameObject.name}");
+            // Optionally, you could have the billboard text be a special case of interactable that doesn't require interaction, just proximity
+            // For now, we'll just log it and not set it as the current interactable
+        }*/
     }
     void OnTriggerExit(Collider other)
     {

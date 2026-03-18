@@ -6,6 +6,7 @@ TagManager:
   tags:
   - GrapplePoint
   - GrapplePawnPosition
+  - InteractCollider
   layers:
   - Default
   - TransparentFX

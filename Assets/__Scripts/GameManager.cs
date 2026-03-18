@@ -96,6 +96,7 @@ public class GameManager : MonoBehaviour
             SceneLoadingGameCleanup();
         }
         gameState.previousScene = gameState.currentScene;
+        gameState.currentSceneScript = null;
         switch (scene)
         {
             case Scenes.MainMenu:
@@ -182,6 +183,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                gameState.currentSceneScript = null;
                 SceneManager.LoadScene(GameState.scenesSO.gameScenes[currentIndex + 1]);
                 VerifyCurrentScene();
             }

@@ -349,6 +349,7 @@ GameObject:
   - component: {fileID: 653149110}
   - component: {fileID: 653149109}
   - component: {fileID: 653149108}
+  - component: {fileID: 653149112}
   m_Layer: 0
   m_Name: GrapplePole
   m_TagString: GrapplePoint
@@ -447,6 +448,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1419844641}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &653149112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 653149107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb53fe0d36bad494abb1383a16e44804, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldText: {fileID: 0}
+  message: Grapple Poles
+  worldOffset: {x: 0, y: 2, z: 0}
+  onlyShowForPlayer: 1
+  playerTag: InteractCollider
 --- !u!1 &809513093
 GameObject:
   m_ObjectHideFlags: 0
@@ -868,7 +886,7 @@ GameObject:
   - component: {fileID: 1255798033}
   m_Layer: 10
   m_Name: Pawn
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2858,7 +2876,7 @@ GameObject:
   - component: {fileID: 7547400424704196461}
   m_Layer: 10
   m_Name: InteractArea
-  m_TagString: Untagged
+  m_TagString: InteractCollider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
