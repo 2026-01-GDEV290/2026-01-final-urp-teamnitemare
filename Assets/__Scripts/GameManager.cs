@@ -172,6 +172,11 @@ public class GameManager : MonoBehaviour
                 LoadScene(Scenes.MainMenu);
                 return;
             }
+            else
+            {
+                SceneManager.LoadScene(GameState.scenesSO.gameScenes[currentIndex + 1]);
+                VerifyCurrentScene();
+            }
         }
         else
         {

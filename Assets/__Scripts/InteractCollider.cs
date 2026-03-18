@@ -38,7 +38,7 @@ public class InteractCollider : MonoBehaviour
             // if object is disabled or non-interactable, treat as if player left the trigger
             if (!interactableObject.gameObject.activeInHierarchy || !interactableObject.isInteractable)
             {
-                Debug.Log($"InteractCollider treating {interactableObject.gameObject.name} as left trigger because it is no longer active or interactable");
+                //Debug.Log($"InteractCollider treating {interactableObject.gameObject.name} as left trigger because it is no longer active or interactable");
                 OnPlayerLeaveInteractable?.Invoke(interactableObject);
                 interactableObject = null;
                 SetInteractText("");
@@ -49,7 +49,7 @@ public class InteractCollider : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"InteractCollider entered trigger: {other.gameObject.name}");
+        //Debug.Log($"InteractCollider entered trigger: {other.gameObject.name}");
         if (other.TryGetComponent(out InteractableObject interactable))
         {
             interactableObject = interactable;
@@ -60,7 +60,7 @@ public class InteractCollider : MonoBehaviour
     }
     void OnTriggerExit(Collider other)
     {
-        Debug.Log($"InteractCollider exited trigger: {other.gameObject.name}");
+        //Debug.Log($"InteractCollider exited trigger: {other.gameObject.name}");
         if (interactableObject != null)
         {
             OnPlayerLeaveInteractable?.Invoke(interactableObject);
