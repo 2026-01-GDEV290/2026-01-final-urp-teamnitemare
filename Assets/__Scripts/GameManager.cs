@@ -367,16 +367,19 @@ public class GameManager : MonoBehaviour
             return;
         }
         //flipOutGame.GameEventSaveStateAndTransition(FlipOutGameEvents.Paused);
-        // enable mouse cursor for pause menu
-        MouseCursorSetForUI();
-        // Show pause menu UI
-        uiManager.PauseMenuOpen();
-        gameState.currentGameState = GameStates.Paused;
 
-        // Freeze game time?
-        if (timeScaleFreezeForPause)
+        // Show pause menu UI
+        if (uiManager.PauseMenuOpen())
         {
-            Time.timeScale = 0f;
+            // enable mouse cursor for pause menu
+            MouseCursorSetForUI();
+            gameState.currentGameState = GameStates.Paused;
+
+            // Freeze game time?
+            if (timeScaleFreezeForPause)
+            {
+                Time.timeScale = 0f;
+            }
         }
     }
 

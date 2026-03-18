@@ -89,6 +89,9 @@ public class FragmentConnection : MonoBehaviour
         isMoving = false;
         isConnected = true;
         fragmentToConnectTo.isConnected = true;
+
+        GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(gameObject);
+        GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(fragmentToConnectTo.gameObject);
     }
 
     private Vector3 ComputeSideDestination()

@@ -46,36 +46,44 @@ public class Scene : MonoBehaviour
         SceneTaskObjects.Add(go);
     }
 
-    public void RemoveTaskObject(GameObject go)
+    private void UpdateGameStateProgressionForCompletedTask(string taskName)
     {
-        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
-        SceneTaskObjects.Remove(go);
-    }
-    public void RemoveTaskObjectAndActOnComplete(GameObject go)
-    {
-        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
         // Find sceneProgressionInfo for current scene and add this task to the list of completed objectives
         if (GameManager.Instance.gameState.sceneProgressionInfo.ContainsKey(sceneName))
         {
-            if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(go.name))
+            if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(taskName))
             {
-                GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Add(go.name);
-                Debug.Log("Added " + go.name + " to completed objectives for scene: " + sceneName);
+                GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Add(taskName);
+                Debug.Log("Added " + taskName + " to completed objectives for scene: " + sceneName);
             }
             else
             {
-                Debug.LogWarning("Objective " + go.name + " already marked as completed for scene: " + sceneName);
+                Debug.LogWarning("Objective " + taskName + " already marked as completed for scene: " + sceneName);
             }
         }
         else
         {
             Debug.LogError("No sceneProgressionInfo found for scene: " + sceneName);
         }
+    }
+
+    public void RemoveTaskObject(GameObject go)
+    {
+        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
+        // Update game state progression for this completed task
+        UpdateGameStateProgressionForCompletedTask(go.name);
+        SceneTaskObjects.Remove(go);
+    }
+
+    public void RemoveTaskObjectAndActOnComplete(GameObject go)
+    {
+        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
+        // Update game state progression for this completed task
+        UpdateGameStateProgressionForCompletedTask(go.name);
         
         SceneTaskObjects.Remove(go);
 
         ActOnAllTasksComplete();
-
     }
 
     public void ActOnAllTasksComplete()
@@ -94,6 +102,11 @@ public class Scene : MonoBehaviour
     public void ForceCompleteAllTasks(bool actOnComplete = true)
     {
         Debug.Log("Force completing all tasks for scene: " + sceneName);
+        // Update game state progression for all remaining tasks
+        foreach (var go in SceneTaskObjects)
+        {
+            UpdateGameStateProgressionForCompletedTask(go.name);
+        }
         SceneTaskObjects.Clear();
         if (actOnComplete)
         {
@@ -103,7 +116,13 @@ public class Scene : MonoBehaviour
 
     public void ClearAllTasks()
     {
-        Debug.Log("Clearing all tasks for scene: " + sceneName);
+        Debug.Log("Clearing all tasks for scene (with NO progression updates): " + sceneName);
         SceneTaskObjects.Clear();
+    }
+
+    public void CompleteNonTaskObject(GameObject go)
+    {
+        Debug.Log("Completing non-task object: " + go.name + " for scene: " + sceneName);
+        UpdateGameStateProgressionForCompletedTask(go.name);
     }
 }
