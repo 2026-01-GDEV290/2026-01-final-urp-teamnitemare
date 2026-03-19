@@ -345,10 +345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d4984c3009d1b40b57c0dcca446e67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: []
-  playerNameInput: {fileID: 0}
-  mainVolumeSlider: {fileID: 0}
-  muteToggle: {fileID: 0}
 --- !u!114 &519420035
 MonoBehaviour:
   m_ObjectHideFlags: 0
