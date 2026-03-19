@@ -4,6 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
+  - GrapplePoint
+  - GrapplePawnPosition
+  - InteractCollider
   - Chore
   layers:
   - Default
@@ -16,7 +19,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Player
   - 
   - 
   - 
