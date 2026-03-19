@@ -20,7 +20,7 @@ public class ChangeSceneToFlyingDream : MonoBehaviour
 
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-                Application.LoadLevel("Dream");
+                SceneManager.LoadScene("Dream");
             }
         }
         else
