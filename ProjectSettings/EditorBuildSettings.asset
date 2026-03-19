@@ -26,6 +26,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Dream.unity
     guid: ccb006059b4706a47a4f8f42f0a7b439
+  - enabled: 1
+    path: Assets/_Scenes/MainMenuX.unity
+    guid: cf0d2519f912b1146833f241953bbb85
+  - enabled: 1
+    path: Assets/_Scenes/FractureTest.unity
+    guid: fea19949adab9fe4da5fcb7fe115f220
+  - enabled: 1
+    path: Assets/_Scenes/PitchBlackX.unity
+    guid: 084b5c72056e49948b93ec81a6ecc702
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: e733fc5e8db162f40a4fd4d7871f9296,
       type: 2}

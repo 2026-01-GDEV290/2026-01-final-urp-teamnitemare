@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -188,6 +189,14 @@ public class GameManager : MonoBehaviour
                 VerifyCurrentScene();
             }
         }
+        else if (gameState.currentScene == Scenes.MainMenu)
+        {
+            Debug.Log("LoadNextScene() called from MainMenu, loading first game scene.");
+            gameState.currentSceneScript = null;
+            SceneManager.LoadScene(GameState.scenesSO.gameScenes[0]);
+            VerifyCurrentScene();
+            return;
+        }
         else
         {
             Debug.LogWarning("LoadNextScene() called but current scene is not a Game scene: " + gameState.currentScene.ToString() +
@@ -265,7 +274,10 @@ public class GameManager : MonoBehaviour
         if (gameState.currentGameState == GameStates.UI)
         {
             // Ensure pause menu is closed when loading UI scenes
-            ClosePauseMenuAndResumeTime(false);
+            if (uiManager != null)
+            {
+                uiManager.PauseMenuClose();
+            }
             MouseCursorSetForUI();
         }
         else if (gameState.currentGameState == GameStates.Playing)
