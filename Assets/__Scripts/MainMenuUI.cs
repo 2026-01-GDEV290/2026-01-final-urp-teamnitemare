@@ -7,7 +7,7 @@ public class MainMenuUI : MonoBehaviour
 {
     public void StartGameButton()
     {
-        SceneManager.LoadScene("Dialogue System 2");
+        SceneManager.LoadScene("Dorm");
     }
 
     public void OptionsButton()
