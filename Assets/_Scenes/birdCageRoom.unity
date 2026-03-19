@@ -372,6 +372,99 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &131905951
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 45439867601459711, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: rotationSpeed
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 3011963136644968052, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_Name
+      value: Birdcage
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.28973633
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.28973633
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.28973633
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.00000020388
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.482
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.00000040777
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6017093060910199534, guid: 04e7912593f6df14ea04b3006b80c0d1,
+        type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 04e7912593f6df14ea04b3006b80c0d1, type: 3}
 --- !u!1 &137363088
 GameObject:
   m_ObjectHideFlags: 0
@@ -2236,10 +2329,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -2888,3 +2981,4 @@ SceneRoots:
   - {fileID: 1621963992}
   - {fileID: 1157669113}
   - {fileID: 785980808}
+  - {fileID: 131905951}

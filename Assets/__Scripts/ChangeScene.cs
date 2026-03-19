@@ -20,12 +20,18 @@ public class ChangeScene : MonoBehaviour
                 
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-                Application.LoadLevel("birdCageRoom");
+                Invoke(nameof(LoadLevel), 1f);
+                
             }
         }
         else
         {
         }
+    }
+
+    void LoadLevel()
+    {
+        Application.LoadLevel("birdCageRoom");
     }
 
     private void OnTriggerEnter(Collider other)

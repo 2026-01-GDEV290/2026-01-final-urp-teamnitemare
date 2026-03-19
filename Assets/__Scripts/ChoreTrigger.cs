@@ -22,14 +22,18 @@ public class ChoreTrigger : MonoBehaviour
                 //question.gameObject.SetActive(true);
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-              
-                choreObject.gameObject.SetActive(false);
+                Invoke(nameof(ClearChore), 1f);
             }
         }
         else
         {
             //question.gameObject.SetActive(false);
         }
+    }
+
+    void ClearChore()
+    {
+        choreObject.gameObject.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)

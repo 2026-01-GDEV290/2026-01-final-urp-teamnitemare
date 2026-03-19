@@ -23,9 +23,6 @@ public class BedPrompt : MonoBehaviour
 
     public void Start()
     {
-        chore1 = transform.Find("sink").gameObject;
-        chore2 = transform.Find("table").gameObject;
-        chore3 = transform.Find("clothes").gameObject;
     }
 
     public void ActivateObject()
