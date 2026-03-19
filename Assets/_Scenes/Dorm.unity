@@ -8665,8 +8665,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialoguePanel: {fileID: 469493816}
   dialogueText: {fileID: 360382178}
-  choices:
-  - {fileID: 425524508}
+  choices: []
 --- !u!4 &945657475 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4468969020302874323, guid: f3e802a84d281454da6565621d342fff,
