@@ -9,6 +9,10 @@ public class Scene : MonoBehaviour
     public List<GameObject> SceneTaskObjects = new List<GameObject>();
     string sceneName = "";
 
+    // when RemoveTaskObject() called, this will force a check of sceneTaskObjects
+    // and invoke onTasksCompleted if all tasks are complete/sceneTaskObjects is empty
+    public bool alwaysActOnTasksComplete = false;
+
     public UnityEngine.Events.UnityEvent onTasksCompleted;
     
     void Awake()
@@ -69,6 +73,11 @@ public class Scene : MonoBehaviour
 
     public void RemoveTaskObject(GameObject go)
     {
+        if (alwaysActOnTasksComplete)
+        {
+            RemoveTaskObjectAndActOnComplete(go);
+            return;
+        }
         Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
         // Update game state progression for this completed task
         UpdateGameStateProgressionForCompletedTask(go.name);
@@ -124,5 +133,41 @@ public class Scene : MonoBehaviour
     {
         Debug.Log("Completing non-task object: " + go.name + " for scene: " + sceneName);
         UpdateGameStateProgressionForCompletedTask(go.name);
+    }
+
+    public void ActOnGivenTasksComplete(List<GameObject> taskObjects)
+    {
+        // Check if all given task objects are in the gameState's sceneProgressionInfo for this scene, and if so, remove them and act on completion. If any are not, log a warning and return without doing anything
+        if (!GameManager.Instance.gameState.sceneProgressionInfo.ContainsKey(sceneName))
+        {
+            Debug.LogWarning("Cannot act on tasks complete for scene: " + sceneName + " because no progression info found for this scene in game state.");
+            return;
+        }
+        foreach (var go in taskObjects)
+        {
+            if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(go.name))
+            {
+                Debug.LogWarning("Task " + go.name + " is not marked as completed for scene: " + sceneName + " in game state progression info.");
+                return;
+            }
+        }
+        // If we made it here, all tasks are completed, so we can act on completion
+        onTasksCompleted.Invoke();
+    }
+    public void ActOnGivenTaskComplete(GameObject go)
+    {
+        // Check if this task object is in the gameState's sceneProgressionInfo for this scene, and if so, remove it and act on completion. If not, log a warning and return without doing anything
+        if (!GameManager.Instance.gameState.sceneProgressionInfo.ContainsKey(sceneName))
+        {
+            Debug.LogWarning("Cannot act on task complete for scene: " + sceneName + " because no progression info found for this scene in game state.");
+            return;
+        }
+        if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(go.name))
+        {
+            Debug.LogWarning("Task " + go.name + " is not marked as completed for scene: " + sceneName + " in game state progression info.");
+            return;
+        }
+        // If we made it here, the task is completed, so we can act on completion
+        onTasksCompleted.Invoke();
     }
 }

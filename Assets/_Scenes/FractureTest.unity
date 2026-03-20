@@ -463,6 +463,8 @@ MonoBehaviour:
   worldText: {fileID: 0}
   message: Grapple Poles
   worldOffset: {x: 0, y: 2, z: 0}
+  useFixedYRotation: 0
+  fixedYRotation: 0
   onlyShowForPlayer: 1
   playerTag: InteractCollider
 --- !u!1 &809513093
@@ -855,6 +857,7 @@ MonoBehaviour:
   SceneTaskObjects:
   - {fileID: 1338003849}
   - {fileID: 1350025395}
+  alwaysActOnTasksComplete: 0
   onTasksCompleted:
     m_PersistentCalls:
       m_Calls:
