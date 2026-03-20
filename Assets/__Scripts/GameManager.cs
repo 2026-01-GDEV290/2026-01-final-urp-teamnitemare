@@ -97,7 +97,9 @@ public class GameManager : MonoBehaviour
             SceneLoadingGameCleanup();
         }
         gameState.previousScene = gameState.currentScene;
+        // These have a lifetime of one scene (maybe put in SceneDestroyed()?)
         gameState.currentSceneScript = null;
+        uiManager = null;
         switch (scene)
         {
             case Scenes.MainMenu:
@@ -184,7 +186,9 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                // These have a lifetime of one scene (maybe put in SceneDestroyed()?)
                 gameState.currentSceneScript = null;
+                uiManager = null;
                 SceneManager.LoadScene(GameState.scenesSO.gameScenes[currentIndex + 1]);
                 VerifyCurrentScene();
             }
@@ -192,7 +196,9 @@ public class GameManager : MonoBehaviour
         else if (gameState.currentScene == Scenes.MainMenu)
         {
             Debug.Log("LoadNextScene() called from MainMenu, loading first game scene.");
+            // These have a lifetime of one scene (maybe put in SceneDestroyed()?)
             gameState.currentSceneScript = null;
+            uiManager = null;
             SceneManager.LoadScene(GameState.scenesSO.gameScenes[0]);
             VerifyCurrentScene();
             return;
@@ -343,6 +349,9 @@ public class GameManager : MonoBehaviour
             //playerState.SceneDestroyed();
             // 'Unloading'?
             //currentGameState = GameStates.Loading;
+            // These have a lifetime of one scene:
+            gameState.currentSceneScript = null;
+            uiManager = null;
         }
     }
 
