@@ -19,6 +19,11 @@ public class InteractableObject : MonoBehaviour
     //void Update()
     //{}
 
+    public void SetIsInteractable(bool value)
+    {
+        isInteractable = value;
+    }
+
     public void Interact()
     {
         if (!isInteractable)

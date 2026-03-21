@@ -50,6 +50,10 @@ public class DialogueTrigger : MonoBehaviour
 
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
         if (!playerInRange)
         {
             return;

@@ -368,6 +368,28 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     //void Update() {}
 
+    public void ModalDialogueSetIsOpen(bool mouseCursorForUI = true)
+    {
+        gameState.inGameModalDialogueActive = true;
+        if (mouseCursorForUI)
+        {
+            MouseCursorSetForUI();
+        }
+    }
+    public void ModalDialogueSetIsClosed(bool mouseCursorForGame = true)
+    {
+        gameState.inGameModalDialogueActive = false;
+        if (mouseCursorForGame)
+        {
+            MouseCursorSetForGame();
+        }
+    }
+
+    public bool IsModalDialogueActive()
+    {
+        return gameState.inGameModalDialogueActive;
+    }
+
     public void ClosePauseMenuAndResumeTime(bool enableMouseCursorForGame = true)
     {
         uiManager.PauseMenuClose();
@@ -375,9 +397,12 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 1f;
         }
-        if (enableMouseCursorForGame)
+        if (!IsModalDialogueActive())
         {
-            MouseCursorSetForGame();
+            if (enableMouseCursorForGame)
+            {
+                MouseCursorSetForGame();
+            }
         }
         gameState.currentGameState = GameStates.Playing;
     }

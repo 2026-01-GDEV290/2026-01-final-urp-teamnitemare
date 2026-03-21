@@ -87,24 +87,51 @@ public class DialogueManager : MonoBehaviour
 
     }
 
+    private void OnClickAnywhereToContinue(InputAction.CallbackContext context)
+    {
+        if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
+        if (!dialogueIsPlaying)
+        {
+            return;
+        }
+
+        if (currentStory.currentChoices.Count > 0)
+        {
+            return;
+        }
+
+        ContinueStory();
+    }
+
     private void OnInteractPerformed(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
         if (consumeNextInteract)
         {
             consumeNextInteract = false;
+            //Debug.Log("Consumed interact input to prevent immediately advancing dialogue.");
             return;
         }
 
         if (!dialogueIsPlaying || currentStory == null)
         {
+            //Debug.Log("Interact performed, but no dialogue is currently playing.");
             return;
         }
 
         if (currentStory.currentChoices.Count == 0)
         {
+            //Debug.Log("Continuing story with no choices available.");
             ContinueStory();
             return;
         }
+        //Debug.Log("Attempting to submit selected choice on interact.");
 
         TrySubmitSelectedChoice();
     }
@@ -124,11 +151,16 @@ public class DialogueManager : MonoBehaviour
 
         dialogueVariables.StartListening(currentStory);
 
+        GameManager.Instance.ModalDialogueSetIsOpen();
+
+        inputActions.Player.Attack.started += OnClickAnywhereToContinue;
+
         ContinueStory();
     }
 
     private IEnumerator ExitDialogueMode()
     {
+        inputActions.Player.Attack.started -= OnClickAnywhereToContinue;
         yield return new WaitForSeconds(0.2f);
 
         if (currentStory != null)
@@ -140,6 +172,8 @@ public class DialogueManager : MonoBehaviour
         SetDialogueState(false);
         dialoguePanel.SetActive(false);
         dialogueText.text = "";
+
+        GameManager.Instance.ModalDialogueSetIsClosed();
     }
 
     private void ContinueStory()
@@ -197,6 +231,10 @@ public class DialogueManager : MonoBehaviour
 
     public void MakeChoice(int choiceIndex)
     {
+        if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
         if (currentStory == null)
         {
             return;

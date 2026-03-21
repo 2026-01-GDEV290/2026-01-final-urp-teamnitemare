@@ -55,6 +55,8 @@ public class GameState
 
     public GameStates currentGameState = GameStates.Loading;
 
+    public bool inGameModalDialogueActive = false;
+
     public static ScenesSO scenesSO;
 
     public Scenes currentScene = Scenes.LoadingScreen;

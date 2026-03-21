@@ -22,7 +22,7 @@ MonoBehaviour:
   gameOverSceneEnum: 3
   DCExperimentsScene: 
   DCExperimentsSceneEnum: 2
-  UITestScene: 
+  UITestScene: DuncanDialogueTest
   UITestSceneEnum: 2
   UILayoutScene: 
   UILayoutSceneEnum: 2

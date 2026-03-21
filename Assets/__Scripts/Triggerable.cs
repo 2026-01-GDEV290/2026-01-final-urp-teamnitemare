@@ -7,6 +7,11 @@ public class Triggerable : MonoBehaviour
     public GameObject playerOrNullForAll = null;
     public UnityEngine.Events.UnityEvent onTrigger;
 
+    public void SetActive(bool active)
+    {
+        isActive = active;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (isActive)
