@@ -111,7 +111,7 @@ public class InputManager : MonoBehaviour
     void MouseRightButtonPressed(InputAction.CallbackContext context)
     {
         //Debug.Log("Right Mouse Button Pressed");
-        if (GameManager.Instance.gameState.currentGameState != GameStates.Playing)
+        if (GameManager.Instance.gameState.currentGameState != GameStates.Playing || GameManager.Instance.IsModalDialogueActive())
             return;
     }
     
@@ -122,7 +122,7 @@ public class InputManager : MonoBehaviour
 
     private void MouseWheelScrolled(InputAction.CallbackContext context)
     {
-        if (GameManager.Instance.gameState.currentGameState != GameStates.Playing)
+        if (GameManager.Instance.gameState.currentGameState != GameStates.Playing || GameManager.Instance.IsModalDialogueActive())
             return;
         //Debug.Log("Mouse Wheel scrolled!");
         float scrollValue = context.ReadValue<float>();
@@ -164,7 +164,7 @@ public class InputManager : MonoBehaviour
 
         //Debug.Log("NumKey pressed: " + keyValue);
 
-        if (GameManager.Instance.gameState.currentGameState == GameStates.Playing)
+        if (GameManager.Instance.gameState.currentGameState == GameStates.Playing && !GameManager.Instance.IsModalDialogueActive())
         {
             switch (keyValue)
             {

@@ -7,7 +7,7 @@ public class Triggerable : MonoBehaviour
     public GameObject playerOrNullForAll = null;
     public UnityEngine.Events.UnityEvent onTrigger;
 
-    public void SetActive(bool active)
+    public void SetIsActive(bool active)
     {
         isActive = active;
     }

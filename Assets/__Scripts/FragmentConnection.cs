@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
@@ -23,6 +24,19 @@ public class FragmentConnection : MonoBehaviour
     private void Awake()
     {
         ownCollider = GetComponent<Collider>();
+    }
+    private void Start()
+    {
+        Scene sceneScript = GameManager.Instance.gameState.currentSceneScript;
+        if (sceneScript != null)
+        {
+            int groupIndex = sceneScript.AddTaskGroup("FragmentConnectors", new UnityAction(callback), false, true);
+            sceneScript.AddTaskObject(groupIndex, gameObject);
+        }
+    }
+    private static void callback()
+    {
+        Debug.Log("CallBACK");
     }
 
     private void Update()
@@ -90,8 +104,10 @@ public class FragmentConnection : MonoBehaviour
         isConnected = true;
         fragmentToConnectTo.isConnected = true;
 
-        GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(gameObject);
-        GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(fragmentToConnectTo.gameObject);
+        //GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(gameObject);
+        //GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(fragmentToConnectTo.gameObject);
+        GameManager.Instance.gameState.currentSceneScript?.RemoveTaskObject(gameObject);
+        GameManager.Instance.gameState.currentSceneScript?.RemoveTaskObject(fragmentToConnectTo.gameObject);
     }
 
     private Vector3 ComputeSideDestination()

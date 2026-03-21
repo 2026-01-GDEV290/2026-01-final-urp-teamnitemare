@@ -586,6 +586,7 @@ GameObject:
   m_Component:
   - component: {fileID: 868179553}
   - component: {fileID: 868179552}
+  - component: {fileID: 868179554}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -673,6 +674,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &868179554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868179551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &886087863
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,25 +878,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneTaskObjects:
-  - {fileID: 1338003849}
-  - {fileID: 1350025395}
-  alwaysActOnTasksComplete: 0
-  onTasksCompleted:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1578041323}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+  taskGroups:
+  - taskGroupName: Boxes
+    completePriorGroupFirst: 1
+    taskObjects:
+    - {fileID: 1338003849}
+    - {fileID: 1350025395}
+    autoActOnComplete: 1
+    onTasksCompleted:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1578041323}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+    actedOnComplete: 0
 --- !u!1 &1255798032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1228,18 +1256,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 931949555}
-        m_TargetAssemblyTypeName: Scene, Assembly-CSharp
-        m_MethodName: ActOnAllTasksComplete
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
 --- !u!65 &1338003851
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1392,18 +1408,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 931949555}
-        m_TargetAssemblyTypeName: Scene, Assembly-CSharp
-        m_MethodName: ActOnAllTasksComplete
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!65 &1350025397
 BoxCollider:

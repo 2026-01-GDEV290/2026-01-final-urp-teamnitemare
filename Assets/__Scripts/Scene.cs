@@ -1,24 +1,53 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
+
+[Serializable]
+public class TaskGroup
+{
+    public string taskGroupName = "";
+    public bool completePriorGroupFirst = false;
+    public List<GameObject> taskObjects = new List<GameObject>();
+    public bool autoActOnComplete = false;
+    public UnityEngine.Events.UnityEvent onTasksCompleted;
+    public bool actedOnComplete = false;
+}
 
 // This script is mandatory to attach to each Scene. Easiest is to attach it to the Main Camera
 // It communicates with the GameManager currently
+[Serializable]
 public class Scene : MonoBehaviour
 {
-    public List<GameObject> SceneTaskObjects = new List<GameObject>();
+    //public List<GameObject> SceneTaskObjects = new List<GameObject>();
+    [SerializeField] private List<TaskGroup> taskGroups = new List<TaskGroup>();
+    int taskGroupsCompleted = 0;
     string sceneName = "";
 
     // when RemoveTaskObject() called, this will force a check of sceneTaskObjects
     // and invoke onTasksCompleted if all tasks are complete/sceneTaskObjects is empty
-    public bool alwaysActOnTasksComplete = false;
+    //public bool alwaysActOnAllTasksComplete = false;
 
-    public UnityEngine.Events.UnityEvent onTasksCompleted;
+    //public UnityEngine.Events.UnityEvent onTasksCompleted;
+
+    int GetTotalTasksInAllGroups()
+    {
+        int total = 0;
+        foreach (var group in taskGroups)
+        {
+            total += group.taskObjects.Count;
+        }
+        return total;
+    }
     
     void Awake()
     {
         sceneName = SceneManager.GetActiveScene().name;
-        Debug.Log("Scene->Awake: " + SceneTaskObjects.Count + " tasks");
+        Debug.Log("Scene->Awake: " + taskGroups.Count + " task groups with " + GetTotalTasksInAllGroups() + " total tasks");
         GameManager.Instance.SceneAwake(this);
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,9 +74,41 @@ public class Scene : MonoBehaviour
         GameManager.Instance.LoadScene(scene);
     }
 
-    public void AddTaskObject(GameObject go)
+    public void AddTaskObject(string taskObjectGroupName, GameObject go)
     {
-        SceneTaskObjects.Add(go);
+        TaskGroup group = taskGroups.Find(g => g.taskGroupName == taskObjectGroupName);
+        if (group == null)
+        {
+            Debug.LogError("AddTaskObject: No TaskGroup found with name: " + taskObjectGroupName);
+            return;
+        }
+        group.taskObjects.Add(go);
+    }
+
+    public void AddTaskObject(int groupIndex, GameObject go)
+    {
+        if (groupIndex < 0 || groupIndex >= taskGroups.Count)
+        {
+            Debug.LogError("AddTaskObject: Invalid group index: " + groupIndex);
+            return;
+        }
+        taskGroups[groupIndex].taskObjects.Add(go);
+    }
+    public int AddTaskGroup(string name, UnityAction onCompleted, bool completePriorGroupFirst = false, bool autoActOnComplete = false)
+    {
+        if (taskGroups.Exists(g => g.taskGroupName == name))
+        {
+            Debug.LogWarning("AddTaskGroup: TaskGroup with name: " + name + " already exists.");
+            // return index of existing group with this name
+            int existingGroupIndex = taskGroups.FindIndex(g => g.taskGroupName == name);
+            return existingGroupIndex;
+        }
+        taskGroups.Add(new TaskGroup {
+            taskGroupName = name, completePriorGroupFirst = completePriorGroupFirst, autoActOnComplete = autoActOnComplete,
+            onTasksCompleted = new UnityEvent()
+        });
+        taskGroups[taskGroups.Count - 1].onTasksCompleted.AddListener(onCompleted);
+        return taskGroups.Count - 1;
     }
 
     private void UpdateGameStateProgressionForCompletedTask(string taskName)
@@ -71,62 +132,224 @@ public class Scene : MonoBehaviour
         }
     }
 
+    private int FindTaskGroupIndexForTaskObject(GameObject go)
+    {
+        int groupIndex = taskGroups.FindIndex(g => g.taskObjects.Contains(go));
+        if (groupIndex == -1)
+        {
+            //Debug.LogError("No TaskGroup found containing task object: " + go.name);
+            return -1;
+        }
+        return groupIndex;
+    }
+
+    // INTERNAL: index must be valid
+    private bool IsItOkayToActOnComplete(int groupIndex)
+    {
+        Debug.Log("Checking if it's okay to act on complete for group: " + taskGroups[groupIndex].taskGroupName + " in scene: " + sceneName);
+        Debug.Log("Group has " + taskGroups[groupIndex].taskObjects.Count + " tasks remaining.");
+
+        // still tasks left?
+        if (taskGroups[groupIndex].taskObjects.Count > 0)
+            return false;
+        
+        // no tasks left..
+
+        // acted already?
+        if (taskGroups[groupIndex].actedOnComplete)
+            return false;
+
+        if (groupIndex == 0)    // no need to check prior groups
+            return true;
+
+        // index 1+, complete prior groups? if not, we are okay
+        if (!taskGroups[groupIndex].completePriorGroupFirst)
+        {
+            return true;
+        }
+
+        // else: check previous groups
+        for (int i = groupIndex - 1; i >= 0; i--)
+        {
+            if (taskGroups[i].taskObjects.Count > 0)
+            {
+                Debug.Log("Previous group: " + taskGroups[i].taskGroupName + " still has tasks remaining.");
+                return false;
+            }
+            // if prior group has 0 tasks left, and doesn't require
+            // previous groups to be completed, we can return true here
+            if (!taskGroups[i].completePriorGroupFirst)
+                return true;
+        }
+        // if we made it here, all prior groups have 0 tasks left, so we can return true
+        return true;
+    }
+
     public void RemoveTaskObject(GameObject go)
     {
-        if (alwaysActOnTasksComplete)
+        // Get group index
+        int groupIndex = FindTaskGroupIndexForTaskObject(go);
+        if (groupIndex == -1)
         {
-            RemoveTaskObjectAndActOnComplete(go);
+            Debug.LogError("RemoveTaskObject: No TaskGroup found containing task object: " + go.name);
             return;
         }
-        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
+
+        TaskGroup group = taskGroups[groupIndex];
+
+        if (group.autoActOnComplete)
+        {
+            RemoveTaskObjectAndActOnComplete(groupIndex,go);
+            return;
+        }
+        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (group.taskObjects.Count - 1));
         // Update game state progression for this completed task
         UpdateGameStateProgressionForCompletedTask(go.name);
-        SceneTaskObjects.Remove(go);
+        // if (group.taskObjects.Count == 0)
+        // {
+        //     UpdateTaskGroupCompletion(groupIndex);
+        // }
+        group.taskObjects.Remove(go);
+
+        // autoActOnComplete above calls RemoveTaskObjectAndActOnComplete
+    }
+
+    // INTERNAL - most checks should be completed
+    private void RemoveTaskObjectAndActOnComplete(int groupIndex, GameObject go)
+    {
+        if (groupIndex < 0 || groupIndex >= taskGroups.Count)
+        {
+            Debug.LogError("RemoveTaskObjectAndActOnComplete: Invalid group index: " + groupIndex);
+            return;
+        }
+        TaskGroup group = taskGroups[groupIndex];
+
+        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (group.taskObjects.Count - 1));
+        // Update game state progression for this completed task
+        UpdateGameStateProgressionForCompletedTask(go.name);
+        // if (group.taskObjects.Count == 0)
+        // {
+        //     UpdateTaskGroupCompletion(groupIndex);
+        // }
+        group.taskObjects.Remove(go);
+
+        ActOnCompleteForGroup(groupIndex);
     }
 
     public void RemoveTaskObjectAndActOnComplete(GameObject go)
     {
-        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (SceneTaskObjects.Count - 1));
+        int groupIndex = FindTaskGroupIndexForTaskObject(go);
+        if (groupIndex == -1)
+        {
+            Debug.LogError("RemoveTaskObjectAndActOnComplete: No TaskGroup found containing task object: " + go.name);
+            return;
+        }
+        TaskGroup group = taskGroups[groupIndex];
+        Debug.Log("Removing Task Object: " + go.name + ", tasks left: " + (group.taskObjects.Count - 1));
         // Update game state progression for this completed task
         UpdateGameStateProgressionForCompletedTask(go.name);
         
-        SceneTaskObjects.Remove(go);
+        group.taskObjects.Remove(go);
 
-        ActOnAllTasksComplete();
-    }
-
-    public void ActOnAllTasksComplete()
-    {
-        if (SceneTaskObjects.Count == 0)
+        if (IsItOkayToActOnComplete(groupIndex))
         {
-            Debug.Log("All tasks completed for scene: " + sceneName);
-            onTasksCompleted.Invoke();
-        }
-        else
-        {
-            Debug.Log("Tasks remaining for scene: " + sceneName + ": " + SceneTaskObjects.Count);
+            group.onTasksCompleted.Invoke();
+            group.actedOnComplete = true;
+            taskGroupsCompleted++;
         }
     }
 
-    public void ForceCompleteAllTasks(bool actOnComplete = true)
+   // INTERNAL - all checks should be completed
+    private void ActOnCompleteForGroup(int groupIndex)
     {
-        Debug.Log("Force completing all tasks for scene: " + sceneName);
-        // Update game state progression for all remaining tasks
-        foreach (var go in SceneTaskObjects)
+        TaskGroup group = taskGroups[groupIndex];
+        if (!group.autoActOnComplete)
+            return;       
+
+        if (!IsItOkayToActOnComplete(groupIndex))
+            return;
+
+        if (group.actedOnComplete)
+        {
+            Debug.LogWarning("Group: " + group.taskGroupName + " has already had its onTasksCompleted event invoked. Skipping invocation.");
+            return;
+        }
+        group.onTasksCompleted.Invoke();
+        group.actedOnComplete = true;
+        taskGroupsCompleted++;
+    }
+
+    public void ActOnAnyTaskGroupsCompleted()
+    {
+        for (int i = 0; i < taskGroups.Count; i++)
+        {
+            if (IsItOkayToActOnComplete(i))
+            {
+                taskGroups[i].onTasksCompleted.Invoke();
+                taskGroups[i].actedOnComplete = true;
+                taskGroupsCompleted++;
+            }
+        }
+    }
+
+    public void ForceCompletetaskGroup(int groupIndex, bool actOnComplete = true)
+    {
+        if (groupIndex < 0 || groupIndex >= taskGroups.Count)
+        {
+            Debug.LogError("ForceCompleteTaskGroup: Invalid group index: " + groupIndex);
+            return;
+        }
+        Debug.Log("Force completing all tasks for group: " + taskGroups[groupIndex].taskGroupName + " in scene: " + sceneName);
+        // Update game state progression for all remaining tasks in this group
+        foreach (var go in taskGroups[groupIndex].taskObjects)
         {
             UpdateGameStateProgressionForCompletedTask(go.name);
         }
-        SceneTaskObjects.Clear();
-        if (actOnComplete)
+        taskGroups[groupIndex].taskObjects.Clear();
+        if (taskGroups[groupIndex].autoActOnComplete || actOnComplete)
         {
-            onTasksCompleted.Invoke();
+            taskGroups[groupIndex].onTasksCompleted.Invoke();
+            taskGroups[groupIndex].actedOnComplete = true;
+            taskGroupsCompleted++;
         }
     }
 
-    public void ClearAllTasks()
+    public void ForceCompleteAllTaskGroups(bool actOnComplete = true)
     {
-        Debug.Log("Clearing all tasks for scene (with NO progression updates): " + sceneName);
-        SceneTaskObjects.Clear();
+        Debug.Log("Force completing all tasks for scene: " + sceneName);
+        // Update game state progression for all remaining tasks
+        foreach (var group in taskGroups)
+        {
+            foreach (var go in group.taskObjects)
+            {
+                UpdateGameStateProgressionForCompletedTask(go.name);
+            }
+            group.taskObjects.Clear();
+            if (group.autoActOnComplete || actOnComplete)
+            {
+                group.onTasksCompleted.Invoke();
+                group.actedOnComplete = true;
+                taskGroupsCompleted++;
+            }
+        }
+        taskGroups.Clear();
+    }
+
+    public void ClearAllTaskGroups()
+    {
+        Debug.Log("Clearing all task groups for scene (with NO progression updates): " + sceneName);
+        taskGroups.Clear();
+    }
+
+    public void ClearTaskGroup(int groupIndex)
+    {
+        if (groupIndex < 0 || groupIndex >= taskGroups.Count)
+        {
+            Debug.LogError("ClearTaskGroup: Invalid group index: " + groupIndex);
+            return;
+        }
+        Debug.Log("Clearing task group: " + taskGroups[groupIndex].taskGroupName + " for scene: " + sceneName + " with NO progression updates");
+        taskGroups[groupIndex].taskObjects.Clear();
     }
 
     public void CompleteNonTaskObject(GameObject go)
@@ -135,39 +358,81 @@ public class Scene : MonoBehaviour
         UpdateGameStateProgressionForCompletedTask(go.name);
     }
 
-    public void ActOnGivenTasksComplete(List<GameObject> taskObjects)
+    public bool AreGivenTasksComplete(List<GameObject> taskObjects)
     {
         // Check if all given task objects are in the gameState's sceneProgressionInfo for this scene, and if so, remove them and act on completion. If any are not, log a warning and return without doing anything
         if (!GameManager.Instance.gameState.sceneProgressionInfo.ContainsKey(sceneName))
         {
             Debug.LogWarning("Cannot act on tasks complete for scene: " + sceneName + " because no progression info found for this scene in game state.");
-            return;
+            return false;
         }
         foreach (var go in taskObjects)
         {
             if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(go.name))
             {
-                Debug.LogWarning("Task " + go.name + " is not marked as completed for scene: " + sceneName + " in game state progression info.");
-                return;
+                //Debug.Log("Task " + go.name + " is not marked as completed for scene: " + sceneName + " in game state progression info.");
+                return false;
             }
         }
-        // If we made it here, all tasks are completed, so we can act on completion
-        onTasksCompleted.Invoke();
+        return true;
     }
-    public void ActOnGivenTaskComplete(GameObject go)
+    
+    public bool IsGivenTaskComplete(GameObject go)
     {
         // Check if this task object is in the gameState's sceneProgressionInfo for this scene, and if so, remove it and act on completion. If not, log a warning and return without doing anything
         if (!GameManager.Instance.gameState.sceneProgressionInfo.ContainsKey(sceneName))
         {
             Debug.LogWarning("Cannot act on task complete for scene: " + sceneName + " because no progression info found for this scene in game state.");
-            return;
+            return false;
         }
         if (!GameManager.Instance.gameState.sceneProgressionInfo[sceneName].Contains(go.name))
         {
             Debug.LogWarning("Task " + go.name + " is not marked as completed for scene: " + sceneName + " in game state progression info.");
+            return false;
+        }
+        return true;
+    }
+
+    public void TriggerableSetIsActive(GameObject go, bool active)
+    {
+        Triggerable triggerable = go.GetComponent<Triggerable>();
+        if (triggerable == null)
+        {
+            Debug.LogError("TriggerableSetIsActive: GameObject: " + go.name + " does not have a Triggerable component.");
             return;
         }
-        // If we made it here, the task is completed, so we can act on completion
-        onTasksCompleted.Invoke();
+        else
+        {
+            triggerable.SetIsActive(active);
+        }
+    }
+    public void TriggerableSetIsActive(GameObject go)
+    {
+        TriggerableSetIsActive(go, true);
+    }
+    public void TriggerableSetIsInactive(GameObject go)
+    {
+        TriggerableSetIsActive(go, false);
+    }
+    public void InteractableSetIsInteractable(GameObject go, bool interactable)
+    {
+        InteractableObject interactableObject = go.GetComponent<InteractableObject>();
+        if (interactableObject == null)
+        {
+            Debug.LogError("InteractableSetIsInteractable: GameObject: " + go.name + " does not have an InteractableObject component.");
+            return;
+        }
+        else
+        {
+            interactableObject.SetIsInteractable(interactable);
+        }
+    }
+    public void InteractableSetIsInteractable(GameObject go)
+    {
+        InteractableSetIsInteractable(go, true);
+    }
+    public void InteractableSetIsNonInteractable(GameObject go)
+    {
+        InteractableSetIsInteractable(go, false);
     }
 }
