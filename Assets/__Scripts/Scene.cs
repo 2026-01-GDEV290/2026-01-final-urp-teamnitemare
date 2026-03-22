@@ -483,4 +483,26 @@ public class Scene : MonoBehaviour
     {
         InteractableSetIsInteractable(go, false);
     }
+
+    public void TimerSetIsEnabled(GameObject go, bool enabled)
+    {
+        TimerObject timerObject = go.GetComponent<TimerObject>();
+        if (timerObject == null)
+        {
+            Debug.LogError("TimerSetIsEnabled: GameObject: " + go.name + " does not have a TimerObject component.");
+            return;
+        }
+        else
+        {
+            timerObject.SetIsEnabled(enabled);
+        }
+    }
+    public void TimerSetIsEnabled(GameObject go)
+    {
+        TimerSetIsEnabled(go, true);
+    }
+    public void TimerSetIsDisabled(GameObject go)
+    {
+        TimerSetIsEnabled(go, false);
+    }
 }
