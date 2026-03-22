@@ -66,6 +66,7 @@ public class GameState
     //public GameObject playerPawn = null;
     public GameLevels currentLevel = GameLevels.None;
 
+    // Scene, Tasks Completed
     [field: SerializeField] public Dictionary<string, List<string>> sceneProgressionInfo = new Dictionary<string, List<string>>();
 
     public int numCurrentLevelObjectivesCompleted = 0;

@@ -23,6 +23,7 @@ public class TaskGroup
 [Serializable]
 public class Scene : MonoBehaviour
 {
+    [SerializeField] UnityEvent onSceneStart;
     //public List<GameObject> SceneTaskObjects = new List<GameObject>();
     [SerializeField] private List<TaskGroup> taskGroups = new List<TaskGroup>();
     int taskGroupsCompleted = 0;
@@ -54,6 +55,7 @@ public class Scene : MonoBehaviour
     void Start()
     {
         GameManager.Instance.SceneStart();
+        onSceneStart.Invoke();
     }
 
     // Update is called once per frame
@@ -72,6 +74,52 @@ public class Scene : MonoBehaviour
     public void LoadScene(Scenes scene)
     {
         GameManager.Instance.LoadScene(scene);
+    }
+
+    // Value changed in Inspector
+    // Since inspector duplicates last element, we'll undo this
+    void OnValidate()
+    {
+        if (taskGroups == null || taskGroups.Count == 0)
+            return;
+        if (taskGroups.Count == 1)
+        {
+            if (string.IsNullOrEmpty(taskGroups[0].taskGroupName))
+            {
+                taskGroups[0].taskGroupName = "TaskGroup1";
+            }
+            return;
+        }
+        // more than 1 task group. Just check for new addition with duplicate name
+        TaskGroup lastGroup = taskGroups[taskGroups.Count - 2];
+        TaskGroup newGroup = taskGroups[taskGroups.Count - 1];
+        if (newGroup.taskGroupName == lastGroup.taskGroupName)
+        {
+            // rename with TaskGroup + index
+            newGroup.taskGroupName = "TaskGroup" + taskGroups.Count;
+            // check if all the tasks are the same
+            if (newGroup.taskObjects.Count == lastGroup.taskObjects.Count)
+            {
+                bool allTasksSame = true;
+                for (int i = 0; i < newGroup.taskObjects.Count; i++)
+                {
+                    if (newGroup.taskObjects[i] != lastGroup.taskObjects[i])
+                    {
+                        allTasksSame = false;
+                        break;
+                    }
+                }
+                if (allTasksSame)
+                {
+                    // delete all tasks from new group
+                    newGroup.taskObjects.Clear();
+                    // and set defaults for other fields
+                    newGroup.completePriorGroupFirst = false;
+                    newGroup.autoActOnComplete = false;
+                    newGroup.onTasksCompleted = new UnityEvent();
+                }
+            }
+        }
     }
 
     public void AddTaskObject(string taskObjectGroupName, GameObject go)
