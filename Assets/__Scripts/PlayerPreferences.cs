@@ -15,6 +15,8 @@ public class PlayerPreferences : MonoBehaviour
     public float musicVolume = 1.0f;
     public float sfxVolume = 1.0f;
 
+    bool isDirty = false;
+
     public static PlayerPreferences Instance;
 
     void Awake()
@@ -46,7 +48,10 @@ public class PlayerPreferences : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        SavePreferences();
+        if (isDirty)
+        {
+            SavePreferences();
+        }
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     //void Start() {}
@@ -55,7 +60,7 @@ public class PlayerPreferences : MonoBehaviour
     //void Update() {}
 
     public void SavePreferences()
-    {
+    {        
         PlayerPrefs.SetString(PLAYER_NAME_KEY, playerName);
         PlayerPrefs.SetFloat(MAIN_VOLUME_KEY, mainVolume);
         PlayerPrefs.SetInt(MAIN_MUTED_KEY, mainMuted ? 1 : 0);
@@ -63,6 +68,7 @@ public class PlayerPreferences : MonoBehaviour
         PlayerPrefs.SetFloat(SFX_VOLUME_KEY, sfxVolume);
         PlayerPrefs.Save();
         Debug.Log("Preferences saved");
+        isDirty = false;
     }
 
     public void LoadPreferences()
@@ -73,13 +79,14 @@ public class PlayerPreferences : MonoBehaviour
         musicVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, 1.0f);
         sfxVolume = PlayerPrefs.GetFloat(SFX_VOLUME_KEY, 1.0f);
         Debug.Log("Preferences loaded");
+        isDirty = false;
     }
 
     public void SetMainVolume(float volume)
     {
         mainVolume = Mathf.Clamp01(volume); // Clamps value between 0 and 1
         AudioListener.volume = mainVolume;
-        SavePreferences();
+        isDirty = true;
         Debug.Log($"Main volume set to {mainVolume}");
     }
 
@@ -100,7 +107,7 @@ public class PlayerPreferences : MonoBehaviour
     public void SetPlayerName(string name)
     {
         playerName = name;
-        SavePreferences();
+        isDirty = true;
         Debug.Log($"Player name set to {playerName}");
     }
 }

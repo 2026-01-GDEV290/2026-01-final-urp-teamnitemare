@@ -16,8 +16,15 @@ public class PlayerControllerBSK : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 6f;
-    [SerializeField] private float jumpHeight = 1.4f;
+    [SerializeField] private float jumpHeight = 3f; //1.4f;
     [SerializeField] private float gravity = -20f;
+    [SerializeField] private float coyoteTime = 0.12f;
+    [SerializeField] private float jumpBufferTime = 0.12f;
+
+    [Header("Feather Boost")]
+    [SerializeField] private float featherJumpHeightMultiplier = 5;
+    [SerializeField] private float featherFallGravityMultiplier = 0.55f;
+    [SerializeField] private float featherAirBoostStrength = 15f;
 
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
@@ -29,11 +36,15 @@ public class PlayerControllerBSK : MonoBehaviour
 
     private float rotationX;
     private float rotationY;
+    private float coyoteTimer;
+    private float jumpBufferTimer;
 
     private InteractCollider interactCollider;
 
     bool lookingAtInteractable = false;
     InteractableObject currentInteractable = null;
+
+    [SerializeField] private bool hasFeathers = false;
 
     void Awake()
     {
@@ -68,6 +79,7 @@ public class PlayerControllerBSK : MonoBehaviour
         lookAction = playerControls.Player.Look;
         jumpAction = playerControls.Player.Jump;
         attackAction = playerControls.Player.Attack;
+        jumpAction.performed += JumpActionPerformed;
         attackAction.performed += AttackAction;
 
         // get child InteractArea's InteractCollider and subscribe to its event
@@ -85,6 +97,11 @@ public class PlayerControllerBSK : MonoBehaviour
     }
     void OnDisable()
     {
+        if (jumpAction != null)
+        {
+            jumpAction.performed -= JumpActionPerformed;
+        }
+
         if (attackAction != null)
         {
             attackAction.performed -= AttackAction;
@@ -107,16 +124,24 @@ public class PlayerControllerBSK : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
+        // Initialize coyote timer so player can jump even if not grounded at spawn.
+        coyoteTimer = coyoteTime;
     }
 
     void Update()
     {
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector2 lookInput = lookAction.ReadValue<Vector2>();
-        bool jumpPressedThisFrame = jumpAction.WasPressedThisFrame();
 
         HandleLook(lookInput);
-        HandleMovement(moveInput, jumpPressedThisFrame);
+        HandleMovement(moveInput);
+    }
+
+    void JumpActionPerformed(InputAction.CallbackContext context)
+    {
+        //Debug.Log($"Jump input fired. coyoteTimer={coyoteTimer:F3}, jumpBufferTimer will be set to {jumpBufferTime:F3}. CharController.isGrounded={characterController.isGrounded}");
+        jumpBufferTimer = jumpBufferTime;
     }
 
     void HandleLook(Vector2 lookVector)
@@ -133,25 +158,64 @@ public class PlayerControllerBSK : MonoBehaviour
         }
     }
 
-    void HandleMovement(Vector2 moveInput, bool jumpPressedThisFrame)
+    void HandleMovement(Vector2 moveInput)
     {
         float inputX = moveInput.x;
         float inputZ = moveInput.y;
+        float downwardGravity = -Mathf.Abs(gravity);
+        
+        // Cache grounded state at frame start for consistency
+        bool wasGroundedThisFrame = characterController.isGrounded;
+        //Debug.Log($"HandleMovement frame start: groundedCheck={wasGroundedThisFrame}, coyote={coyoteTimer:F3}, buffer={jumpBufferTimer:F3}");
 
         Vector3 move = (transform.right * inputX + transform.forward * inputZ).normalized;
         characterController.Move(move * moveSpeed * Time.deltaTime);
 
-        if (characterController.isGrounded && verticalVelocity < 0f)
+        if (wasGroundedThisFrame && verticalVelocity < 0f)
         {
             verticalVelocity = -2f;
         }
 
-        if (characterController.isGrounded && jumpPressedThisFrame)
+        if (wasGroundedThisFrame)
         {
-            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            coyoteTimer = coyoteTime;
+        }
+        else
+        {
+            coyoteTimer -= Time.deltaTime;
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
+        jumpBufferTimer -= Time.deltaTime;
+
+        if (jumpBufferTimer > 0f && coyoteTimer > 0f)
+        {
+            float jumpHeightToUse = hasFeathers ? jumpHeight * featherJumpHeightMultiplier : jumpHeight;
+            verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
+            //Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
+
+            jumpBufferTimer = 0f;
+            coyoteTimer = 0f;
+        }
+        else if (jumpBufferTimer > 0f && !wasGroundedThisFrame && hasFeathers)
+        {
+            // Airborne feather boost can be triggered on every jump press while airborne.
+            verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
+            //Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
+
+            jumpBufferTimer = 0f;
+        }
+        else if (jumpBufferTimer > 0f)
+        {
+            //Debug.Log($"Jump buffer set but NOT jumping: buffer={jumpBufferTimer:F3}, coyote={coyoteTimer:F3}, wasGrounded={wasGroundedThisFrame}");
+        }
+
+        float gravityToUse = downwardGravity;
+        if (hasFeathers && verticalVelocity <= 0f)
+        {
+            gravityToUse *= featherFallGravityMultiplier;
+        }
+
+        verticalVelocity += gravityToUse * Time.deltaTime;
         characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
     }
 
@@ -192,6 +256,21 @@ public class PlayerControllerBSK : MonoBehaviour
         }
 
         Debug.Log("Attack button pressed");
+    }
+
+    public void OnTeleported(Quaternion targetRotation, bool applyRotation)
+    {
+        if (applyRotation)
+        {
+            // Apply only yaw (Y rotation) on teleport and keep current camera pitch.
+            rotationY = targetRotation.eulerAngles.y;
+            transform.rotation = Quaternion.Euler(0f, rotationY, 0f);
+        }
+
+        // Keep a small downward velocity so grounded logic settles immediately.
+        verticalVelocity = -2f;
+        jumpBufferTimer = 0f;
+        coyoteTimer = coyoteTime;
     }
 
 }
