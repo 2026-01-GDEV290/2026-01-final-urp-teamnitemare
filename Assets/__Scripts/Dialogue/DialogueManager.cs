@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using System;
+using UnityEngine.SearchService;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
 
     [SerializeField] private TextMeshProUGUI dialogueText;
+
+    [SerializeField] private TextMeshProUGUI displayNameText;
+
+    [SerializeField] private Animator portraitAnimator;
 
     [Header("Choices UI")]
 
@@ -29,6 +34,11 @@ public class DialogueManager : MonoBehaviour
     public event Action<bool> DialogueStateChanged;
 
     private static DialogueManager instance;
+
+    private const string SPEAKER_TAG = "speaker";
+    private const string PORTRAIT_TAG = "portrait";
+    private const string LAYOUT_TAG = "layout";
+
 
     private DialogueVariables dialogueVariables;
 
@@ -184,10 +194,47 @@ public class DialogueManager : MonoBehaviour
             dialogueText.text = currentStory.Continue();
             // display choices, if any, for this dialogue line
             DisplayChoices();
+            // handle tags
+            HandleTags(currentStory.currentTags); 
         }
         else
         {
             StartCoroutine(ExitDialogueMode());
+        }
+    }
+
+    private void HandleTags(List<string> currentTags)
+    {
+        //Loop through each tag and handle it accordingly
+        foreach (string tag in currentTags)
+        {
+            //parse the tag
+            string[] splitTag = tag.Split(':');
+            if (splitTag.Length != 2)
+            {
+                Debug.LogError("Tag could not be appropriately parsed: " + tag);
+            }
+            string tagKey = splitTag[0].Trim();
+            string tagValue = splitTag[1].Trim();
+
+            // handle the tag
+            switch (tagKey)
+            {
+                case SPEAKER_TAG:
+                    Debug.Log("speaker=" + tagValue);
+                    displayNameText.text = tagValue;
+                    break;
+                case PORTRAIT_TAG:
+                    Debug.Log("portrait=" + tagValue);
+                    portraitAnimator.Play(tagValue);
+                    break;
+                case LAYOUT_TAG:
+                    Debug.Log("layout=" + tagValue);
+                    break;
+                default:
+                    Debug.LogWarning("Tag came in but is currently not being handled: " + tag);
+                    break;
+            }
         }
     }
 
