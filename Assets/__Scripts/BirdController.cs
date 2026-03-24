@@ -69,6 +69,8 @@ public class BirdController : MonoBehaviour
     public bool IsGrounded => controller != null && controller.isGrounded;
     public bool IsWalkingMode => walkingMode;
 
+    private Animator animator;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -78,6 +80,7 @@ public class BirdController : MonoBehaviour
         BindExistingBirdVisual();
 
         EnsureCameraRig();
+        animator = GetComponent<Animator>();
     }
     void OnEnable()
     {
@@ -293,12 +296,14 @@ public class BirdController : MonoBehaviour
 
         if (!walkingMode)
         {
+            animator.SetBool("Fly", true);
             AnimateWings();
             ResetFeetToBase();
             return;
         }
+        else animator.SetBool("Fly", false);
 
-        ResetWingsToBase();
+            ResetWingsToBase();
         if (Mathf.Abs(forwardBackInput) > 0.01f)
         {
             AnimateFeet();
