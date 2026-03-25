@@ -158,24 +158,16 @@ public class DialogueManager : MonoBehaviour
             Debug.LogError("Cannot enter dialogue mode with a null Ink JSON asset.");
             return;
         }
-        //reset portrait, layout, and speaker
-        displayNameText.text = "???";
-        portraitAnimator.Play("default");
-        layoutAnimator.Play("right");
 
         currentStory = new Story(inkJSON.text);
         consumeNextInteract = consumeCurrentInteract;
         SetDialogueState(true);
         dialoguePanel.SetActive(true);
-
-<<<<<<< Updated upstream
-       
-=======
-        //reset portrait, layout, and speaker
-        displayNameText.text = "???";
-        portraitAnimator.Play("default");
-        layoutAnimator.Play("right");
->>>>>>> Stashed changes
+        
+       //reset portrait, layout, and speaker
+       //isplayNameText.text = "???";
+       //ortraitAnimator.Play("default");
+       //ayoutAnimator.Play("right");
 
         dialogueVariables.StartListening(currentStory);
 
