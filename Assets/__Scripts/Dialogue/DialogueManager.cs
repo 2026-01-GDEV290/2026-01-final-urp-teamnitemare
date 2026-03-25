@@ -20,6 +20,8 @@ public class DialogueManager : MonoBehaviour
 
     [SerializeField] private Animator portraitAnimator;
 
+    private Animator layoutAnimator;
+
     [Header("Choices UI")]
 
     [SerializeField] private GameObject[] choices;
@@ -85,6 +87,9 @@ public class DialogueManager : MonoBehaviour
     {
         SetDialogueState(false);
         dialoguePanel.SetActive(false);
+
+        //get the layout animator
+        layoutAnimator = dialoguePanel.GetComponent<Animator>();
 
         //get all of the choices text
         choicesText = new TextMeshProUGUI[choices.Length];
@@ -153,11 +158,17 @@ public class DialogueManager : MonoBehaviour
             Debug.LogError("Cannot enter dialogue mode with a null Ink JSON asset.");
             return;
         }
+        //reset portrait, layout, and speaker
+        displayNameText.text = "???";
+        portraitAnimator.Play("default");
+        layoutAnimator.Play("right");
 
         currentStory = new Story(inkJSON.text);
         consumeNextInteract = consumeCurrentInteract;
         SetDialogueState(true);
         dialoguePanel.SetActive(true);
+
+       
 
         dialogueVariables.StartListening(currentStory);
 
@@ -230,6 +241,7 @@ public class DialogueManager : MonoBehaviour
                     break;
                 case LAYOUT_TAG:
                     Debug.Log("layout=" + tagValue);
+                    layoutAnimator.Play(tagValue);
                     break;
                 default:
                     Debug.LogWarning("Tag came in but is currently not being handled: " + tag);
