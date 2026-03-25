@@ -168,7 +168,14 @@ public class DialogueManager : MonoBehaviour
         SetDialogueState(true);
         dialoguePanel.SetActive(true);
 
+<<<<<<< Updated upstream
        
+=======
+        //reset portrait, layout, and speaker
+        displayNameText.text = "???";
+        portraitAnimator.Play("default");
+        layoutAnimator.Play("right");
+>>>>>>> Stashed changes
 
         dialogueVariables.StartListening(currentStory);
 
