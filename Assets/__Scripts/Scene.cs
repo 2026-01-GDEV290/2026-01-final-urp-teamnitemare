@@ -7,6 +7,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
+// TODO: TaskGroups -> SceneTaskGroups object which this can interact with
+// TODO: Visit-specific events (onSceneAwake, onSceneStart), which can also
+// enable/disable SceneTaskGroups for a given visit and set up visit-specific scene info
+
 [Serializable]
 public class TaskGroup
 {
@@ -15,6 +19,7 @@ public class TaskGroup
     public List<GameObject> taskObjects = new List<GameObject>();
     public bool autoActOnComplete = false;
     public UnityEngine.Events.UnityEvent onTasksCompleted;
+    //[HideInInspector] // no, still want it to show just not be editable (requires custom Editor code)
     public bool actedOnComplete = false;
 }
 
@@ -23,6 +28,7 @@ public class TaskGroup
 [Serializable]
 public class Scene : MonoBehaviour
 {
+    [SerializeField] UnityEvent onSceneAwake;
     [SerializeField] UnityEvent onSceneStart;
     //public List<GameObject> SceneTaskObjects = new List<GameObject>();
     [SerializeField] private List<TaskGroup> taskGroups = new List<TaskGroup>();
@@ -50,11 +56,14 @@ public class Scene : MonoBehaviour
         sceneName = SceneManager.GetActiveScene().name;
         Debug.Log("Scene->Awake: " + taskGroups.Count + " task groups with " + GetTotalTasksInAllGroups() + " total tasks");
         GameManager.Instance.SceneAwake(this);
+        // TODO: This will have to become visit-specific
+        onSceneAwake.Invoke();
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameManager.Instance.SceneStart();
+        // TODO: This will have to become visit-specific
         onSceneStart.Invoke();
     }
 
@@ -66,6 +75,7 @@ public class Scene : MonoBehaviour
         GameManager.Instance.SceneDestroyed();
     }
 
+#region Scene Progression
     // For use with Events in the inspector:
     public void LoadNextScene()
     {
@@ -75,6 +85,15 @@ public class Scene : MonoBehaviour
     {
         GameManager.Instance.LoadScene(scene);
     }
+
+    public void ReloadScene(bool incrementVisitCounter = true)
+    {
+        // GameManager.Instance.gameState.sceneVisitCounts[sceneName] += incrementVisitCounter ? 1 : 0;
+        GameManager.Instance.LoadScene(GameManager.Instance.gameState.currentScene);
+    }
+#endregion Scene Progression
+
+#region Task-Group Manage
 
     // Value changed in Inspector
     // Since inspector duplicates last element, we'll undo this
@@ -440,6 +459,9 @@ public class Scene : MonoBehaviour
         }
         return true;
     }
+#endregion Task-Group Manage
+
+#region Interaction Helpers
 
     public void TriggerableSetIsActive(GameObject go, bool active)
     {
@@ -505,4 +527,22 @@ public class Scene : MonoBehaviour
     {
         TimerSetIsEnabled(go, false);
     }
+    public void TimerReset(GameObject go)
+    {
+        TimerObject timerObject = go.GetComponent<TimerObject>();
+        if (timerObject == null)
+        {
+            Debug.LogError("TimerReset: GameObject: " + go.name + " does not have a TimerObject component.");
+            return;
+        }
+        else
+        {
+            timerObject.ResetTimer();
+        }
+    }
+    // Can't expose in Unity (2 parameters) - in this case, call Timer object's SetDuration directly
+    //public void TimerSetDuration(GameObject go, float duration)
+
+#endregion Interaction Helpers
+
 }
