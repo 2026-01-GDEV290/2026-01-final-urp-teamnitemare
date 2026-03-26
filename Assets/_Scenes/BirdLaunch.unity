@@ -274,15 +274,44 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3566426424194671487, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4569417268134026338, guid: 38e6429c5589c9946b7178d3b7b23d98,
         type: 3}
       propertyPath: m_Name
       value: BirdModel
       objectReference: {fileID: 0}
+    - target: {fileID: 6575636314919605349, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      propertyPath: m_Height
+      value: 1.32
+      objectReference: {fileID: 0}
+    - target: {fileID: 6575636314919605349, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6575636314919605349, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      propertyPath: m_Center.y
+      value: 0.899
+      objectReference: {fileID: 0}
+    - target: {fileID: 6575636314919605349, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      propertyPath: m_Center.z
+      value: 0.24
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4569417268134026338, guid: 38e6429c5589c9946b7178d3b7b23d98,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1849333228}
   m_SourcePrefab: {fileID: 100100000, guid: 38e6429c5589c9946b7178d3b7b23d98, type: 3}
 --- !u!1 &1010042589
 GameObject:
@@ -530,6 +559,45 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &1849333224 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4569417268134026338, guid: 38e6429c5589c9946b7178d3b7b23d98,
+    type: 3}
+  m_PrefabInstance: {fileID: 784723697}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1849333228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1849333224}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7679b00f611c7f94d989682ef49ac2e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controllerHeight: 1.35
+  controllerRadius: 0.35
+  controllerCenter: {x: 0, y: 0.67, z: 0}
+  colliderGizmoColor: {r: 0.2, g: 0.9, b: 0.7, a: 1}
+  birdRootName: BirdModel
+  visualRootOverride: {fileID: 0}
+  moveSpeed: 8
+  walkSpeed: 4
+  verticalSpeed: 6
+  soarSpeed: 14
+  logGroundEvents: 1
+  logMovementStateChanges: 1
+  mouseSensitivity: 2.2
+  cameraSmooth: 14
+  firstPersonLocalOffset: {x: 0, y: 0.22, z: 0.3}
+  thirdPersonLocalOffset: {x: 0, y: 0.55, z: -3.8}
+  pitchMin: -70
+  pitchMax: 80
+  walkAnimation: {fileID: 0}
+  idleAnimation: {fileID: 0}
+  flyingAnimation: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
