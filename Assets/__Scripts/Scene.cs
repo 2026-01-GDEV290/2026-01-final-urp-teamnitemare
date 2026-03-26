@@ -89,7 +89,7 @@ public class Scene : MonoBehaviour
     public void ReloadScene(bool incrementVisitCounter = true)
     {
         // GameManager.Instance.gameState.sceneVisitCounts[sceneName] += incrementVisitCounter ? 1 : 0;
-        GameManager.Instance.LoadScene(GameManager.Instance.gameState.currentScene);
+        GameManager.Instance.ReloadCurrentScene();
     }
 #endregion Scene Progression
 

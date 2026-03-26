@@ -292,6 +292,41 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ReloadCurrentScene()
+    {
+        Debug.Log("GM->ReloadCurrentScene() for scene: " + SceneManager.GetActiveScene().name);
+        if (gameState.currentGameState == GameStates.Paused)
+        {
+            Debug.LogWarning("GM->LoadScene(): Game is paused, closing pause menu.");
+            //playerState.SceneDestroyed();
+            //gameState.SceneDestroyed();
+            ClosePauseMenuAndResumeTime(true);
+            SceneLoadingGameCleanup();
+        }
+    
+        string activeSceneName = SceneManager.GetActiveScene().name;
+       if (gameState.currentScene == Scenes.Game)
+        {
+            // get index of current scene
+            int currentIndex = GameState.scenesSO.gameScenes.IndexOf(SceneManager.GetActiveScene().name);
+            if (currentIndex == -1)
+            {
+                Debug.LogError("Current scene is marked as Game but not found in gameScenes list: " + SceneManager.GetActiveScene().name);
+                currentIndex = 0; // default to first scene
+            }
+            else
+            {
+                activeSceneName = GameState.scenesSO.gameScenes[currentIndex];
+            }
+        }
+
+        // These have a lifetime of one scene (maybe put in SceneDestroyed()?)
+        gameState.currentSceneScript = null;
+        uiManager = null;
+        SceneManager.LoadScene(activeSceneName);
+        //VerifyCurrentScene();
+    }
+
     void SceneLoadingGameCleanup()
     {
         // The following are done in SceneDestroyed():

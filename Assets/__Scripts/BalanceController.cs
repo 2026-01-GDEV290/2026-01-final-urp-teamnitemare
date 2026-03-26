@@ -212,13 +212,19 @@ public class BalanceController : MonoBehaviour
     void Fail()
     {
         Debug.Log("Failed! Lean was: " + lean);
-        // TODO: initiate a fade to red
+        // fade to red, reload scene
         screenFade.StartFadeOut();
         // You can add failure logic here, like restarting the level or showing a game over screen.
         // For now, we'll just reset the lean for testing purposes.
         lean = 0f;
         leanVelocity = 0f;
         StopMovement();
+        Invoke(nameof(ReloadScene), 1f);
+    }
+
+    void ReloadScene()
+    {
+        GameManager.Instance.ReloadCurrentScene();
     }
 
     void ResetLeanAndCamera()
@@ -284,7 +290,7 @@ public class BalanceController : MonoBehaviour
 
     void UpdateUI()
     {
-        Debug.Log("Updating UI. Lean: " + lean);
+        //Debug.Log("Updating UI. Lean: " + lean);
         float normalized = Mathf.Clamp(lean / failThreshold, -1f, 1f);
         float needleSign = invertNeedle ? -1f : 1f;
         needle.anchoredPosition = new Vector2(normalized * needleMaxOffset * needleSign, 0f);
