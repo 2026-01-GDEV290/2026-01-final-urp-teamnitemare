@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class BalanceController : MonoBehaviour
 {
@@ -47,6 +48,8 @@ public class BalanceController : MonoBehaviour
     [SerializeField] float needleMaxOffset = 200f;
 
     [SerializeField] FadeToColor screenFade;
+     [SerializeField] TMP_Text helpText;
+    //[SerializeField] private RectTransform helpTextRect;
 
     Vector3 cameraBaseLocalPosition;
     Quaternion cameraBaseLocalRotation;
@@ -62,13 +65,18 @@ public class BalanceController : MonoBehaviour
     bool waitingForCenteredForwardMove;
 
     bool stopMovement = false;
-
+    float canvasPPU = 100;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         playerControls = new InputSystem_Actions();
         characterController = GetComponent<CharacterController>();
+        if (helpText != null)
+        {
+            Canvas canvas = helpText.GetComponentInParent<Canvas>();
+            Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
+        }
     }
 
     void OnEnable()
@@ -298,6 +306,28 @@ public class BalanceController : MonoBehaviour
         float danger = Mathf.InverseLerp(0.25f * failThreshold, failThreshold, Mathf.Abs(lean));
         Color target = new Color(1f, 0f, 0f, danger * 0.6f);
         screenFade.SetColorInstantly(target);
+
+
+    }
+
+    void LateUpdate()
+    {
+        float tiltAmount = playerCam.transform.localRotation.z;
+        
+        if (helpText != null)
+        {
+            Debug.Log("helpTextRect rotate: tiltAmount:" + -tiltAmount);
+            //helpText.transform.Rotate(0, 0, -tiltAmount, Space.Self);
+            //helpTextRect.transform.localRotation = Quaternion.Euler(0,0, -tiltAmount);
+
+            // translate worldspace rotation to local rotation
+            Vector3 currentRotation = helpText.rectTransform.localEulerAngles;
+            helpText.rectTransform.localEulerAngles = new Vector3(
+                currentRotation.x,
+                currentRotation.y,
+                tiltAmount * canvasPPU
+            );
+        }
     }
 
     float UpdateDrift(float dt)
