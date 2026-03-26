@@ -368,6 +368,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     //void Update() {}
 
+#region Pause and Modal Dialogue Control
     public void ModalDialogueSetIsOpen(bool mouseCursorForUI = true)
     {
         gameState.inGameModalDialogueActive = true;
@@ -442,7 +443,9 @@ public class GameManager : MonoBehaviour
         // Hide pause menu UI
         ClosePauseMenuAndResumeTime(true);
     }
+#endregion Pause and Modal Dialogue Control
 
+#region Mouse Cursor Control
     public void MouseCursorSetForUI()
     {
         if (mouseHideForGameScenes)
@@ -461,5 +464,47 @@ public class GameManager : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
         }
     }
+#endregion Mouse Cursor Control
 
+#region Control Limitation
+    public void DisableLookControls(bool horizontal = true, bool vertical = true)
+    {
+        playerState.currentlyDisabledControls |= (horizontal ? DisabledControls.LookHorizontal : DisabledControls.None) 
+            | (vertical ? DisabledControls.LookVertical : DisabledControls.None);   
+    }
+    public void DisableMoveControls(bool left = true, bool right = true, bool up = true, bool down = true)
+    {
+        playerState.currentlyDisabledControls |= (left ? DisabledControls.MoveLeft : DisabledControls.None)
+            | (right ? DisabledControls.MoveRight : DisabledControls.None)
+            | (up ? DisabledControls.MoveUp : DisabledControls.None)
+            | (down ? DisabledControls.MoveDown : DisabledControls.None);
+    }
+    public void DisableJumpControl()
+    {
+        playerState.currentlyDisabledControls |= DisabledControls.Jump;
+    }
+    public void DisableInteractControl()
+    {
+        playerState.currentlyDisabledControls |= DisabledControls.Interact;
+    }
+    public bool DisableAllControls()
+    {
+        //playerInput.enabled = false;
+        playerState.currentlyDisabledControls = DisabledControls.All;
+        return true;
+    }
+    public void EnableAllControls()
+    {
+        //playerInput.enabled = true;
+        playerState.currentlyDisabledControls = DisabledControls.None;
+    }
+    public bool AreControlsDisabled(DisabledControls controlsToCheck)
+    {
+        return (playerState.currentlyDisabledControls & controlsToCheck) != DisabledControls.None;
+    }
+    public bool AreAllControlsDisabled()
+    {
+        return playerState.currentlyDisabledControls == DisabledControls.All;
+    }
+#endregion Conrol Limitation
 }
