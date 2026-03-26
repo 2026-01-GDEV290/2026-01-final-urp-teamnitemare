@@ -31,6 +31,25 @@ public class TimerObject : MonoBehaviour
         }
     }
 
+    public bool ResetTimer()
+    {
+        if (!isEnabled)
+            return false;
+        CancelTimer();
+        StartTimer();
+        return true;
+    }
+
+    public bool SetTimerDuration(float duration)
+    {
+        if (duration <= 0f)
+            return false;
+        // safeguard if actively running
+        CancelTimer();
+        timerDuration = duration;
+        return true;
+    }
+
     private void TimerExpired()
     {
         Debug.Log("Timer expired! on object: " + gameObject.name);
