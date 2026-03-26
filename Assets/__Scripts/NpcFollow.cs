@@ -5,26 +5,28 @@ public class NpcFollow : MonoBehaviour
     private bool playerInRange;
 
     [SerializeField] private GameObject prompt;
-
+    [SerializeField] private Transform target;
+    [SerializeField] private GameObject visualCue;
+    [SerializeField] private Animator animator;
     Follow com;
-
-    //[SerializeField] private GameObject player;
-
-    //[SerializeField] private float speed = 1.5f;
 
     private void Start()
     {
         com = GetComponent<Follow>();
+        animator = GetComponent<Animator>();
+        transform.LookAt(target);
+
     }
 
     void Update()
     {
         if (playerInRange)
         {
-
+            transform.LookAt(target);
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Destroy(prompt);
+                Destroy(visualCue);
                 prompt.gameObject.SetActive(false);
                 com.enabled = true;
             }
@@ -39,17 +41,19 @@ public class NpcFollow : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            animator.SetBool("Bounce", true);
+            visualCue.SetActive(false);
             prompt.gameObject.SetActive(true);
             playerInRange = true;
-
         }
-
 
     }
 
     private void OnTriggerExit(Collider other)
     {
         prompt.gameObject.SetActive(false);
+        visualCue.SetActive(true);
+        animator.SetBool("Bounce", false);
 
         if (other.gameObject.CompareTag("Player"))
         {
