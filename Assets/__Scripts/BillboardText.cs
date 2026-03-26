@@ -14,6 +14,8 @@ public class BillboardText : MonoBehaviour
     [Header("Trigger")]
     [SerializeField] private bool onlyShowForPlayer = true;
     [SerializeField] private string playerTag = "InteractCollider"; //"Player";
+    [SerializeField] private float timeOutOnTriggerEnter = 0f;
+    private float timeOutOnTriggerEnterCountdown;
 
     private int validTargetsInside;
     private Transform targetCameraTransform;
@@ -25,6 +27,7 @@ public class BillboardText : MonoBehaviour
         EnsureTextObject();
         ApplyTextSettings();
         SetTextVisible(false);
+        timeOutOnTriggerEnterCountdown = timeOutOnTriggerEnter;
     }
 
     private void LateUpdate()
@@ -32,6 +35,16 @@ public class BillboardText : MonoBehaviour
         if (worldText == null || !worldText.gameObject.activeSelf)
         {
             return;
+        }
+
+        if (timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
+        {
+            timeOutOnTriggerEnterCountdown -= Time.deltaTime;
+            if (timeOutOnTriggerEnterCountdown <= 0.01f)
+            {
+                SetTextVisible(false);
+                return;
+            }
         }
 
         Vector3 textPosition = transform.position + worldOffset;
