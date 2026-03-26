@@ -659,16 +659,21 @@ PrefabInstance:
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_Mode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
@@ -680,10 +685,15 @@ PrefabInstance:
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 1662841240}
+      objectReference: {fileID: 1685876418}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 1662841240}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_Target
       value: 
       objectReference: {fileID: 335141344}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
@@ -698,17 +708,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: StopMovement
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: FadeToBlack
+      value: SetActive
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: FadeToBlack
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_MethodName
       value: StartTimer
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
@@ -719,11 +739,16 @@ PrefabInstance:
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
-      value: FadeToColor, Assembly-CSharp
+      value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: FadeToColor, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_TargetAssemblyTypeName
       value: TimerObject, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
@@ -734,6 +759,11 @@ PrefabInstance:
     - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 9135525990966195399, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      propertyPath: onTrigger.m_PersistentCalls.m_Calls.Array.data[3].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []

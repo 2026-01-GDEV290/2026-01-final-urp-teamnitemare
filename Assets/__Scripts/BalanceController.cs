@@ -222,6 +222,7 @@ public class BalanceController : MonoBehaviour
         Debug.Log("Failed! Lean was: " + lean);
         // fade to red, reload scene
         screenFade.StartFadeOut();
+        helpText.enabled = false;
         // You can add failure logic here, like restarting the level or showing a game over screen.
         // For now, we'll just reset the lean for testing purposes.
         lean = 0f;
