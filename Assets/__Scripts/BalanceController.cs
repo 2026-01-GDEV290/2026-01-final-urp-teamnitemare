@@ -16,6 +16,7 @@ public class BalanceController : MonoBehaviour
     [SerializeField] float driftChangeInterval = 1.25f;
     [SerializeField] float driftSmoothing = 1.5f;
     [SerializeField] float driftMinTargetAbs = 0.45f;
+    [SerializeField] float driftFlipCenterThreshold = 1f;
     [SerializeField] float counterStrength = 2f;   // how strong the player counterbalance is
     [SerializeField] float inputDeadzone = 0.15f;
     [SerializeField] float holdRampTime = 0.35f;
@@ -40,15 +41,19 @@ public class BalanceController : MonoBehaviour
     [SerializeField] float forwardMoveInterval = 3f;
     [SerializeField] float forwardMoveDistance = 1.25f;
     [SerializeField] float centerThresholdForForwardMove = 2.5f;
+    [SerializeField] bool invertNeedle = true;
 
     [SerializeField] RectTransform needle;
     [SerializeField] float needleMaxOffset = 200f;
+
+    [SerializeField] FadeToColor screenFade;
 
     Vector3 cameraBaseLocalPosition;
     Quaternion cameraBaseLocalRotation;
     float driftCurrent;
     float driftTarget;
     float driftChangeTimer;
+    bool driftFlipPending;
     float debugLogTimer;
     int lastDriftSign = 1;
     int holdDirection;
@@ -97,6 +102,7 @@ public class BalanceController : MonoBehaviour
         driftCurrent = driftTarget;
         lastDriftSign = 1;
         driftChangeTimer = driftChangeInterval;
+        driftFlipPending = false;
         debugLogTimer = 0f;
         holdDirection = 0;
         holdTimer = 0f;
@@ -121,23 +127,23 @@ public class BalanceController : MonoBehaviour
 
         UpdateForwardStep(dt);
 
-        // 1. Smoothed random drift (changes slowly so it is reactable)
+        //Smoothed random drift (changes slowly to allow reacting)
         float drift = UpdateDrift(dt);
 
-        // 2. Player counterbalance
+        // Player counterbalance
         float horizontalRaw = moveAction != null ? moveAction.ReadValue<Vector2>().x : 0f;
         float horizontal = ApplyDeadzone(horizontalRaw, inputDeadzone);
         float inputSign = invertInputDirection ? -1f : 1f;
         float holdMultiplier = UpdateHoldMultiplier(horizontal, dt);
         float counter = horizontal * counterStrength * holdMultiplier * inputSign;
 
-        // 3. Wind gusts
+        // Wind gusts? meh
         //UpdateGust(dt);
 
-        // 4. Combine forces
+        // Combine forces
         float totalForce = drift + counter + gustForce;
 
-        // 5. Apply inertia
+        // Apply inertia
         leanVelocity += totalForce * leanAcceleration * dt;
         leanVelocity = Mathf.Clamp(leanVelocity, -maxLeanVelocity, maxLeanVelocity);
         leanVelocity *= Mathf.Exp(-damping * dt);
@@ -145,14 +151,15 @@ public class BalanceController : MonoBehaviour
         lean += leanVelocity * dt;
         lean = Mathf.Clamp(lean, -failThreshold, failThreshold);
 
-        // 6. UI + Animation
-        //UpdateUI();
+        // UI + Animation
+        UpdateUI();
         //UpdateAnimation();
         UpdateCameraTilt();
         UpdateStruggleBob();
-        LogDirectionDebug(dt, horizontal, drift, counter, totalForce);
+        
+        //LogDirectionDebug(dt, horizontal, drift, counter, totalForce);
 
-        // 7. Failure check
+        // Failure check
         if (Mathf.Abs(lean) >= failThreshold)
             Fail();
     }
@@ -205,10 +212,13 @@ public class BalanceController : MonoBehaviour
     void Fail()
     {
         Debug.Log("Failed! Lean was: " + lean);
+        // TODO: initiate a fade to red
+        screenFade.StartFadeOut();
         // You can add failure logic here, like restarting the level or showing a game over screen.
         // For now, we'll just reset the lean for testing purposes.
         lean = 0f;
         leanVelocity = 0f;
+        StopMovement();
     }
 
     void ResetLeanAndCamera()
@@ -226,8 +236,6 @@ public class BalanceController : MonoBehaviour
             playerCam.transform.localPosition = cameraBaseLocalPosition;
         }
     }
-
-
 
     void UpdateStruggleBob()
     {
@@ -252,8 +260,6 @@ public class BalanceController : MonoBehaviour
         pos.y += bob;
         playerCam.transform.localPosition = pos;
     }
-
-
 
     void UpdateCameraTilt()
     {
@@ -280,18 +286,33 @@ public class BalanceController : MonoBehaviour
     {
         Debug.Log("Updating UI. Lean: " + lean);
         float normalized = Mathf.Clamp(lean / failThreshold, -1f, 1f);
-        needle.anchoredPosition = new Vector2(normalized * needleMaxOffset, 0f);
+        float needleSign = invertNeedle ? -1f : 1f;
+        needle.anchoredPosition = new Vector2(normalized * needleMaxOffset * needleSign, 0f);
+
+        float danger = Mathf.InverseLerp(0.25f * failThreshold, failThreshold, Mathf.Abs(lean));
+        Color target = new Color(1f, 0f, 0f, danger * 0.6f);
+        screenFade.SetColorInstantly(target);
     }
 
     float UpdateDrift(float dt)
     {
-        driftChangeTimer -= dt;
-        if (driftChangeTimer <= 0f)
+        if (!driftFlipPending)
+        {
+            driftChangeTimer -= dt;
+            if (driftChangeTimer <= 0f)
+            {
+                driftFlipPending = true;
+                driftChangeTimer = 0f;
+            }
+        }
+
+        if (driftFlipPending && Mathf.Abs(lean) <= driftFlipCenterThreshold)
         {
             lastDriftSign *= -1;
             float magnitude = Random.Range(driftMinTargetAbs, 1f);
             driftTarget = magnitude * lastDriftSign;
             driftChangeTimer = driftChangeInterval;
+            driftFlipPending = false;
         }
 
         driftCurrent = Mathf.MoveTowards(driftCurrent, driftTarget, driftSmoothing * dt);
@@ -340,78 +361,43 @@ public class BalanceController : MonoBehaviour
         return Mathf.Lerp(1f, maxHoldCounterMultiplier, t);
     }
 
-    void LogDirectionDebug(float dt, float horizontal, float drift, float counter, float totalForce)
-    {
-        if (!enableDirectionDebugLogs)
-        {
-            return;
-        }
+    // public void TriggerGust(float strength, float duration)
+    // {
+    //     gustForce = strength;
+    //     gustTimer = duration;
+    // }
 
-        debugLogTimer -= dt;
-        if (debugLogTimer > 0f)
-        {
-            return;
-        }
-
-        debugLogTimer = Mathf.Max(0.05f, debugLogInterval);
-
-        float inputSign = invertInputDirection ? -1f : 1f;
-        float rollSign = invertCameraRoll ? -1f : 1f;
-        float targetRoll = Mathf.Clamp(lean / failThreshold, -1f, 1f) * maxRollAngle * rollSign;
-
-        string leanDirection = lean > 0.05f ? "RIGHT (+lean)" : lean < -0.05f ? "LEFT (-lean)" : "CENTER";
-        string rollDirection = targetRoll > 0.1f ? "RIGHT ROLL" : targetRoll < -0.1f ? "LEFT ROLL" : "NEUTRAL ROLL";
-
-        string suggestedInput = "NONE";
-        if (Mathf.Abs(lean) > 0.05f)
-        {
-            float desiredCounterForceSign = -Mathf.Sign(lean);
-            float requiredHorizontalSign = desiredCounterForceSign / inputSign;
-            suggestedInput = requiredHorizontalSign >= 0f ? "RIGHT (D / Stick Right)" : "LEFT (A / Stick Left)";
-        }
-
-        Debug.Log(
-            $"[Balance] Lean={lean:F2} [{leanDirection}] | CamTargetRoll={targetRoll:F2} [{rollDirection}] | InputX={horizontal:F2} SuggestedInput={suggestedInput} | Drift={drift:F2} Counter={counter:F2} Gust={gustForce:F2} Total={totalForce:F2}");
-    }
+    // void UpdateGust(float dt)
+    // {
+    //     if (gustTimer > 0f)
+    //     {
+    //         gustTimer -= dt;
+    //         leanVelocity += gustForce * dt;
+    //     }
+    // }
 
 
-    public void TriggerGust(float strength, float duration)
-    {
-        gustForce = strength;
-        gustTimer = duration;
-    }
-
-    void UpdateGust(float dt)
-    {
-        if (gustTimer > 0f)
-        {
-            gustTimer -= dt;
-            leanVelocity += gustForce * dt;
-        }
-    }
-
-
-    IEnumerator GustRoutine()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(Random.Range(3f, 8f));
-            if (stopMovement)
-            {
-                continue;
-            }
-            float strength = Random.Range(-3f, 3f);
-            float duration = Random.Range(0.5f, 1.5f);
-            TriggerGust(strength, duration);
-        }
-    }
+    // IEnumerator GustRoutine()
+    // {
+    //     while (true)
+    //     {
+    //         yield return new WaitForSeconds(Random.Range(3f, 8f));
+    //         if (stopMovement)
+    //         {
+    //             continue;
+    //         }
+    //         float strength = Random.Range(-3f, 3f);
+    //         float duration = Random.Range(0.5f, 1.5f);
+    //         TriggerGust(strength, duration);
+    //     }
+    // }
 
 
-    void UpdateAnimation()
-    {
-        float normalized = Mathf.Clamp(lean / failThreshold, -1f, 1f);
-        anim.SetFloat("LeanAmount", normalized);
-    }
+    // void UpdateAnimation()
+    // {
+    //     float normalized = Mathf.Clamp(lean / failThreshold, -1f, 1f);
+    //     anim.SetFloat("LeanAmount", normalized);
+    // }
 
 
 }
