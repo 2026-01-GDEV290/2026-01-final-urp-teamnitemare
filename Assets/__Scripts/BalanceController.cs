@@ -11,8 +11,8 @@ public class BalanceController : MonoBehaviour
     CharacterController characterController;
     float lean;           // current balance
     float leanVelocity;   // optional inertia
-    float gustForce;
-    float gustTimer;
+    //float gustForce;
+    //float gustTimer;
     [SerializeField] float driftStrength = 0.35f;  // overall drift magnitude
     [SerializeField] float driftChangeInterval = 1.25f;
     [SerializeField] float driftSmoothing = 1.5f;
@@ -36,9 +36,6 @@ public class BalanceController : MonoBehaviour
     [SerializeField] float struggleBobAmount = 0.05f;
     [SerializeField] float struggleBobSpeed = 8f;
 
-    [SerializeField] bool enableDirectionDebugLogs = true;
-    [SerializeField] float debugLogInterval = 0.35f;
-
     [SerializeField] float forwardMoveInterval = 3f;
     [SerializeField] float forwardMoveDistance = 1.25f;
     [SerializeField] float centerThresholdForForwardMove = 2.5f;
@@ -57,7 +54,6 @@ public class BalanceController : MonoBehaviour
     float driftTarget;
     float driftChangeTimer;
     bool driftFlipPending;
-    float debugLogTimer;
     int lastDriftSign = 1;
     int holdDirection;
     float holdTimer;
@@ -111,7 +107,6 @@ public class BalanceController : MonoBehaviour
         lastDriftSign = 1;
         driftChangeTimer = driftChangeInterval;
         driftFlipPending = false;
-        debugLogTimer = 0f;
         holdDirection = 0;
         holdTimer = 0f;
         forwardMoveTimer = Mathf.Max(0.1f, forwardMoveInterval);
@@ -149,7 +144,7 @@ public class BalanceController : MonoBehaviour
         //UpdateGust(dt);
 
         // Combine forces
-        float totalForce = drift + counter + gustForce;
+        float totalForce = drift + counter; // + gustForce;
 
         // Apply inertia
         leanVelocity += totalForce * leanAcceleration * dt;
@@ -240,8 +235,8 @@ public class BalanceController : MonoBehaviour
     {
         lean = 0f;
         leanVelocity = 0f;
-        gustForce = 0f;
-        gustTimer = 0f;
+        //gustForce = 0f;
+        //gustTimer = 0f;
         holdDirection = 0;
         holdTimer = 0f;
 
