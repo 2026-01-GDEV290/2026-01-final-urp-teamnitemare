@@ -536,6 +536,30 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 290711958}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &320362280 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1311965450642704, guid: 8237f7b8f33ea8a4c84650594a690807,
+    type: 3}
+  m_PrefabInstance: {fileID: 830884006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &320362281 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807,
+    type: 3}
+  m_PrefabInstance: {fileID: 830884006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &320362284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 320362280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b152490be01ae4a8a19f0b2568e8b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &330580465
 GameObject:
   m_ObjectHideFlags: 0
@@ -1265,6 +1289,110 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &830884006
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1770744170}
+    m_Modifications:
+    - target: {fileID: 1126013580193668, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1239345578443292, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1311965450642704, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_Name
+      value: AngelWings
+      objectReference: {fileID: 0}
+    - target: {fileID: 1311965450642704, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1507854268041024, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.29
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4253040093586854, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4508987635692110, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4510921518689814, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.004198483
+      objectReference: {fileID: 0}
+    - target: {fileID: 95072353171676640, guid: 8237f7b8f33ea8a4c84650594a690807,
+        type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114466666382659404, guid: 8237f7b8f33ea8a4c84650594a690807,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 114466666382659404, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1311965450642704, guid: 8237f7b8f33ea8a4c84650594a690807,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 320362284}
+  m_SourcePrefab: {fileID: 100100000, guid: 8237f7b8f33ea8a4c84650594a690807, type: 3}
 --- !u!1 &834561792
 GameObject:
   m_ObjectHideFlags: 0
@@ -2773,6 +2901,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 320362281}
   - {fileID: 2092482050}
   - {fileID: 874082108}
   m_Father: {fileID: 0}
@@ -2799,6 +2928,8 @@ MonoBehaviour:
   featherJumpHeightMultiplier: 5
   featherFallGravityMultiplier: 0.55
   featherAirBoostStrength: 20
+  wings: {fileID: 320362280}
+  wingAnimationControl: {fileID: 320362284}
   rotateSpeed: 15
   hasFeathers: 1
 --- !u!143 &1770744172
