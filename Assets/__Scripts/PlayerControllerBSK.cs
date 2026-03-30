@@ -238,7 +238,7 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             float jumpHeightToUse = hasFeathers ? jumpHeight * featherJumpHeightMultiplier : jumpHeight;
             verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
-            Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
+            //Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
 
             if (hasFeathers && wingAnimationControl != null)
             {
@@ -252,7 +252,7 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             // Airborne feather boost can be triggered on every jump press while airborne.
             verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
-            Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
+            //Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
 
             if (wingAnimationControl != null)
             {
