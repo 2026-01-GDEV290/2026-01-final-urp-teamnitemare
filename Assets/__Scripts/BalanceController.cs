@@ -321,9 +321,28 @@ public class BalanceController : MonoBehaviour
             helpText.rectTransform.localEulerAngles = new Vector3(
                 currentRotation.x,
                 currentRotation.y,
-                tiltAmount * canvasPPU
+                ExtractCameraRoll(playerCam) // tiltAmount * canvasPPU 
             );
         }
+    }
+    float ExtractCameraRoll(Camera cam)
+    {
+        // Camera basis vectors
+        Vector3 forward = cam.transform.forward;
+        Vector3 up = cam.transform.up;
+        Vector3 right = cam.transform.right;
+
+        // Remove vertical component from right vector
+        Vector3 flatRight = Vector3.ProjectOnPlane(right, Vector3.up).normalized;
+
+        // If camera is looking straight up/down, fallback to avoid NaN
+        if (flatRight.sqrMagnitude < 0.0001f)
+            return 0f;
+
+        // Compare camera's right vector to flattened right vector
+        float roll = Vector3.SignedAngle(flatRight, right, forward);
+
+        return roll;
     }
 
     float UpdateDrift(float dt)
