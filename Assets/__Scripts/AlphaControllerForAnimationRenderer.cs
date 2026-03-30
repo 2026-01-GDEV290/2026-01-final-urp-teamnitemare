@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [ExecuteAlways]
@@ -7,16 +8,38 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
     public float alpha = 1f;
 
     [Range(0f, 1f)]
-    public float emissionMultiplier = 1f;
+    public float emissionIntensity = 1f;
 
-    Renderer r;
-    MaterialPropertyBlock block;
+    private Renderer rend;
+    private Material mat;
+    //MaterialPropertyBlock block;
+
+    [Range(0f, 1f)]
+    public float startAlpha = 1f;          // Initial alpha
+    public float fadeDuration = 2f;        // Time to fade
+    public Color targetEmission = Color.black; // Target emission color when fading out
+    public float targetEmissionIntensity = 1f; // Intensity multiplier for target emission
+
+    private Color originalBaseColor;
+    private Color originalEmissionColor;
 
     void Awake()
     {
-        r = GetComponent<Renderer>();
-        block = new MaterialPropertyBlock();
+        rend = GetComponent<Renderer>();
+        mat = rend.material;
+
+        // Store original colors
+        originalBaseColor = mat.color;
+        originalEmissionColor = mat.GetColor("_EmissionColor");
+
+        // Ensure transparency works
+        SetMaterialToFadeMode(mat);
+
+        // Ensure emission keyword is enabled
+        if (!mat.IsKeywordEnabled("_EMISSION"))
+            mat.EnableKeyword("_EMISSION");
     }
+        
 
     void OnEnable()
     {
@@ -25,46 +48,129 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
 
     void OnValidate()
     {
-        if (!r) r = GetComponent<Renderer>();
-        if (block == null) block = new MaterialPropertyBlock();
+        if (!rend) rend = GetComponent<Renderer>();
         Apply();
     }
 
     public void Apply()
     {
-        if (!r) return;
+        if (!rend) return;
 
-        r.GetPropertyBlock(block);
+        //Debug.Log("SharedMaterial color: " + rend.sharedMaterial.color);
+        Debug.Log("Material color: " + rend.material.color);
+        Debug.Log("Emission color: " + rend.material.GetColor("_EmissionColor"));
 
-        Debug.Log("Has _Color: " + block.HasColor("_Color"));
-        Debug.Log("Has _BaseColor: " + block.HasColor("_BaseColor"));
+        //rend.material.color = new Color(rend.material.color.r, rend.material.color.g, rend.material.color.b, alpha);
+        var mat = rend.material;
+        Color c = mat.color;
+        c.a = alpha;
+        mat.color = c;
+        Color e = mat.GetColor("_EmissionColor");
 
-
-        // Base color alpha
-        if (block.HasColor("_BaseColor"))
-        {
-            Color c = block.GetColor("_BaseColor");
-            c.a = alpha;
-            block.SetColor("_BaseColor", c);
-        }
-
-        // Emission (Standard/URP)
-        if (block.HasColor("_EmissionColor"))
-        {
-            Color e = block.GetColor("_EmissionColor");
-            e *= emissionMultiplier;
-            block.SetColor("_EmissionColor", e);
-        }
-
-        // Emission (HDRP)
-        if (block.HasColor("_EmissiveColor"))
-        {
-            Color e = block.GetColor("_EmissiveColor");
-            e *= emissionMultiplier;
-            block.SetColor("_EmissiveColor", e);
-        }
-
-        r.SetPropertyBlock(block);
+        SetEmissionIntensity(emissionIntensity);
     }
+
+
+    public void SetEmissionIntensity(float intensity)
+    {
+        Color currentEmission = mat.GetColor("_EmissionColor");
+        SetEmission(currentEmission, intensity);
+    }
+    // Set emission to a specific color and intensity
+    public void SetEmission(Color color, float intensity = 1f)
+    {
+        Color finalColor = color * Mathf.LinearToGammaSpace(intensity);
+        mat.SetColor("_EmissionColor", finalColor);
+        mat.EnableKeyword("_EMISSION");
+    }
+
+    // Restore original emission
+    public void RestoreEmission()
+    {
+        mat.SetColor("_EmissionColor", originalEmissionColor);
+        mat.EnableKeyword("_EMISSION");
+    }
+
+    public void SetToAlpha(float newAlpha)
+    {
+        alpha = newAlpha;
+        Apply();
+    }
+    public void SetFullyOpaque()
+    {
+        SetToAlpha(1f);
+    }
+    public void SetFullyTransparent()
+    {
+        SetToAlpha(0f);
+    }
+
+    public void FadeOutToTransparent(float duration = 0.5f)
+    {
+        FadeOut(duration, Color.white, 0f);
+    }
+    public void FadeOut(float duration, Color targetEmissionColor, float targetEmissionIntensity)
+    {
+        fadeDuration = duration;
+        this.targetEmission = targetEmissionColor;
+        this.targetEmissionIntensity = targetEmissionIntensity;
+        FadeOut();
+    }
+
+    public void FadeOut()
+    {
+        // stop any ongoing fade (this script only) to prevent conflicts
+        StopAllCoroutines();
+        StartCoroutine(FadeRoutine(originalBaseColor.a, 0f, originalEmissionColor, targetEmission * Mathf.LinearToGammaSpace(targetEmissionIntensity)));
+    }
+
+    public void FadeIn()
+    {
+        // stop any ongoing fade (this script only) to prevent conflicts
+        StopAllCoroutines();
+        StartCoroutine(FadeRoutine(mat.color.a, startAlpha, mat.GetColor("_EmissionColor"), originalEmissionColor));
+    }
+
+    private IEnumerator FadeRoutine(float alphaFrom, float alphaTo, Color emissionFrom, Color emissionTo)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+
+            // Fade alpha
+            Color newBase = originalBaseColor;
+            newBase.a = Mathf.Lerp(alphaFrom, alphaTo, t);
+            mat.color = newBase;
+
+            // Fade emission
+            Color newEmission = Color.Lerp(emissionFrom, emissionTo, t);
+            mat.SetColor("_EmissionColor", newEmission);
+
+            yield return null;
+        }
+
+        // If fully faded out, disable emission for performance
+        if (alphaTo <= 0f && emissionTo == Color.black)
+            mat.DisableKeyword("_EMISSION");
+        else
+            mat.EnableKeyword("_EMISSION");
+    }
+
+    // Helper: Set Standard Shader to Fade mode
+    private void SetMaterialToFadeMode(Material m)
+    {
+        m.SetFloat("_Mode", 2); // Fade
+        m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        m.SetInt("_ZWrite", 0);
+        m.DisableKeyword("_ALPHATEST_ON");
+        m.EnableKeyword("_ALPHABLEND_ON");
+        m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        m.renderQueue = 3000;
+    }
+
 }
 

@@ -321,7 +321,7 @@ public class BalanceController : MonoBehaviour
             helpText.rectTransform.localEulerAngles = new Vector3(
                 currentRotation.x,
                 currentRotation.y,
-                ExtractCameraRoll(playerCam) // tiltAmount * canvasPPU 
+                tiltAmount * canvasPPU // ExtractCameraRoll(playerCam)
             );
         }
     }

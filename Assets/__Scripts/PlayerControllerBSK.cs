@@ -28,6 +28,7 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private float featherAirBoostStrength = 15f;
     [SerializeField] private GameObject wings;
     [SerializeField] WingAnimationControl wingAnimationControl;
+    //[SerializeField] private AlphaControllerForAnimationRenderer wingsAlphaControl;
 
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
