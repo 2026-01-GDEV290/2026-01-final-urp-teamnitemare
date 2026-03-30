@@ -46,9 +46,15 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
         Apply();
     }
 
+    // editor-only: update in real-time when values change
     void OnValidate()
     {
-        if (!rend) rend = GetComponent<Renderer>();
+        if (!rend)
+        {
+            rend = GetComponent<Renderer>();
+            mat = rend.sharedMaterial;
+        } 
+
         Apply();
     }
 

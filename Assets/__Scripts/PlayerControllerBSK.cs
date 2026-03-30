@@ -89,8 +89,6 @@ public class PlayerControllerBSK : MonoBehaviour
                 Debug.LogWarning("PlayerControllerBSK could not find a GameObject named 'AngelWings' in the scene. Assign the wings GameObject in the inspector for feather boost visuals.");
             }
         }
-
-        StartCoroutine(nameof(CheckFeatherState), 1f);
     }
 
     private IEnumerator CheckFeatherState()
@@ -175,6 +173,7 @@ public class PlayerControllerBSK : MonoBehaviour
         
         // Initialize coyote timer so player can jump even if not grounded at spawn.
         coyoteTimer = coyoteTime;
+        StartCoroutine(nameof(CheckFeatherState), 1f);
     }
 
     void Update()
