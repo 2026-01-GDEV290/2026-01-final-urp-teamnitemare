@@ -18,6 +18,11 @@ MonoBehaviour:
   - FractureTest
   - BalanceX
   - PitchBlackX
+  - Dorm
+  - Nightmare
+  - Dream
+  - birdCageRoom
+  - BirdLaunch
   gameSceneEnum: 2
   gameOverScene: 
   gameOverSceneEnum: 3
