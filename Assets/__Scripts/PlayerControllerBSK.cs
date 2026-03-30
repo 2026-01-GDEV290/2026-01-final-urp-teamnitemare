@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +26,9 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private float featherJumpHeightMultiplier = 5;
     [SerializeField] private float featherFallGravityMultiplier = 0.55f;
     [SerializeField] private float featherAirBoostStrength = 15f;
+    [SerializeField] private GameObject wings;
+    [SerializeField] WingAnimationControl wingAnimationControl;
+    //[SerializeField] private AlphaControllerForAnimationRenderer wingsAlphaControl;
 
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
@@ -69,6 +73,48 @@ public class PlayerControllerBSK : MonoBehaviour
             playerCamera.transform.SetParent(transform);
             playerCamera.transform.localPosition = cameraLocalPosition;
             playerCamera.transform.localRotation = Quaternion.identity;
+        }
+        
+        if (wingAnimationControl == null)
+        {
+            wingAnimationControl = GetComponentInChildren<WingAnimationControl>();
+            if (wingAnimationControl == null)
+                Debug.LogWarning("PlayerControllerBSK could not find a WingAnimationControl in children. Feather boost animations will not work.");
+        }
+        if (wings == null)
+        {
+            wings = GameObject.Find("AngelWings");
+            if (wings == null)
+            {
+                Debug.LogWarning("PlayerControllerBSK could not find a GameObject named 'AngelWings' in the scene. Assign the wings GameObject in the inspector for feather boost visuals.");
+            }
+        }
+    }
+
+    private IEnumerator CheckFeatherState()
+    {
+        while (true)
+        {
+            // This is a simple way to toggle feather state for testing. Replace with actual game logic as needed.
+            if (hasFeathers)
+            {
+                if (wings.activeInHierarchy == false)
+                {
+                    wings.SetActive(true);
+                    wingAnimationControl.ResetToIdle();
+                    Debug.Log("Feathers!");
+                }
+            }
+            else
+            {
+                if (wings.activeInHierarchy == true)
+                {
+                    wings.SetActive(false);
+                    //wingAnimationControl.ResetToIdle();
+                    Debug.Log("No Feathers!");
+                }
+            }
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -127,6 +173,7 @@ public class PlayerControllerBSK : MonoBehaviour
         
         // Initialize coyote timer so player can jump even if not grounded at spawn.
         coyoteTimer = coyoteTime;
+        StartCoroutine(nameof(CheckFeatherState), 1f);
     }
 
     void Update()
@@ -193,6 +240,11 @@ public class PlayerControllerBSK : MonoBehaviour
             verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
             //Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
 
+            if (hasFeathers && wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
+
             jumpBufferTimer = 0f;
             coyoteTimer = 0f;
         }
@@ -201,6 +253,11 @@ public class PlayerControllerBSK : MonoBehaviour
             // Airborne feather boost can be triggered on every jump press while airborne.
             verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
             //Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
+
+            if (wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
 
             jumpBufferTimer = 0f;
         }
@@ -271,6 +328,11 @@ public class PlayerControllerBSK : MonoBehaviour
         verticalVelocity = -2f;
         jumpBufferTimer = 0f;
         coyoteTimer = coyoteTime;
+
+        if (hasFeathers && wingAnimationControl != null)
+        {
+            wingAnimationControl.ResetToIdle();
+        }
     }
 
 }

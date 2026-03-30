@@ -129,7 +129,7 @@ public class InputManager : MonoBehaviour
         if (Math.Abs(scrollValue) < 0.01)
             return; // Ignore small scroll values
 
-        Debug.Log("Mouse Wheel scrolled with value: " + scrollValue);
+        //Debug.Log("Mouse Wheel scrolled with value: " + scrollValue);
 
         /*
         // TODO: change? Doesn't seem all that noticeable
