@@ -31,9 +31,10 @@ public class BirdController1 : MonoBehaviour
 	[SerializeField] private float pitchMax = 80f;
 
 	[Header("Animation Clips")]
-	[SerializeField] private AnimationClip walkAnimation;
-	[SerializeField] private AnimationClip idleAnimation;
-	[SerializeField] private AnimationClip flyingAnimation;
+    [SerializeField] private Animator animator;
+    //[SerializeField] private AnimationClip walkAnimation;
+	//[SerializeField] private AnimationClip idleAnimation;
+	//[SerializeField] private AnimationClip flyingAnimation;
 
 	private InputSystem_Actions playerControls;
 
@@ -76,7 +77,9 @@ public class BirdController1 : MonoBehaviour
 
 	private void Awake()
 	{
-		controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
+
+        controller = GetComponent<CharacterController>();
 		playerControls = new InputSystem_Actions();
 		ApplyControllerShape();
 
@@ -477,15 +480,25 @@ public class BirdController1 : MonoBehaviour
 
 	private void StartWalkAnimation()
 	{
-	}
+        animator.SetBool("PC_Walking", true);
+        animator.SetBool("PC_Flying", false);
+        animator.SetBool("PC_Idle", false);
+		
+    }
 
 	private void StartIdleAnimation()
 	{
-	}
+        animator.SetBool("PC_Walking", false);
+        animator.SetBool("PC_Flying", false);
+        animator.SetBool("PC_Idle", true);
+    }
 
 	private void StartFlyingAnimation()
 	{
-	}
+        animator.SetBool("PC_Walking", false);
+        animator.SetBool("PC_Flying", true);
+        animator.SetBool("PC_Idle", false);
+    }
 
 	private void OnDrawGizmosSelected()
 	{
