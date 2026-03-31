@@ -9,6 +9,8 @@ public class BirdController1 : MonoBehaviour
 	[SerializeField] private float controllerRadius = 0.35f;
 	[SerializeField] private Vector3 controllerCenter = new Vector3(0f, 0.67f, 0f);
 	[SerializeField] private Color colliderGizmoColor = new Color(0.2f, 0.9f, 0.7f, 1f);
+	[SerializeField] private bool ignoreVisualModelColliders = true;
+	[SerializeField] private bool debugCollidersOnVisualModel = false;
 
 	[Header("Build")]
 	[SerializeField] private string birdRootName = "BirdModel";
@@ -30,11 +32,8 @@ public class BirdController1 : MonoBehaviour
 	[SerializeField] private float pitchMin = -70f;
 	[SerializeField] private float pitchMax = 80f;
 
-	[Header("Animation Clips")]
+	[Header("Animation")]
     [SerializeField] private Animator animator;
-    //[SerializeField] private AnimationClip walkAnimation;
-	//[SerializeField] private AnimationClip idleAnimation;
-	//[SerializeField] private AnimationClip flyingAnimation;
 
 	private InputSystem_Actions playerControls;
 
@@ -54,6 +53,7 @@ public class BirdController1 : MonoBehaviour
 	private bool jumpHeld;
 	private bool descendHeld;
 	private bool soarHeld;
+	private bool warnedMissingAnimator;
 
 	private enum BirdAnimState
 	{
@@ -77,13 +77,13 @@ public class BirdController1 : MonoBehaviour
 
 	private void Awake()
 	{
-        animator = GetComponent<Animator>();
-
-        controller = GetComponent<CharacterController>();
+		controller = GetComponent<CharacterController>();
 		playerControls = new InputSystem_Actions();
 		ApplyControllerShape();
 
 		BindExistingBirdVisual();
+		ResolveAnimatorReference();
+		//ValidateVisualModelColliders();
 		EnsureCameraRig();
 	}
 
@@ -131,12 +131,14 @@ public class BirdController1 : MonoBehaviour
 		}
 
 		ApplyControllerShape();
+		ResolveAnimatorReference();
 	}
 
 	private void Start()
 	{
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible = false;
+		ResolveAnimatorReference();
 
 		yaw = transform.eulerAngles.y;
 		UpdateGroundState();
@@ -202,7 +204,94 @@ public class BirdController1 : MonoBehaviour
 			Transform namedChild = transform.Find(birdRootName);
 			birdVisualRoot = namedChild != null ? namedChild : transform;
 		}
+
+		ResolveAnimatorReference();
 	}
+
+	private void ResolveAnimatorReference()
+	{
+		if (animator != null)
+		{
+			return;
+		}
+
+		if (birdVisualRoot != null)
+		{
+			animator = birdVisualRoot.GetComponentInChildren<Animator>(true);
+		}
+
+		if (animator == null)
+		{
+			animator = GetComponentInChildren<Animator>(true);
+		}
+	}
+
+	private bool EnsureAnimator()
+	{
+		if (animator == null)
+		{
+			ResolveAnimatorReference();
+		}
+
+		if (animator != null)
+		{
+			return true;
+		}
+
+		if (!warnedMissingAnimator)
+		{
+			Debug.LogWarning("BirdController1: No Animator found on this object or its children.", this);
+			warnedMissingAnimator = true;
+		}
+
+		return false;
+	}
+/*
+	private void ValidateVisualModelColliders()
+	{
+		if (birdVisualRoot == null)
+		{
+			return;
+		}
+
+		Collider[] colliders = birdVisualRoot.GetComponentsInChildren<Collider>(true);
+		if (colliders.Length == 0)
+		{
+			if (debugCollidersOnVisualModel)
+			{
+				Debug.Log($"BirdController1: No colliders found on visual model '{birdVisualRoot.name}'.", this);
+			}
+			return;
+		}
+
+		if (debugCollidersOnVisualModel)
+		{
+			Debug.Log($"BirdController1: Found {colliders.Length} collider(s) on visual model '{birdVisualRoot.name}':", this);
+			for (int i = 0; i < colliders.Length; i++)
+			{
+				Debug.Log($"  [{i}] {colliders[i].gameObject.name} - {colliders[i].GetType().Name} (enabled: {colliders[i].enabled})", this);
+			}
+		}
+
+		if (ignoreVisualModelColliders)
+		{
+			for (int i = 0; i < colliders.Length; i++)
+			{
+				if (colliders[i].isTrigger)
+				{
+					continue;
+				}
+
+				colliders[i].enabled = false;
+			}
+
+			if (debugCollidersOnVisualModel)
+			{
+				Debug.Log($"BirdController1: Disabled {colliders.Length} non-trigger collider(s) on visual model to avoid grounding interference.", this);
+			}
+		}
+	}
+	*/
 
 	private void SyncBirdVisual()
 	{
@@ -285,6 +374,16 @@ public class BirdController1 : MonoBehaviour
 
 	private void HandleMove()
 	{
+		if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
+
+		if (controller == null || !controller.enabled)
+		{
+			return;
+		}
+
 		planarInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
 		float y = 0f;
@@ -341,7 +440,7 @@ public class BirdController1 : MonoBehaviour
 
 	private void UpdateGroundState()
 	{
-		bool grounded = controller != null && controller.isGrounded;
+		bool grounded = controller != null && controller.enabled && controller.isGrounded;
 		if (!wasGrounded && grounded)
 		{
 			walkingMode = true;
@@ -366,6 +465,10 @@ public class BirdController1 : MonoBehaviour
 
 	private void HandleLook()
 	{
+		if (GameManager.Instance.gameState.currentGameState == GameStates.Paused)
+        {
+            return;
+        }
 		float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
 		float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
@@ -408,13 +511,16 @@ public class BirdController1 : MonoBehaviour
 			return;
 		}
 
+		Vector3 cameraFocus = GetCameraFocusPosition();
+		Vector3 focusDelta = cameraFocus - cameraPivot.position;
+
 		Vector3 desiredPosition = firstPersonMode
 			? firstPersonAnchor.position
-			: cameraPivot.TransformPoint(thirdPersonLocalOffset);
+			: cameraPivot.TransformPoint(thirdPersonLocalOffset) + focusDelta;
 
 		Quaternion desiredRotation = firstPersonMode
 			? cameraPivot.rotation
-			: Quaternion.LookRotation(cameraPivot.position - desiredPosition, Vector3.up);
+			: Quaternion.LookRotation(cameraFocus - desiredPosition, Vector3.up);
 
 		float t = 1f - Mathf.Exp(-cameraSmooth * Time.deltaTime);
 		playerCamera.transform.position = Vector3.Lerp(playerCamera.transform.position, desiredPosition, t);
@@ -428,16 +534,34 @@ public class BirdController1 : MonoBehaviour
 			return;
 		}
 
+		Vector3 cameraFocus = GetCameraFocusPosition();
+		Vector3 focusDelta = cameraFocus - cameraPivot.position;
+
 		Vector3 initialPos = firstPersonMode
 			? firstPersonAnchor.position
-			: cameraPivot.TransformPoint(thirdPersonLocalOffset);
+			: cameraPivot.TransformPoint(thirdPersonLocalOffset) + focusDelta;
 
 		Quaternion initialRot = firstPersonMode
 			? cameraPivot.rotation
-			: Quaternion.LookRotation(cameraPivot.position - initialPos, Vector3.up);
+			: Quaternion.LookRotation(cameraFocus - initialPos, Vector3.up);
 
 		playerCamera.transform.position = initialPos;
 		playerCamera.transform.rotation = initialRot;
+	}
+
+	private Vector3 GetCameraFocusPosition()
+	{
+		if (birdVisualRoot != null)
+		{
+			return birdVisualRoot.position;
+		}
+
+		if (cameraPivot != null)
+		{
+			return cameraPivot.position;
+		}
+
+		return transform.position;
 	}
 
 	private void UpdateAnimationState(bool force = false)
@@ -480,24 +604,39 @@ public class BirdController1 : MonoBehaviour
 
 	private void StartWalkAnimation()
 	{
-        animator.SetBool("PC_Walking", true);
-        animator.SetBool("PC_Flying", false);
-        animator.SetBool("PC_Idle", false);
+		if (!EnsureAnimator())
+		{
+			return;
+		}
+
+		animator.SetBool("PC_Walking", true);
+		animator.SetBool("PC_Flying", false);
+		animator.SetBool("PC_Idle", false);
 		
     }
 
 	private void StartIdleAnimation()
 	{
-        animator.SetBool("PC_Walking", false);
-        animator.SetBool("PC_Flying", false);
-        animator.SetBool("PC_Idle", true);
+		if (!EnsureAnimator())
+		{
+			return;
+		}
+
+		animator.SetBool("PC_Walking", false);
+		animator.SetBool("PC_Flying", false);
+		animator.SetBool("PC_Idle", true);
     }
 
 	private void StartFlyingAnimation()
 	{
-        animator.SetBool("PC_Walking", false);
-        animator.SetBool("PC_Flying", true);
-        animator.SetBool("PC_Idle", false);
+		if (!EnsureAnimator())
+		{
+			return;
+		}
+
+		animator.SetBool("PC_Walking", false);
+		animator.SetBool("PC_Flying", true);
+		animator.SetBool("PC_Idle", false);
     }
 
 	private void OnDrawGizmosSelected()
