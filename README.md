@@ -1,2 +1,6 @@
-# 2026-01-BarrierBase-URP
+# 2026-01 Team Nitemare Project
 
+Sunny
+Duncan
+Louis
+Daniel C
