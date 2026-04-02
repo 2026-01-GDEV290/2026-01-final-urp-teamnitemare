@@ -9,8 +9,8 @@ public class BirdController1 : MonoBehaviour
 	[SerializeField] private float controllerRadius = 0.35f;
 	[SerializeField] private Vector3 controllerCenter = new Vector3(0f, 0.67f, 0f);
 	[SerializeField] private Color colliderGizmoColor = new Color(0.2f, 0.9f, 0.7f, 1f);
-	[SerializeField] private bool ignoreVisualModelColliders = true;
-	[SerializeField] private bool debugCollidersOnVisualModel = false;
+	//[SerializeField] private bool ignoreVisualModelColliders = true;
+	//[SerializeField] private bool debugCollidersOnVisualModel = false;
 
 	[Header("Build")]
 	[SerializeField] private string birdRootName = "BirdModel";

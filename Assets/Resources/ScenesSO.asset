@@ -15,14 +15,14 @@ MonoBehaviour:
   mainMenuScene: MainMenuX
   mainMenuSceneEnum: 1
   gameScenes:
-  - FractureTest
-  - BalanceX
-  - PitchBlackX
   - Dorm
   - Nightmare
-  - Dream
+  - BalanceX
+  - PitchBlackX
+  - FractureTest
+  - Dialogue System 2
   - birdCageRoom
-  - BirdLaunch
+  - Dream
   gameSceneEnum: 2
   gameOverScene: 
   gameOverSceneEnum: 3

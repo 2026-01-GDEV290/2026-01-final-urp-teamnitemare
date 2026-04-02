@@ -450,8 +450,14 @@ public class GameManager : MonoBehaviour
             Debug.LogWarning("GM->PauseGame(): Cannot pause, game is not in Playing state.");
             return;
         }
+
         //flipOutGame.GameEventSaveStateAndTransition(FlipOutGameEvents.Paused);
 
+        if (uiManager == null)
+        {
+            Debug.LogError("GM->PauseGame(): UIManager reference is null. Scene: " + SceneManager.GetActiveScene().name);
+            return;
+        }
         // Show pause menu UI
         if (uiManager.PauseMenuOpen())
         {

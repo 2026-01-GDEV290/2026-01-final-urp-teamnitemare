@@ -63,8 +63,8 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
         if (!rend) return;
 
         //Debug.Log("SharedMaterial color: " + rend.sharedMaterial.color);
-        Debug.Log("Material color: " + rend.material.color);
-        Debug.Log("Emission color: " + rend.material.GetColor("_EmissionColor"));
+        //Debug.Log("Material color: " + rend.material.color);
+        //Debug.Log("Emission color: " + rend.material.GetColor("_EmissionColor"));
 
         //rend.material.color = new Color(rend.material.color.r, rend.material.color.g, rend.material.color.b, alpha);
         var mat = rend.material;
