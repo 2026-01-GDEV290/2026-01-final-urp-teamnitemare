@@ -617,7 +617,7 @@ AnimatorStateMachine:
     m_Position: {x: 460, y: 170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 7589202158025776332}
-    m_Position: {x: -120, y: 230, z: 0}
+    m_Position: {x: -380, y: 100, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1802321748406224917}
     m_Position: {x: 460, y: 220, z: 0}
@@ -644,14 +644,17 @@ AnimatorStateMachine:
     m_Position: {x: 240, y: 420, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -3522592730579703257}
-    m_Position: {x: 20, y: 140, z: 0}
+    m_Position: {x: -100, y: 80, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 8218781880547204438}
+    m_Position: {x: 55, y: 135, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
-  m_EntryPosition: {x: -180, y: 140, z: 0}
+  m_EntryPosition: {x: -410, y: 240, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: 7589202158025776332}
@@ -1221,6 +1224,32 @@ AnimatorState:
   m_TimeParameterActive: 0
   m_Motion: {fileID: -5624545281902316504, guid: 34f30712d30697648b80843f9e09934c,
     type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!1102 &8218781880547204438
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BirdMenuFly
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: c3c17a46d78c8ef4ab1bc05e30bd5d00, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
