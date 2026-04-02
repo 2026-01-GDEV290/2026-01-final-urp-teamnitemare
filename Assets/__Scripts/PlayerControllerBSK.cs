@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerBSK : MonoBehaviour
@@ -33,6 +34,8 @@ public class PlayerControllerBSK : MonoBehaviour
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
     //[SerializeField] private float maxLookAngle = 85f;
+
+    [SerializeField] TMP_Text helpText;
 
     private CharacterController characterController;
     private float verticalVelocity;
@@ -89,6 +92,11 @@ public class PlayerControllerBSK : MonoBehaviour
                 Debug.LogWarning("PlayerControllerBSK could not find a GameObject named 'AngelWings' in the scene. Assign the wings GameObject in the inspector for feather boost visuals.");
             }
         }
+        if (helpText != null)
+        {
+            Canvas canvas = helpText.GetComponentInParent<Canvas>();
+            Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
+        }
     }
 
     private IEnumerator CheckFeatherState()
@@ -115,6 +123,25 @@ public class PlayerControllerBSK : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(1f);
+        }
+    }
+
+    public void FeathersObtained()
+    {
+        hasFeathers = true;
+        wings.SetActive(true);
+        wingAnimationControl.ResetToIdle();
+        if (helpText != null)
+        {
+            helpText.text = "You got feathers! Press Jump while in the air to boost yourself upwards.";            
+            Invoke(nameof(ClearHelpText), 5f);
+        }
+    }
+    void ClearHelpText()
+    {
+        if (helpText != null)
+        {
+            helpText.text = "";
         }
     }
 
