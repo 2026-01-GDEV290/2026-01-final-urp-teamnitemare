@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2ab45d25502563147b939a89ee7d2100
+timeCreated: 1507937792
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Living
+    Area/Vase_d_01.prefab
+  uploadId: 290123

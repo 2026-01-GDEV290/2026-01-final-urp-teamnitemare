@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 6e185150943f30345af020dcfa1305f4
+timeCreated: 1507938193
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Hallway/PiatingWide_c_01.prefab
+  uploadId: 290123

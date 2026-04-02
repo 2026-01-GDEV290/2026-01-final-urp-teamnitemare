@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 6f39d61bcc06c4d4a8fc7bb964bb2a06
+timeCreated: 1507941350
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Custom/Bedroom/ClosetSet_a_01.prefab
+  uploadId: 290123

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 540c10d5db394bb4ebc31212e9ce519e
+timeCreated: 1507937816
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Living
+    Area/WallUnit_a_01.prefab
+  uploadId: 290123

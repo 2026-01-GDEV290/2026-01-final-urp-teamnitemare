@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 79b584a3ba7d6894698d3bb14dca9f57
+timeCreated: 1507932362
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Materials/TextureAtlas_Paintings_01.mat
+  uploadId: 290123

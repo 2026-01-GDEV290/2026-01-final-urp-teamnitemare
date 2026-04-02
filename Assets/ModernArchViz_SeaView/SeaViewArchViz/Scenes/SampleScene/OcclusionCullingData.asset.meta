@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: bdc6ae233fc9de84198cf04a41f4d9fd
+timeCreated: 1508255636
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 36300000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Scenes/SampleScene/OcclusionCullingData.asset
+  uploadId: 290123

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: ac19d37726de02a4dba23ee3f1b78e4f
+timeCreated: 1507992903
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Materials/StandardWhite.mat
+  uploadId: 290123

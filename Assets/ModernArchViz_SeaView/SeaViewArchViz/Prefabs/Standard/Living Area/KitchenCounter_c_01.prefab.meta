@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 7f5e16777970b454eb84256a8ed2e633
+timeCreated: 1507937723
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Living
+    Area/KitchenCounter_c_01.prefab
+  uploadId: 290123

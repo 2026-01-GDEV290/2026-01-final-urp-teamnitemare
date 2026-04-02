@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: aef70823415cc2e458b641309fda2d6f
+timeCreated: 1507983060
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Custom/Living Area/DiningTableSet_b_01.prefab
+  uploadId: 290123

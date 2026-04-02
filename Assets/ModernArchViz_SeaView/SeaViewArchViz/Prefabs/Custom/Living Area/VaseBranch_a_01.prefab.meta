@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c9a0083fc6ee88d449cb5078b32e2071
+timeCreated: 1507942968
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Custom/Living Area/VaseBranch_a_01.prefab
+  uploadId: 290123

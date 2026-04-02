@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b75a0060e1003ec458c71dfc0786f146
+timeCreated: 1507939050
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Custom/Bathroom/BasinSet_a_01.prefab
+  uploadId: 290123

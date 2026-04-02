@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: e2bed1e1a6e8de94ba47ff6882a189de
+timeCreated: 1507937685
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Living
+    Area/Couch_a_01.prefab
+  uploadId: 290123

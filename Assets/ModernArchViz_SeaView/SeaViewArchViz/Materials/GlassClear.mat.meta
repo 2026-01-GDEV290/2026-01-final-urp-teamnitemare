@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4f1838d509edad14087622a297356bac
+timeCreated: 1507936094
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Materials/GlassClear.mat
+  uploadId: 290123

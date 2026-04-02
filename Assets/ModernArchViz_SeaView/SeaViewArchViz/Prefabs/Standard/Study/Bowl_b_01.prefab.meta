@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e1ead9aa234cc2346b448f84e64080ad
+timeCreated: 1507938252
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Study/Bowl_b_01.prefab
+  uploadId: 290123

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 66a39d0292f46ba4e8f97e9e973f50df
+timeCreated: 1507940605
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Custom/Hallway/WineDesk_a_01.prefab
+  uploadId: 290123

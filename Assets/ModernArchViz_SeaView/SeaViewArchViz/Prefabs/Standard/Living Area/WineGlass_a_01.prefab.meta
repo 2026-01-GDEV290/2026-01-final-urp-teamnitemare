@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: c54732387e99b1f43b133839bf2b5cd0
+timeCreated: 1507937821
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 103092
+  packageName: 'Modern ArchViz: Sea View'
+  packageVersion: 1.0
+  assetPath: Assets/ModernArchViz_SeaView/SeaViewArchViz/Prefabs/Standard/Living
+    Area/WineGlass_a_01.prefab
+  uploadId: 290123
