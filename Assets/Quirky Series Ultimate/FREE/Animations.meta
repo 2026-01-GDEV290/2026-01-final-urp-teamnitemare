@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: c0b3b507377c13d4bb1ed56f8de190e8
+=======
+guid: 4801728886f9aa84c86470b05129d1b7
+>>>>>>> PlayableTest
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

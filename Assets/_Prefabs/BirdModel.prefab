@@ -1249,7 +1249,6 @@ MonoBehaviour:
   wingFlapAngle: 32
   footStepInterval: 0.35
   footStepDistance: 0.08
-  switchViewKey: 118
   firstPersonLocalOffset: {x: 0, y: 0.22, z: 0.3}
   thirdPersonLocalOffset: {x: 0, y: 0.55, z: -3.8}
   pitchMin: -70

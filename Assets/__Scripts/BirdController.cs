@@ -69,6 +69,8 @@ public class BirdController : MonoBehaviour
     public bool IsGrounded => controller != null && controller.isGrounded;
     public bool IsWalkingMode => walkingMode;
 
+    
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
@@ -78,6 +80,7 @@ public class BirdController : MonoBehaviour
         BindExistingBirdVisual();
 
         EnsureCameraRig();
+        
     }
     void OnEnable()
     {
@@ -293,6 +296,7 @@ public class BirdController : MonoBehaviour
 
         if (!walkingMode)
         {
+            
             AnimateWings();
             ResetFeetToBase();
             return;
@@ -311,6 +315,7 @@ public class BirdController : MonoBehaviour
 
     private void AnimateWings()
     {
+        
         if (leftWing == null || rightWing == null)
         {
             return;

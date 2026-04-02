@@ -11,7 +11,9 @@ public class FirstPersonMovement : MonoBehaviour
     public float runSpeed = 9;
     public KeyCode runningKey = KeyCode.LeftShift;
 
-    Rigidbody rigidbody;
+    bool dialogueManagerPresent = false;
+
+    Rigidbody rb;
     /// <summary> Functions to override movement speed. Will use the last added override. </summary>
     public List<System.Func<float>> speedOverrides = new List<System.Func<float>>();
 
@@ -20,13 +22,15 @@ public class FirstPersonMovement : MonoBehaviour
     void Awake()
     {
         // Get the rigidbody on this.
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
+        // Check if Dialogue Manager is present in the scene.
+        dialogueManagerPresent = DialogueManager.GetInstance() != null;
     }
 
     void FixedUpdate()
     {
         //Freeze player when dialogue is open
-        if (DialogueManager.GetInstance().dialogueIsPlaying)
+        if (dialogueManagerPresent && DialogueManager.GetInstance().dialogueIsPlaying)
         {
             return;
         }
@@ -45,6 +49,6 @@ public class FirstPersonMovement : MonoBehaviour
         Vector2 targetVelocity =new Vector2( Input.GetAxis("Horizontal") * targetMovingSpeed, Input.GetAxis("Vertical") * targetMovingSpeed);
 
         // Apply movement.
-        rigidbody.linearVelocity = transform.rotation * new Vector3(targetVelocity.x, rigidbody.linearVelocity.y, targetVelocity.y);
+        rb.linearVelocity = transform.rotation * new Vector3(targetVelocity.x, rb.linearVelocity.y, targetVelocity.y);
     }
 }
