@@ -3,6 +3,7 @@ INCLUDE globals.ink
 -> endnight
 
 ===endnight===
+0
 Do you want to go to sleep?
     + [Yes, I'm tired...]
     -> sleep ("SLEEP")

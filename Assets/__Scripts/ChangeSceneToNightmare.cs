@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ChangeSceneToNightmare : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class ChangeSceneToNightmare : MonoBehaviour
 
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-                SceneManager.LoadScene("Nightmare");
+                Application.LoadLevel("Nightmare");
             }
         }
         else

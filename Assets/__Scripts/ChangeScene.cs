@@ -31,7 +31,7 @@ public class ChangeScene : MonoBehaviour
 
     void LoadLevel()
     {
-        SceneManager.LoadScene("birdCageRoom");
+        Application.LoadLevel("birdCageRoom");
     }
 
     private void OnTriggerEnter(Collider other)

@@ -4,11 +4,7 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - GrapplePoint
-  - GrapplePawnPosition
-  - InteractCollider
   - Chore
-  - FollowBox
   layers:
   - Default
   - TransparentFX
@@ -20,7 +16,7 @@ TagManager:
   - 
   - 
   - 
-  - Player
+  - 
   - 
   - 
   - 

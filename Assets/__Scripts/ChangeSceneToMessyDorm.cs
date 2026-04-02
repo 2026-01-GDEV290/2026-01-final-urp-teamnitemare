@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ChangeSceneToMessyDorm : MonoBehaviour
 {
@@ -20,7 +19,7 @@ public class ChangeSceneToMessyDorm : MonoBehaviour
 
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-                SceneManager.LoadScene("Dialogue System 2");
+                Application.LoadLevel("Dialogue System 2");
             }
         }
         else
