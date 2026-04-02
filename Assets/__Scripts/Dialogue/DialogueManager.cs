@@ -165,9 +165,18 @@ public class DialogueManager : MonoBehaviour
         dialoguePanel.SetActive(true);
         
        //reset portrait, layout, and speaker
-       displayNameText.text = "???";
-       portraitAnimator.Play("default");
-       layoutAnimator.Play("right");
+       if (displayNameText != null)
+       {
+           displayNameText.text = "???";
+       }
+       if (portraitAnimator != null)
+       {
+           portraitAnimator.Play("default");
+       }
+        if (layoutAnimator != null)
+        {
+            layoutAnimator.Play("right");
+        }
 
         dialogueVariables.StartListening(currentStory);
 
