@@ -302,8 +302,6 @@ public class BalanceController : MonoBehaviour
         float danger = Mathf.InverseLerp(0.25f * failThreshold, failThreshold, Mathf.Abs(lean));
         Color target = new Color(1f, 0f, 0f, danger * 0.6f);
         screenFade.SetColorInstantly(target);
-
-
     }
 
     void LateUpdate()

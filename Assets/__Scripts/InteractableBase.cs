@@ -1,13 +1,33 @@
+using System;
 using UnityEngine;
+using TMPro;
 
-public class InteractableObject : MonoBehaviour
+[Serializable]
+enum InteractableType
 {
+    None,
+    Object,
+    NPC,
+    Other
+}
+
+[Serializable]
+public class InteractableBase : MonoBehaviour
+{
+    InteractableType interactableType = InteractableType.None;
     public string interactText = "Interact";
     public string interactResponseText = "You interacted with the object!";
     
     public bool isInteractable = true;
     public bool isOneTimeUse = false;
     public int interactionCount = 0;
+
+    [SerializeField] GameObject billBoardObject;
+    [SerializeField] Vector3 billBoardOffset = new Vector3(0f, 2f, 0f);
+    [SerializeField] TMP_Text billBoardText;
+    [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
+    [SerializeField] string billBoardInteractMessage = "Interact";
+    [SerializeField] bool showBillboard = true;
 
     public UnityEngine.Events.UnityEvent onInteract;
 
@@ -27,9 +47,13 @@ public class InteractableObject : MonoBehaviour
     public void SetIsInteractable(bool value)
     {
         isInteractable = value;
+        if (value && interactionCount > 0 && isOneTimeUse)
+        {
+            interactionCount = 0;
+        }
     }
 
-    public void Interact()
+    public virtual void Interact()
     {
         if (!isInteractable)
         {
@@ -45,3 +69,4 @@ public class InteractableObject : MonoBehaviour
         }
     }
 }
+
