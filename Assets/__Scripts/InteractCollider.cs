@@ -6,11 +6,11 @@ using TMPro;
 public class InteractCollider : MonoBehaviour
 {
     // delegate + event to notify parent InteractableObject of trigger enter
-    public delegate void PlayerEnterTriggerHandler(InteractableObject interactable);
+    public delegate void PlayerEnterTriggerHandler(InteractableBase interactable);
     public event PlayerEnterTriggerHandler OnPlayerHitInteractable;
     public event PlayerEnterTriggerHandler OnPlayerLeaveInteractable;
 
-    InteractableObject interactableObject = null;
+    InteractableBase interactable = null;
 
     [SerializeField] private TMP_Text interactText;
 
@@ -33,44 +33,45 @@ public class InteractCollider : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (interactableObject != null)
+        if (interactable != null)
         {
             // if object is disabled or non-interactable, treat as if player left the trigger
-            if (!interactableObject.gameObject.activeInHierarchy || !interactableObject.isInteractable)
+            if (!interactable.gameObject.activeInHierarchy || !interactable.isInteractable)
             {
                 //Debug.Log($"InteractCollider treating {interactableObject.gameObject.name} as left trigger because it is no longer active or interactable");
-                OnPlayerLeaveInteractable?.Invoke(interactableObject);
-                interactableObject = null;
+                OnPlayerLeaveInteractable?.Invoke(interactable);
+                interactable = null;
                 SetInteractText("");
             }
-
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
         //Debug.Log($"InteractCollider entered trigger: {other.gameObject.name}");
-        if (other.TryGetComponent(out InteractableObject interactable))
+        if (other.TryGetComponent(out InteractableBase interactableLocal))
         {
-            interactableObject = interactable;
+            if (!interactableLocal.CanInteract())
+            {
+                //Debug.Log($"InteractCollider found InteractableBase but it cannot interact: {interactable.gameObject.name}");
+                return;
+            }
+            interactable = interactableLocal;
             OnPlayerHitInteractable?.Invoke(interactable);
-            Debug.Log($"InteractCollider found InteractableObject: {interactable.gameObject.name}");
+            Debug.Log($"InteractCollider found Interactable: {interactable.gameObject.name}");
             Debug.Log($"Interactable text: {interactable.interactText}");
+            interactable.SetBillboardText(interactable.interactText);
+            interactable.SetBillboardVisibility(true);
         }
-        /*else if (other.TryGetComponent(out BillboardText billboard))
-        {
-            Debug.Log($"InteractCollider found BillboardText: {billboard.gameObject.name}");
-            // Optionally, you could have the billboard text be a special case of interactable that doesn't require interaction, just proximity
-            // For now, we'll just log it and not set it as the current interactable
-        }*/
     }
     void OnTriggerExit(Collider other)
     {
         //Debug.Log($"InteractCollider exited trigger: {other.gameObject.name}");
-        if (interactableObject != null)
+        if (interactable != null)
         {
-            OnPlayerLeaveInteractable?.Invoke(interactableObject);
-            interactableObject = null;
+            OnPlayerLeaveInteractable?.Invoke(interactable);
+            interactable.SetBillboardVisibility(false);
+            interactable = null;
         }
     }
 }

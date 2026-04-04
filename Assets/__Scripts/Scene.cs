@@ -484,17 +484,17 @@ public class Scene : MonoBehaviour
     {
         TriggerableSetIsActive(go, false);
     }
-    public void InteractableSetIsInteractable(GameObject go, bool interactable)
+    public void InteractableSetIsInteractable(GameObject go, bool isInteractable)
     {
-        InteractableObject interactableObject = go.GetComponent<InteractableObject>();
-        if (interactableObject == null)
+        InteractableBase interactable = go.GetComponent<InteractableBase>();
+        if (interactable == null)
         {
-            Debug.LogError("InteractableSetIsInteractable: GameObject: " + go.name + " does not have an InteractableObject component.");
+            Debug.LogError("InteractableSetIsInteractable: GameObject: " + go.name + " does not have an InteractableBase component.");
             return;
         }
         else
         {
-            interactableObject.SetIsInteractable(interactable);
+            interactable.SetIsInteractable(isInteractable);
         }
     }
     public void InteractableSetIsInteractable(GameObject go)

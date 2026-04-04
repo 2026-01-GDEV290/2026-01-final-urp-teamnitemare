@@ -310,7 +310,7 @@ public class BalanceController : MonoBehaviour
         
         if (helpText != null)
         {
-            Debug.Log("helpTextRect rotate: tiltAmount:" + -tiltAmount);
+            //Debug.Log("helpTextRect rotate: tiltAmount:" + -tiltAmount);
             //helpText.transform.Rotate(0, 0, -tiltAmount, Space.Self);
             //helpTextRect.transform.localRotation = Quaternion.Euler(0,0, -tiltAmount);
 

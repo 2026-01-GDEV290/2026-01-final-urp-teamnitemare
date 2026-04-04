@@ -1,40 +1,46 @@
 using UnityEngine;
 
-public class InteractableObject : MonoBehaviour
+public class InteractableObject : InteractableBase
 {
-    public string interactText = "Interact";
-    public string interactResponseText = "You interacted with the object!";
-    
-    public bool isInteractable = true;
-    public bool isOneTimeUse = false;
-    public int interactionCount = 0;
-
     public UnityEngine.Events.UnityEvent onInteract;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    //void Start()
-    //{ }
+    InteractableObject() : base()
+    {
+        interactableType = InteractableType.Object;
+    }
+    protected override void Awake()
+    {
+        base.Awake();
+        // Additional initialization if needed
+    }
+    protected override void Start()
+    {
+        base.Start();
+        // Additional initialization if needed
+    }
 
-    // Update is called once per frame
-    //void Update()
-    //{}
-
-    public bool CanInteract()
+    public override bool CanInteract()
     {
         return isInteractable;
     }
 
-    public void SetIsInteractable(bool value)
+    public override void SetIsInteractable(bool value)
     {
         isInteractable = value;
+        if (value && interactionCount > 0 && isOneTimeUse)
+        {
+            interactionCount = 0;
+        }
     }
 
-    public void Interact()
+    public override void Interact()
     {
         if (!isInteractable)
         {
             return;
         }
+        // default?
+        //SetBillboardVisibility(false);
 
         onInteract.Invoke();
         interactionCount++;

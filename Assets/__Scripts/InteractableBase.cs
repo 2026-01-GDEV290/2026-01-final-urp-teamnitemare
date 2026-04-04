@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 
 [Serializable]
-enum InteractableType
+public enum InteractableType
 {
     None,
     Object,
@@ -12,9 +12,9 @@ enum InteractableType
 }
 
 [Serializable]
-public class InteractableBase : MonoBehaviour
+public abstract class InteractableBase : MonoBehaviour
 {
-    InteractableType interactableType = InteractableType.None;
+    protected InteractableType interactableType = InteractableType.None;
     public string interactText = "Interact";
     public string interactResponseText = "You interacted with the object!";
     
@@ -22,51 +22,70 @@ public class InteractableBase : MonoBehaviour
     public bool isOneTimeUse = false;
     public int interactionCount = 0;
 
-    [SerializeField] GameObject billBoardObject;
+    [SerializeField] GameObject billBoardObject = null;
     [SerializeField] Vector3 billBoardOffset = new Vector3(0f, 2f, 0f);
-    [SerializeField] TMP_Text billBoardText;
+    [SerializeField] TMP_Text billBoardTextObject = null;
     [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
-    [SerializeField] string billBoardInteractMessage = "Interact";
-    [SerializeField] bool showBillboard = true;
+    [SerializeField] string billBoardInteractText = "Interact";
+    [SerializeField] bool showBillboardOnStart = true;
 
-    public UnityEngine.Events.UnityEvent onInteract;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    //void Start()
-    //{ }
-
-    // Update is called once per frame
-    //void Update()
-    //{}
-
-    public bool CanInteract()
+    protected virtual void Awake()
     {
-        return isInteractable;
-    }
-
-    public void SetIsInteractable(bool value)
-    {
-        isInteractable = value;
-        if (value && interactionCount > 0 && isOneTimeUse)
+        if (billBoardObject != null)
         {
-            interactionCount = 0;
+            // Check if billBoardObject is actually a billBoardText object
+            if (billBoardObject.GetComponent<TMP_Text>() != null)
+            {
+                billBoardTextObject = billBoardObject.GetComponent<TMP_Text>();
+                // don't need this anymore
+                billBoardObject = null;
+            }
+            // else it's possible to have BOTH a billboard (say, image) and billboardtext object
+        }
+    }
+    protected virtual void Start()
+    {
+        if (billBoardObject != null)
+        {
+            billBoardObject.transform.position = transform.position + billBoardOffset;
+        }
+        if (billBoardTextObject != null)
+        {
+
+            billBoardTextObject.text = billBoardInteractText;
+            billBoardTextObject.transform.position = transform.position + billBoardTextOffset;
+        }
+        if (!showBillboardOnStart)
+        {
+            SetBillboardVisibility(false);
         }
     }
 
-    public virtual void Interact()
+    public abstract bool CanInteract();
+
+    public abstract void SetIsInteractable(bool value);
+
+    public abstract void Interact();
+
+    public void SetBillboardText(string text)
     {
-        if (!isInteractable)
+        if (billBoardTextObject != null)
         {
-            return;
-        }
-
-        onInteract.Invoke();
-        interactionCount++;
-
-        if (isOneTimeUse)
-        {
-            isInteractable = false;
+            billBoardTextObject.text = text;
         }
     }
+
+    public void SetBillboardVisibility(bool visible)
+    {
+        if (billBoardObject != null)
+        {
+            billBoardObject.SetActive(visible);
+        }
+        if (billBoardTextObject != null)
+        {
+            billBoardTextObject.gameObject.SetActive(visible);
+        }
+    }
+
 }
 

@@ -1255,6 +1255,12 @@ MonoBehaviour:
   isInteractable: 1
   isOneTimeUse: 1
   interactionCount: 0
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 0
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -1408,6 +1414,12 @@ MonoBehaviour:
   isInteractable: 1
   isOneTimeUse: 1
   interactionCount: 0
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 0
   onInteract:
     m_PersistentCalls:
       m_Calls:

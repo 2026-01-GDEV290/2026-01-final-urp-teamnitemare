@@ -11,6 +11,7 @@ public class PlayerControllerBSK : MonoBehaviour
     private InputAction lookAction;
     private InputAction jumpAction;
     private InputAction attackAction;
+    private InputAction interactAction;
 
     [Header("References")]
     [SerializeField] private Camera playerCamera;
@@ -49,7 +50,7 @@ public class PlayerControllerBSK : MonoBehaviour
     private InteractCollider interactCollider;
 
     bool lookingAtInteractable = false;
-    InteractableObject currentInteractable = null;
+    InteractableBase currentInteractable = null;
 
     [SerializeField] private bool hasFeathers = false;
 
@@ -154,6 +155,8 @@ public class PlayerControllerBSK : MonoBehaviour
         attackAction = playerControls.Player.Attack;
         jumpAction.performed += JumpActionPerformed;
         attackAction.performed += AttackAction;
+        interactAction = playerControls.Player.Interact;
+        interactAction.performed += InteractAction;
 
         // get child InteractArea's InteractCollider and subscribe to its event
         InteractCollider[] interactColliders = GetComponentsInChildren<InteractCollider>();
@@ -178,6 +181,10 @@ public class PlayerControllerBSK : MonoBehaviour
         if (attackAction != null)
         {
             attackAction.performed -= AttackAction;
+        }
+        if (interactAction != null)
+        {
+            interactAction.performed -= InteractAction;
         }
 
         if (playerControls != null)
@@ -303,7 +310,7 @@ public class PlayerControllerBSK : MonoBehaviour
         characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
     }
 
-    void InteractTrigger(InteractableObject interactable)
+    void InteractTrigger(InteractableBase interactable)
     {
         if (interactable == null)
         {
@@ -311,7 +318,7 @@ public class PlayerControllerBSK : MonoBehaviour
         }
 
         Debug.Log($"PlayerControllerFR received InteractTrigger from {interactable.gameObject.name}");
-        Debug.Log($"PlayerControllerFR found InteractableObject: {interactable.gameObject.name}");
+        Debug.Log($"PlayerControllerFR found InteractableBase: {interactable.gameObject.name}");
         Debug.Log($"Interactable text: {interactable.interactText}");
         interactCollider.SetInteractText(interactable.interactText);
         lookingAtInteractable = true;
@@ -319,7 +326,7 @@ public class PlayerControllerBSK : MonoBehaviour
 
         // (on Interact button): interactable.Interact();
     }
-    void InteractLeaveTrigger(InteractableObject interactable)
+    void InteractLeaveTrigger(InteractableBase interactable)
     {
         if (interactable != null)
         {
@@ -332,14 +339,26 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void AttackAction(InputAction.CallbackContext context)
     {
+        DoInteractIfCan();
+    }
+
+    void InteractAction(InputAction.CallbackContext context)
+    {
+        DoInteractIfCan();
+    }
+
+    void DoInteractIfCan()
+    {
         if (lookingAtInteractable && currentInteractable != null)
         {
             Debug.Log($"Interacting with {currentInteractable.gameObject.name}");
-            currentInteractable.Interact();
+            if (currentInteractable.CanInteract())
+            {
+                currentInteractable.Interact();
+            }
             return;
         }
-
-        Debug.Log("Attack button pressed");
+        Debug.Log("Interact/Attack button pressed but no interactable in range");
     }
 
     public void OnTeleported(Quaternion targetRotation, bool applyRotation)
