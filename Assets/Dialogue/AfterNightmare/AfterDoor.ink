@@ -1,0 +1,1 @@
+No classes today, but I should get my homework done before going outside anyway.
