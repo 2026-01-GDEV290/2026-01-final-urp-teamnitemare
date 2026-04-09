@@ -4311,7 +4311,7 @@ PrefabInstance:
         type: 3}
       propertyPath: inkJSON
       value: 
-      objectReference: {fileID: 4900000, guid: 2843112f2ab99064a886e28b0736c981, type: 3}
+      objectReference: {fileID: 4900000, guid: 3a35f8aabe6a15348ae1a91053abe083, type: 3}
     - target: {fileID: 5652148306720035585, guid: 32611347f00890c428be8b065c9dbdee,
         type: 3}
       propertyPath: m_Size.x
@@ -5331,7 +5331,7 @@ PrefabInstance:
         type: 3}
       propertyPath: inkJSON
       value: 
-      objectReference: {fileID: 4900000, guid: 099b76bdd0d18ef40aa7b84445881699, type: 3}
+      objectReference: {fileID: 4900000, guid: 4ec4bd1b246869c4494f6ccd0d92c805, type: 3}
     - target: {fileID: 5652148306720035585, guid: 32611347f00890c428be8b065c9dbdee,
         type: 3}
       propertyPath: m_Size.x
@@ -9899,6 +9899,135 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 453068130}
   m_Mesh: {fileID: 1638421564984503423, guid: 2a83511a782a6aa4dafed1f5a2bd3803, type: 3}
+--- !u!1 &454728500
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 454728502}
+  - component: {fileID: 454728501}
+  m_Layer: 0
+  m_Name: Background Sounds
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &454728501
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454728500}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 2a8ef7dcd058e6141a4c4331e426333c, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.621
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 12.2
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &454728502
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454728500}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.51, y: 8.83, z: -3.62761}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &455190952
 GameObject:
   m_ObjectHideFlags: 0
@@ -11887,7 +12016,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &575623428
 Transform:
   m_ObjectHideFlags: 0
@@ -15395,7 +15524,7 @@ GameObject:
   m_Component:
   - component: {fileID: 793352888}
   m_Layer: 0
-  m_Name: Closet
+  m_Name: TV Boxes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16865,7 +16994,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &880524525
 Transform:
   m_ObjectHideFlags: 0
@@ -17437,7 +17566,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &904386497
 Transform:
   m_ObjectHideFlags: 0
@@ -23586,7 +23715,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1312256740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24108,7 +24237,7 @@ PrefabInstance:
         type: 3}
       propertyPath: inkJSON
       value: 
-      objectReference: {fileID: 4900000, guid: bd387fa771a43d04d8fd0a54c2b8e487, type: 3}
+      objectReference: {fileID: 4900000, guid: ecf012f4e35f47d46ac12d851c33f3dc, type: 3}
     - target: {fileID: 5652148306720035585, guid: 32611347f00890c428be8b065c9dbdee,
         type: 3}
       propertyPath: m_Size.x
@@ -24553,7 +24682,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1371155002
 Transform:
   m_ObjectHideFlags: 0
@@ -27432,7 +27561,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1523904188
 Transform:
   m_ObjectHideFlags: 0
@@ -32928,7 +33057,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1781498282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33144,7 +33273,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1786197051
 Transform:
   m_ObjectHideFlags: 0
@@ -39293,3 +39422,4 @@ SceneRoots:
   - {fileID: 1474434604}
   - {fileID: 786487494}
   - {fileID: 49339768}
+  - {fileID: 454728502}
