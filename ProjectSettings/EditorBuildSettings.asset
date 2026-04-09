@@ -39,7 +39,7 @@ EditorBuildSettings:
     path: Assets/_Scenes/xDream.unity
     guid: ccb006059b4706a47a4f8f42f0a7b439
   - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/3D set of stylized nature - GHIBLI style/Art/Demo/Overiew.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: e733fc5e8db162f40a4fd4d7871f9296,
