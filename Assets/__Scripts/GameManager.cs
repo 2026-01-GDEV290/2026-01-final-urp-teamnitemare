@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 //using TMPro;
 
+// TODO: minigames (going IN to a minigame scene, returing BACK to a previous scene without resetting progress)
+// (requires knowing state of player [position, etc], and game world [objects moved/removed])
 
 [Serializable]
 public class GameManager : MonoBehaviour
@@ -36,6 +38,9 @@ public class GameManager : MonoBehaviour
     //[SerializeField] public CagedGame cagedGame = null;
     [SerializeField] public GameState gameState = new GameState();
     [SerializeField] public PlayerState playerState = new PlayerState();
+
+    public bool reloadCurrentSceneCalled = false;
+    public bool restartCurrentSceneCalled = false;
 
     bool mouseHideForGameScenes = true;
     bool timeScaleFreezeForPause = true;
@@ -292,9 +297,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void ReloadCurrentScene()
+    // Difference from ReloadCurrentScene is visit counter isn't incremented, but scene progress is reset
+    public void RestartCurrentScene()
     {
-        Debug.Log("GM->ReloadCurrentScene() for scene: " + SceneManager.GetActiveScene().name);
+        reloadCurrentSceneCalled = false;
+        restartCurrentSceneCalled = true;
+        
+        Debug.Log("GM->RestartCurrentScene()");
+        ReloadInternal();
+    }
+
+    // called internally by RestartCurrentScene AND ReloadCurrentScene
+    private void ReloadInternal()
+    {
+        string activeSceneName = SceneManager.GetActiveScene().name;
+        Debug.Log("GM->ReloadInternal() for scene: " + activeSceneName);
+
         if (gameState.currentGameState == GameStates.Paused)
         {
             Debug.LogWarning("GM->LoadScene(): Game is paused, closing pause menu.");
@@ -304,14 +322,14 @@ public class GameManager : MonoBehaviour
             SceneLoadingGameCleanup();
         }
     
-        string activeSceneName = SceneManager.GetActiveScene().name;
-       if (gameState.currentScene == Scenes.Game)
+        
+        if (gameState.currentScene == Scenes.Game)
         {
             // get index of current scene
-            int currentIndex = GameState.scenesSO.gameScenes.IndexOf(SceneManager.GetActiveScene().name);
+            int currentIndex = GameState.scenesSO.gameScenes.IndexOf(activeSceneName);
             if (currentIndex == -1)
             {
-                Debug.LogError("Current scene is marked as Game but not found in gameScenes list: " + SceneManager.GetActiveScene().name);
+                Debug.LogError("Current scene is marked as Game but not found in gameScenes list: " + activeSceneName);
                 currentIndex = 0; // default to first scene
             }
             else
@@ -327,6 +345,15 @@ public class GameManager : MonoBehaviour
         //VerifyCurrentScene();
     }
 
+    public void ReloadCurrentScene()
+    {
+        reloadCurrentSceneCalled = true;
+        restartCurrentSceneCalled = false;
+
+        Debug.Log("GM->ReloadCurrentScene()");
+        ReloadInternal();
+    }
+
     void SceneLoadingGameCleanup()
     {
         // The following are done in SceneDestroyed():
@@ -337,9 +364,13 @@ public class GameManager : MonoBehaviour
    // Scene -> Scene script (in each level) calls the following Awake/Start/Destroyed functions
     public void SceneAwake(Scene sceneScript)
     {
+        string sceneName = SceneManager.GetActiveScene().name;
         VerifyCurrentScene();
-        Debug.Log("GM->SceneAwake() for scene: " + SceneManager.GetActiveScene().name + " currentScene: " + gameState.currentScene.ToString());
+        Debug.Log("GM->SceneAwake() for scene: " + sceneName + " currentScene: " + gameState.currentScene.ToString());
         gameState.currentSceneScript = sceneScript;
+        reloadCurrentSceneCalled = false;
+        restartCurrentSceneCalled = false;
+
         if (gameState.currentScene == Scenes.Game)
         {
             // For now, we can have these in the level or created here if missing
@@ -354,10 +385,20 @@ public class GameManager : MonoBehaviour
                 }
                 uiManager = uIManagerGO.GetComponent<UIManager>();
             }
-            // add scene to gameState.sceneProgressionInfo if not already there
-            if (!gameState.sceneProgressionInfo.ContainsKey(SceneManager.GetActiveScene().name))
+
+            if (restartCurrentSceneCalled)
             {
-                gameState.sceneProgressionInfo.Add(SceneManager.GetActiveScene().name, new List<string>());
+                Debug.Log("GM->SceneAwake: (restart)");
+            }
+            else
+            {
+                if (reloadCurrentSceneCalled)
+                    Debug.Log("GM->SceneAwake: (reload)");
+                else
+                    Debug.Log("GM->SceneAwake: (new)");
+
+                // This gets added even if we're reloading:
+                gameState.scenesInOrderOfVisit.Add(sceneName);
             }
         }
     }

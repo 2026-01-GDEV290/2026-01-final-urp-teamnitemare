@@ -472,6 +472,7 @@ MonoBehaviour:
   referenceDistance: 10
   minScaleMultiplier: 0.5
   maxScaleMultiplier: 2
+  showType: 2
   onlyShowForPlayer: 1
   playerTag: InteractCollider
   timeOutOnTriggerEnter: 0
