@@ -14,6 +14,13 @@ public class BillboardText : MonoBehaviour
         FixedWorldRotation
     }
 
+    public enum BillboardShowType
+    {
+        AlwaysShow,
+        ShowOnCollide,
+        ManualShow
+    }
+
     [Header("Text")]
     [Tooltip("TextMeshPro component. (if null, created at runtime as a child of this GameObject.")]
     [SerializeField] private TextMeshPro worldText;
@@ -41,6 +48,7 @@ public class BillboardText : MonoBehaviour
     private Vector3 originalScale;
 
     [Header("Trigger")]
+    [SerializeField] private BillboardShowType showType = BillboardShowType.ShowOnCollide;
     [SerializeField] private bool onlyShowForPlayer = true;
     [SerializeField] private string playerTag = "InteractCollider"; //"Player";
     [SerializeField] private float timeOutOnTriggerEnter = 0f;
@@ -57,8 +65,17 @@ public class BillboardText : MonoBehaviour
         //WarnIfColliderNotTrigger();
         EnsureTextObject();
         ApplyTextSettings();
-        SetTextVisible(false);
+        SetTextVisible(showType == BillboardShowType.AlwaysShow);
         timeOutOnTriggerEnterCountdown = timeOutOnTriggerEnter;
+    }
+
+    public void ShowBillboard()
+    {
+        SetTextVisible(true);
+    }
+    public void HideBillboard()
+    {
+        SetTextVisible(false);
     }
 
     private void LateUpdate()
@@ -68,7 +85,8 @@ public class BillboardText : MonoBehaviour
             return;
         }
 
-        if (timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
+        if (showType == BillboardShowType.AlwaysShow &&
+            timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
         {
             timeOutOnTriggerEnterCountdown -= Time.deltaTime;
             if (timeOutOnTriggerEnterCountdown <= 0.01f)
@@ -140,6 +158,9 @@ public class BillboardText : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (showType == BillboardShowType.AlwaysShow || showType == BillboardShowType.ManualShow)
+            return;
+
         if (!IsValidTarget(other))
         {
             return;
@@ -152,6 +173,9 @@ public class BillboardText : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (showType == BillboardShowType.AlwaysShow || showType == BillboardShowType.ManualShow)
+            return;
+        
         if (!IsValidTarget(other))
         {
             return;

@@ -3,6 +3,7 @@ using UnityEngine;
 public class Billboard : MonoBehaviour
 {
     [SerializeField] private BillboardType billboardType;
+    //[SerializeField] private BillboardShowType showType;
 
     [Header("Lock Rotation")]
     [SerializeField] private bool lockX;
@@ -11,6 +12,7 @@ public class Billboard : MonoBehaviour
 
     [Header("Positioning")]
     [SerializeField] private Vector3 positionOffset;
+
 
     [Header("Distance Scaling")]
     [SerializeField] private bool scaleByDistance;
@@ -27,6 +29,7 @@ public class Billboard : MonoBehaviour
 
 
     public enum BillboardType { LookAtCamera, CameraForward, FixedDirection };
+    //public enum BillboardShowType { AlwaysShow, ShowOnCollide, ManualShow };
 
     private void Awake()
     {
