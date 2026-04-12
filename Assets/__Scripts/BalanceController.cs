@@ -228,7 +228,7 @@ public class BalanceController : MonoBehaviour
 
     void ReloadScene()
     {
-        GameManager.Instance.ReloadCurrentScene();
+        GameManager.Instance.RestartCurrentScene();
     }
 
     void ResetLeanAndCamera()

@@ -887,32 +887,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onSceneAwake:
-    m_PersistentCalls:
-      m_Calls: []
-  onSceneStart:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1578041323}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  taskGroups:
-  - taskGroupName: Boxes
-    completePriorGroupFirst: 1
-    taskObjects:
-    - {fileID: 1338003849}
-    - {fileID: 1350025395}
-    autoActOnComplete: 1
-    onTasksCompleted:
+  sceneVisitTasks:
+  - visitCount: 1
+    onSceneAwake:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 1578041323}
@@ -925,9 +902,11 @@ MonoBehaviour:
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
-            m_BoolArgument: 1
+            m_BoolArgument: 0
           m_CallState: 2
-    actedOnComplete: 0
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!1 &1255798032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1232,6 +1211,7 @@ GameObject:
   - component: {fileID: 1338003852}
   - component: {fileID: 1338003851}
   - component: {fileID: 1338003850}
+  - component: {fileID: 1338003855}
   m_Layer: 0
   m_Name: InteractCube
   m_TagString: Untagged
@@ -1265,13 +1245,13 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 931949555}
-        m_TargetAssemblyTypeName: Scene, Assembly-CSharp
-        m_MethodName: RemoveTaskObject
+      - m_Target: {fileID: 1512786758}
+        m_TargetAssemblyTypeName: Quest, Assembly-CSharp
+        m_MethodName: CompleteTaskObject
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 1338003849}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 1338003855}
+          m_ObjectArgumentAssemblyTypeName: QuestComponent, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1378,6 +1358,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1338003855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338003849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questComponentId: 
+  isCollectible: 0
 --- !u!1 &1350025395
 GameObject:
   m_ObjectHideFlags: 0
@@ -1391,6 +1385,7 @@ GameObject:
   - component: {fileID: 1350025398}
   - component: {fileID: 1350025397}
   - component: {fileID: 1350025396}
+  - component: {fileID: 1350025401}
   m_Layer: 0
   m_Name: InteractCube (1)
   m_TagString: Untagged
@@ -1424,13 +1419,13 @@ MonoBehaviour:
   onInteract:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 931949555}
-        m_TargetAssemblyTypeName: Scene, Assembly-CSharp
-        m_MethodName: RemoveTaskObject
+      - m_Target: {fileID: 1512786758}
+        m_TargetAssemblyTypeName: Quest, Assembly-CSharp
+        m_MethodName: CompleteTaskObject
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 1350025395}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_ObjectArgument: {fileID: 1350025401}
+          m_ObjectArgumentAssemblyTypeName: QuestComponent, Assembly-CSharp
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -1537,6 +1532,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1350025401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350025395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questComponentId: 
+  isCollectible: 0
 --- !u!1 &1419844637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1646,6 +1655,76 @@ Transform:
   m_Children:
   - {fileID: 653149111}
   - {fileID: 57595536}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1512786757
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1512786759}
+  - component: {fileID: 1512786758}
+  m_Layer: 0
+  m_Name: QuestInteract
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1512786758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512786757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9615d30b9386d5642ac8e8b8c74e2610, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  taskGroup:
+    taskGroupName: Interact
+    isCollectibleGroup: 0
+    completeReferencedTaskFirst: 0
+    taskObjects:
+    - {fileID: 1338003855}
+    - {fileID: 1350025401}
+    autoActOnComplete: 1
+    onTasksCompleted:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1578041323}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+    actedOnComplete: 0
+    taskMinimumForCompletion: 0
+    tasksCompleted: 0
+--- !u!4 &1512786759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512786757}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.3063, y: 1.885, z: -0.44869}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1528187346
@@ -2159,6 +2238,51 @@ Transform:
   - {fileID: 1865365081}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1814019853
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1814019854}
+  - component: {fileID: 1814019855}
+  m_Layer: 0
+  m_Name: QuestMgr
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1814019854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814019853}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.3063, y: 1.885, z: -0.44869}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1814019855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814019853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a63918d0387fe940a2bd2bb12d3b588, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  quests: []
 --- !u!1 &1822987209
 GameObject:
   m_ObjectHideFlags: 0
@@ -3374,3 +3498,5 @@ SceneRoots:
   - {fileID: 1350025400}
   - {fileID: 1632971843}
   - {fileID: 2106436777}
+  - {fileID: 1814019854}
+  - {fileID: 1512786759}

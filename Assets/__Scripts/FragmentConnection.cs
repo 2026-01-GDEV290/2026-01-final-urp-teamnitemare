@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
@@ -22,24 +23,48 @@ public class FragmentConnection : MonoBehaviour
     private Collider targetCollider;
 
     private QuestComponent questComponent;
+    private static Quest sharedQuest;
+    private static readonly string questName = "Fragment-Connection-Quest";
+    private Quest quest = null;
 
-    private void Awake()
+    void Awake()
     {
         ownCollider = GetComponent<Collider>();
-    }
-    private void Start()
-    {
         questComponent = GetComponent<QuestComponent>();
         if (questComponent == null)
         {
             questComponent = gameObject.AddComponent<QuestComponent>();
+            questComponent.questComponentId = gameObject.name;
         }
-        questComponent.AddTaskGroup("FragmentConnectors", new UnityAction(callback), false, true);
-        questComponent.AddTaskObject("FragmentConnectors", gameObject);
+    }
+    // void Start()
+    // {
+    //     if (quest == null)
+    //     {
+    //         quest = QuestManager.Instance.FindQuest(questName);
+            
+    //         if (quest == null)
+    //         {
+    //             quest = Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName);
+    //         }
+    //         quest.AddTaskObject(questComponent);
+    //     }
+    // }
+    void Start()
+    {
+        if (sharedQuest == null)
+        {
+            sharedQuest = QuestManager.Instance.FindQuest(questName)
+                        ?? Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName);
+        }
+
+        quest = sharedQuest;
+        quest.AddTaskObject(questComponent);
+        quest.GetTaskGroup().onTasksCompleted.AddListener(callback);
     }
     private static void callback()
     {
-        Debug.Log("CallBACK");
+        Debug.Log("FRAGMENT CallBACK");
     }
 
     private void Update()
@@ -107,8 +132,8 @@ public class FragmentConnection : MonoBehaviour
         isConnected = true;
         fragmentToConnectTo.isConnected = true;
 
-        questComponent.RemoveTaskObject(gameObject);
-        questComponent.RemoveTaskObject(fragmentToConnectTo.gameObject);
+        quest.CompleteTaskObject(questComponent);
+        quest.CompleteTaskObject(fragmentToConnectTo.questComponent);
     }
 
     private Vector3 ComputeSideDestination()

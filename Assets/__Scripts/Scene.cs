@@ -5,8 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-// TODO: Visit-specific events (onSceneAwake, onSceneStart), which can also
-// enable/disable SceneTaskGroups for a given visit and set up visit-specific scene info
+// TODO: minigames (going IN to a minigame scene, returing BACK to this scene)
 
 [Serializable]
 class SceneVisitTasks
@@ -32,6 +31,8 @@ public class Scene : MonoBehaviour
     private UnityEvent onSceneAwake;
     private UnityEvent onSceneStart;
 
+    private QuestManager questManager;
+
     
     void Awake()
     {
@@ -40,7 +41,7 @@ public class Scene : MonoBehaviour
         GameManager.Instance.SceneAwake(this);
 
         int visitCount = GameManager.Instance.gameState.GetSceneVisitCount(sceneName);
-        Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount + ", #Awake Events: " + onSceneAwake.GetPersistentEventCount() + ", #Start Events: " + onSceneStart.GetPersistentEventCount());
+        Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount); // + ", #Awake Events: " + onSceneAwake.GetPersistentEventCount() + ", #Start Events: " + onSceneStart.GetPersistentEventCount());
 
         SceneVisitTasks visitTasks = sceneVisitTasks.Find(s => s.visitCount == visitCount);
         if (visitTasks != null)
@@ -53,6 +54,13 @@ public class Scene : MonoBehaviour
             Debug.LogWarning("Scene->Awake: No SceneVisitTasks found for Scene: " + sceneName + ", Visit Count: " + visitCount);
             onSceneAwake = new UnityEvent();
             onSceneStart = new UnityEvent();
+        }
+
+        questManager = FindFirstObjectByType<QuestManager>();
+        if (questManager == null)
+        {
+            GameObject questManagerGO = new GameObject("QuestManager");
+            questManager = questManagerGO.AddComponent<QuestManager>();
         }
 
         onSceneAwake.Invoke();

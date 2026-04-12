@@ -85,12 +85,13 @@ public class BillboardText : MonoBehaviour
             return;
         }
 
-        if (showType == BillboardShowType.AlwaysShow &&
+        if (showType == BillboardShowType.ShowOnCollide &&
             timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
         {
             timeOutOnTriggerEnterCountdown -= Time.deltaTime;
             if (timeOutOnTriggerEnterCountdown <= 0.01f)
             {
+                Debug.Log("BillboardText: Time out reached for ShowOnCollide type. Hiding billboard until next trigger enter. GameObject: " + gameObject.name, this);
                 SetTextVisible(false);
                 return;
             }
@@ -169,6 +170,7 @@ public class BillboardText : MonoBehaviour
         validTargetsInside++;
         ResolveCameraFromCollider(other);
         SetTextVisible(true);
+        timeOutOnTriggerEnterCountdown = timeOutOnTriggerEnter;
     }
 
     private void OnTriggerExit(Collider other)

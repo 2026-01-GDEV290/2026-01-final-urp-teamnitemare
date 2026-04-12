@@ -368,8 +368,6 @@ public class GameManager : MonoBehaviour
         VerifyCurrentScene();
         Debug.Log("GM->SceneAwake() for scene: " + sceneName + " currentScene: " + gameState.currentScene.ToString());
         gameState.currentSceneScript = sceneScript;
-        reloadCurrentSceneCalled = false;
-        restartCurrentSceneCalled = false;
 
         if (gameState.currentScene == Scenes.Game)
         {
@@ -401,6 +399,8 @@ public class GameManager : MonoBehaviour
                 gameState.scenesInOrderOfVisit.Add(sceneName);
             }
         }
+        reloadCurrentSceneCalled = false;
+        restartCurrentSceneCalled = false;
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created

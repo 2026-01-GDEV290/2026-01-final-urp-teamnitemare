@@ -112,6 +112,9 @@ public class GameState
     public int totalCurrentLevelObjectives = 0;
     public bool currentLevelCompleted = false;
 
+
+#region Quest Progression
+
     public int GetSceneVisitCount(string sceneName)
     {
         return scenesInOrderOfVisit.FindAll(s => s == sceneName).Count;
@@ -161,6 +164,40 @@ public class GameState
         }
         return null; // Task not found
     }
+    public QuestTask GetTaskInfo(string sceneName, string taskName)
+    {
+        SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
+        if (sceneInfo != null)
+        {
+            foreach (var quest in sceneInfo.questsInScene)
+            {
+                QuestTask taskInfo = quest.questTasks.Find(t => t.taskName == taskName);
+                if (taskInfo != null)
+                {
+                    return taskInfo;
+                }
+            }
+        }
+        return null; // Task not found
+    }
+    public bool IsTaskComplete(string sceneName, string taskName)
+    {
+        QuestTask taskInfo = GetTaskInfo(sceneName, taskName);
+        if (taskInfo != null)
+        {
+            return taskInfo.isCompleted;
+        }
+        return false; // Task not found
+    }
+    public bool IsQuestComplete(string sceneName, string questName)
+    {
+        QuestInfo questInfo = GetQuestInfo(sceneName, questName);
+        if (questInfo != null)
+        {
+            return questInfo.isCompleted;
+        }
+        return false; // Quest not found
+    }
     public void AddQuestToScene(string sceneName, QuestInfo questInfo)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
@@ -174,9 +211,78 @@ public class GameState
             sceneQuestInfos.Add(newSceneInfo);
         }
     }
+    public void MarkQuestComplete(string sceneName, string questName)
+    {
+        QuestInfo questInfo = GetQuestInfo(sceneName, questName);
+        if (questInfo != null)
+        {
+            questInfo.isCompleted = true;
+            Debug.Log("Marked quest: " + questName + " in scene: " + sceneName + " as complete.");
+        }
+        else
+        {
+            Debug.LogWarning("Cannot mark quest: " + questName + " as complete because it was not found in scene: " + sceneName);
+        }
+    }
+    public void MarkTaskComplete(string sceneName, string questName, string taskName)
+    {
+        QuestTask taskInfo = GetTaskInfo(sceneName, questName, taskName);
+        if (taskInfo != null)
+        {
+            taskInfo.isCompleted = true;
+            Debug.Log("Marked task: " + taskName + " in quest: " + questName + " in scene: " + sceneName + " as complete.");
+        }
+        else
+        {
+            Debug.LogWarning("Cannot mark task: " + taskName + " as complete because it was not found in quest: " + questName + " in scene: " + sceneName);
+        }
+    }
+    public void AddTaskObjectToScene(string sceneName, string questName, QuestTask taskInfo)
+    {
+        SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
+        if (sceneInfo != null)
+        {
+            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questName == questName);
+            if (questInfo != null)
+            {
+                questInfo.questTasks.Add(taskInfo);
+            }
+            else
+            {
+                Debug.LogWarning("Cannot add task: " + taskInfo.taskName + " for quest: " + questName + " in scene: " + sceneName + " because no info found for this quest in game state.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Cannot add task: " + taskInfo.taskName + " for quest: " + questName + " in scene: " + sceneName + " because no info found for this scene in game state.");
+        }
+    }
+    public void AddNonTaskObjectToSceneAsCompleted(string sceneName, string objectName)
+    {
+        SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
+        if (sceneInfo != null)
+        {
+            QuestInfo nonTaskObjectAsQuest = new QuestInfo
+            {
+                isGlobalQuest = false,
+                questName = objectName,
+                sceneBelongingTo = sceneName,
+                questDescription = "Non-task object: " + objectName,
+                isCompleted = true,
+                numObjectivesCompleted = 0,
+                totalObjectives = 0,
+                questTasks = new List<QuestTask>()
+            };
+            sceneInfo.questsInScene.Add(nonTaskObjectAsQuest);
+        }
+        else
+        {
+            Debug.LogWarning("Cannot add non-task object: " + objectName + " as completed for scene: " + sceneName + " because no progression info found for this scene in game state.");
+        }
+    }
     public void AddGlobalQuest(QuestInfo questInfo)
     {
         globalQuestInfo.questsInScene.Add(questInfo);
     }
-
+#endregion Quest Progression
 }
