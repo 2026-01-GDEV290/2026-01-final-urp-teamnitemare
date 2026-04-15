@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+#if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -39,8 +42,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] public GameState gameState = new GameState();
     [SerializeField] public PlayerState playerState = new PlayerState();
 
+    public SaveManager saveManager = new SaveManager();
+
     public bool reloadCurrentSceneCalled = false;
     public bool restartCurrentSceneCalled = false;
+    public bool hubSubSceneVisited = false;
 
     bool mouseHideForGameScenes = true;
     bool timeScaleFreezeForPause = true;
@@ -50,6 +56,9 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Debug.Log("GM->Awake()");
+        gameState.Initialize();
+        saveManager.Initialize(playerState, gameState);
+
         if (Instance == null)
         {
             Instance = this;
@@ -60,6 +69,51 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    void OnEnable()
+    {
+        Debug.Log("GM->OnEnable()");
+        // fires after all objects exist and all Awake/OnEnable calls have completed, but before new scene becomes the active scene
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        // fires after sceneLoaded and the active scene has changed, but still before Start()
+        //SceneManager.activeSceneChanged += OnActiveSceneChanged;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
+    }
+    void OnDisable()
+    {
+        Debug.Log("GM->OnDisable()");
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        //SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
+    }
+
+    // sceneLoaded:
+    // fires after all objects exist and all [Awake() & OnEnable()] calls have completed, but before new scene becomes the active scene
+    // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneLoaded.html
+    // [UnityEngine.SceneManagement.Scene because of Scene class collision]
+    void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log("GM->OnSceneLoaded(): " + scene.name);
+        //VerifyCurrentScene();
+    }
+    // sceneUnloaded:
+    // fires after scene is unloaded from memory. OnDestroy() already run for objects
+    // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-sceneUnloaded.html
+    // [UnityEngine.SceneManagement.Scene because of Scene class collision]
+    void OnSceneUnloaded(UnityEngine.SceneManagement.Scene scene)
+    {
+        Debug.Log("GM->OnSceneUnloaded(): " + scene.name);
+    }
+
+    // activeSceneChanged:
+    // fires after sceneLoaded and the active scene has changed, [after Awake(), OnEnable()], but still before Start()
+    // Note that standard Scene loads give "" for oldScene, 
+    // but SceneManager.SetActiveScene() will give that info, but needs Async and having 2 scenes loaded etc
+    // https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager-activeSceneChanged.html
+    // [UnityEngine.SceneManagement.Scene because of Scene class collision]
+    // private void OnActiveSceneChanged(UnityEngine.SceneManagement.Scene oldScene, UnityEngine.SceneManagement.Scene newScene)
+    // {
+    //     Debug.Log($"GM->Active scene changed: {oldScene.name} -> {newScene.name}");
+    // }
 
     // Start - Called before the FIRST frame of *FIRST* Scene, not destroyed/recreated on other Scene loads
     void Start()
@@ -387,6 +441,9 @@ public class GameManager : MonoBehaviour
             if (restartCurrentSceneCalled)
             {
                 Debug.Log("GM->SceneAwake: (restart)");
+                // don't add scene again or increment visit count
+                // TODO: but reset progress for the scene:
+                //gameState.ResetSceneQuests();
             }
             else
             {
@@ -395,8 +452,8 @@ public class GameManager : MonoBehaviour
                 else
                     Debug.Log("GM->SceneAwake: (new)");
 
-                // This gets added even if we're reloading:
-                gameState.scenesInOrderOfVisit.Add(sceneName);
+                // This gets added even if we're reloading, also visitcount increased:
+                gameState.AddScene(sceneName, true);
             }
         }
         reloadCurrentSceneCalled = false;

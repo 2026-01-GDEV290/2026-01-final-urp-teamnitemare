@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InteractableObject : InteractableBase
+public class InteractableObject : InteractableBase, ISaveable
 {
     public UnityEngine.Events.UnityEvent onInteract;
 
@@ -33,9 +33,9 @@ public class InteractableObject : InteractableBase
         }
     }
 
-    public override void Interact()
+    public override void Interact(bool forceOverride = false)
     {
-        if (!isInteractable)
+        if (!isInteractable && !forceOverride)
         {
             return;
         }

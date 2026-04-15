@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerControllerFR : MonoBehaviour
+public class PlayerControllerFR : MonoBehaviour, ISaveable
 {
 
     InputSystem_Actions playerControls;
@@ -952,4 +952,29 @@ public class PlayerControllerFR : MonoBehaviour
         Debug.Log($"Entered trigger: {other.gameObject.name}");
     }
 
+#region ISaveable implementation
+    private class TransformState
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 localScale;
+    }
+    public object CaptureState()
+    {
+        return new TransformState {
+            position = transform.position,
+            rotation = transform.rotation,
+            localScale = transform.localScale
+        };
+    }
+    public void RestoreState(object state)
+    {
+        if (state is TransformState transformState)
+        {
+            transform.position = transformState.position;
+            transform.rotation = transformState.rotation;
+            transform.localScale = transformState.localScale;
+        }
+    }
+#endregion ISaveable implementation
 }

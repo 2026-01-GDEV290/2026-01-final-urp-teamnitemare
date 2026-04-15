@@ -12,7 +12,7 @@ public enum InteractableType
 }
 
 [Serializable]
-public abstract class InteractableBase : MonoBehaviour
+public abstract class InteractableBase : MonoBehaviour, ISaveable
 {
     protected InteractableType interactableType = InteractableType.None;
     public string interactText = "Interact";
@@ -65,7 +65,7 @@ public abstract class InteractableBase : MonoBehaviour
 
     public abstract void SetIsInteractable(bool value);
 
-    public abstract void Interact();
+    public abstract void Interact(bool forceOverride = false);
 
     public void SetBillboardText(string text)
     {
@@ -86,6 +86,50 @@ public abstract class InteractableBase : MonoBehaviour
             billBoardTextObject.gameObject.SetActive(visible);
         }
     }
+    
+#region ISaveable implementation
+    private class InteractableData
+    {
+        public InteractableType interactableType;
+        public string interactText;
+        public string interactResponseText;
+        
+        public bool isInteractable;
+        public bool isOneTimeUse;
+        public int interactionCount;
+    }
+    public object CaptureState()
+    {
+        var data = new InteractableData
+        {
+            interactableType = this.interactableType,
+            interactText = this.interactText,
+            interactResponseText = this.interactResponseText,
+            isInteractable = this.isInteractable,
+            isOneTimeUse = this.isOneTimeUse,
+            interactionCount = this.interactionCount
+        };
+        return data;
+    }
+    public void RestoreState(object state)
+    {
+        if (state is InteractableData data)
+        {
+            this.interactableType = data.interactableType;
+            this.interactText = data.interactText;
+            this.interactResponseText = data.interactResponseText;
+            this.isInteractable = data.isInteractable;
+            this.isOneTimeUse = data.isOneTimeUse;            
+            this.interactionCount = data.interactionCount;
 
+            if (interactionCount > 0)
+            {
+                Interact(true);
+                // Interact will increment interactionCount (presumably, base class here)
+                interactionCount--;
+            }
+        }
+    }
+#endregion ISaveable implementation
 }
 

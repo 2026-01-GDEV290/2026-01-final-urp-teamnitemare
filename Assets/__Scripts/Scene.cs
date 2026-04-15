@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
+using Unity.VisualScripting;
 
 // TODO: minigames (going IN to a minigame scene, returing BACK to this scene)
 
@@ -13,11 +14,12 @@ class SceneVisitTasks
     public int visitCount = 0;
     [SerializeField] public UnityEvent onSceneAwake;
     [SerializeField] public UnityEvent onSceneStart;
+    [SerializeField] public bool useIfVisitCountExceeded = false; // if true, will use this SceneVisitTasks if visitCount exceeds the specified visitCount (instead of doing nothing)
 }
 
 // This script is mandatory to attach to each Scene. Easiest is to attach it to the Main Camera
 // It communicates with the GameManager currently
-[Serializable]
+[DefaultExecutionOrder(-100)]
 public class Scene : MonoBehaviour
 {
     [Header("Scene Visit Groups")]
@@ -25,6 +27,10 @@ public class Scene : MonoBehaviour
     {
         new SceneVisitTasks { visitCount = 1, onSceneAwake = new UnityEvent(), onSceneStart = new UnityEvent() }
     };
+    [SerializeField] SceneVisitTasks onHubReturnTasks = new SceneVisitTasks() { visitCount = -1, onSceneAwake = new UnityEvent(), onSceneStart = new UnityEvent() };
+
+    [SerializeField] public Transform hubReturnPosition = null;
+    [SerializeField] public GameObject hubReturnPlayerObject = null;
 
     string sceneName = "";  // set at Awake from SceneManager.GetActiveScene().name
 
@@ -33,29 +39,79 @@ public class Scene : MonoBehaviour
 
     private QuestManager questManager;
 
+    private int visitCount;
+
+    public int VisitCount => visitCount;
+
     
     void Awake()
     {
         sceneName = SceneManager.GetActiveScene().name;
 
+        // save reload/restart/hub-return state from GameManager (it resets them in SceneAwake, and adjusts visit count)
+        bool reloadCurrentSceneCalled = GameManager.Instance.reloadCurrentSceneCalled;
+        bool restartCurrentSceneCalled = GameManager.Instance.restartCurrentSceneCalled;
+        bool returnedToHubScene = GameManager.Instance.hubSubSceneVisited;
+
         GameManager.Instance.SceneAwake(this);
 
-        int visitCount = GameManager.Instance.gameState.GetSceneVisitCount(sceneName);
-        Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount); // + ", #Awake Events: " + onSceneAwake.GetPersistentEventCount() + ", #Start Events: " + onSceneStart.GetPersistentEventCount());
-
-        SceneVisitTasks visitTasks = sceneVisitTasks.Find(s => s.visitCount == visitCount);
-        if (visitTasks != null)
+        if (returnedToHubScene)
         {
-            onSceneAwake = visitTasks.onSceneAwake;
-            onSceneStart = visitTasks.onSceneStart;
+            onSceneAwake = onHubReturnTasks.onSceneAwake;
+            onSceneStart = onHubReturnTasks.onSceneStart;
+            Debug.Log("Scene->Awake: Hub return visit to Scene: " + sceneName + ", using onHubReturnTasks");
+            if (hubReturnPosition != null && hubReturnPlayerObject != null)
+            {
+                hubReturnPlayerObject.transform.position = hubReturnPosition.position;
+                Debug.Log("Scene->Awake: Moved player to hub return position: " + hubReturnPosition.position);
+            }
+            else
+            {
+                Debug.LogWarning("Scene->Awake: Hub return position or player object not set for Scene: " + sceneName);
+            }
         }
-        else
+        else    // non-hub visit
         {
-            Debug.LogWarning("Scene->Awake: No SceneVisitTasks found for Scene: " + sceneName + ", Visit Count: " + visitCount);
-            onSceneAwake = new UnityEvent();
-            onSceneStart = new UnityEvent();
-        }
+            // Restart means resetting all progress in the scene but not incrementing visit count
+            if (restartCurrentSceneCalled)
+            {
+                //! I don't use visit #'s to store task/quest progress, so we'll need to set a flag in GameState to overwrite task/quests?
+                // No that will stil be a problem 
+                //GameManager.Instance.gameState.ResetSceneProgress(sceneName);
+                //Debug.Log("Scene->Awake: Restart visit to Scene: " + sceneName + ", Restoring scene state");
+            }
+            else if (reloadCurrentSceneCalled)
+            {
+                // Just restore scene state, don't reset progress or increment visit count
+                //SaveManager.Instance.RestoreTemporarySceneState();
+                //Debug.Log("Scene->Awake: Reload visit to Scene: " + sceneName + ", Restoring scene state");
+            }
+            visitCount = GameManager.Instance.gameState.GetSceneVisitCount(sceneName);
+            Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount); // + ", #Awake Events: " + onSceneAwake.GetPersistentEventCount() + ", #Start Events: " + onSceneStart.GetPersistentEventCount());
 
+            SceneVisitTasks visitTasks = sceneVisitTasks.Find(s => s.visitCount == visitCount);
+            if (visitTasks != null)
+            {
+                onSceneAwake = visitTasks.onSceneAwake;
+                onSceneStart = visitTasks.onSceneStart;
+            }
+            else
+            {
+                // check for 'useIfVisitCountExceeded' tasks moving from last to first in list
+                visitTasks = sceneVisitTasks.FindLast(s => s.useIfVisitCountExceeded && s.visitCount <= visitCount);
+                if (visitTasks != null)
+                {
+                    onSceneAwake = visitTasks.onSceneAwake;
+                    onSceneStart = visitTasks.onSceneStart;
+                }
+                else
+                {
+                    Debug.LogWarning("Scene->Awake: No SceneVisitTasks found for Scene: " + sceneName + ", Visit Count: " + visitCount);
+                    onSceneAwake = new UnityEvent();
+                    onSceneStart = new UnityEvent();
+                }
+            }
+        }
         questManager = FindFirstObjectByType<QuestManager>();
         if (questManager == null)
         {
@@ -65,12 +121,20 @@ public class Scene : MonoBehaviour
 
         onSceneAwake.Invoke();
     }
+
+    void OnEnable()
+    {
+        Debug.Log("Scene->OnEnable: Scene: " + sceneName);
+        //SaveManager.Instance.RestoreSceneState();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameManager.Instance.SceneStart();
 
         onSceneStart.Invoke();
+        SaveManager.Instance.RestoreTemporarySceneState();
     }
 
     // Update is called once per frame
@@ -92,14 +156,15 @@ public class Scene : MonoBehaviour
         GameManager.Instance.LoadScene(scene);
     }
     // TODO: minigames
-    // public void LoadMinigameScene(Scenes minigameScene)
+    // public void LoadHubConnectedScene(Scenes hubConnectedScene)
     // {
     //     // Set up logic - could have GM.minigameLoaded field
-    //     GameManager.Instance.LoadMinigameScene(minigameScene);
+    //     GameManager.Instance.LoadHubConnectedScene(hubConnectedScene);
     // }
 
     public void ReloadScene()
     {
+        SaveManager.Instance.CaptureTemporarySceneState();
         GameManager.Instance.ReloadCurrentScene();
     }
 

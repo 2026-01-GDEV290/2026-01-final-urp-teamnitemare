@@ -3,39 +3,34 @@ using UnityEngine;
 
 // TODO: Collectibles with same-name, count etc implementation
 
-[Serializable]
+[RequireComponent(typeof(UniqueID))]
 public class QuestComponent : MonoBehaviour
 {
     // just need an id & collectible bool
-    public string questComponentId = "";
+    public UniqueID uniqueID;
+    public string questTaskTag;
     public bool isCollectible = false;
+    public bool onceOnly = true;
+    //public int count = 1;
 
-    void Awake()
+    private void Awake()
     {
-        if (string.IsNullOrEmpty(questComponentId))
-        {
-            if (isCollectible)
-            {
-                questComponentId = "COLLECTIBLE:" + gameObject.name;
-            }
-            else
-            {
-                questComponentId = gameObject.name;
-            }
-        }
+        if (uniqueID == null)
+            uniqueID = GetComponent<UniqueID>();
     }
-    void OnValidate()
-    {
-        // make sure COLLECTIBLE prefix is there if collectible
-        if (isCollectible && !questComponentId.StartsWith("COLLECTIBLE:"))
-        {
-            questComponentId = "COLLECTIBLE:" + questComponentId;
-        }
-        else if (!isCollectible && questComponentId.StartsWith("COLLECTIBLE:"))
-        {
-            isCollectible = true;
-        }
-    }
+
+    // void OnValidate()
+    // {
+    //     // make sure COLLECTIBLE prefix is there if collectible
+    //     if (isCollectible && !questComponentId.StartsWith("COLLECTIBLE:"))
+    //     {
+    //         questComponentId = "COLLECTIBLE:" + questComponentId;
+    //     }
+    //     else if (!isCollectible && questComponentId.StartsWith("COLLECTIBLE:"))
+    //     {
+    //         isCollectible = true;
+    //     }
+    // }
 
     public void CompleteTask()
     {

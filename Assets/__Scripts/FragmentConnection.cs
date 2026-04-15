@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -34,7 +35,6 @@ public class FragmentConnection : MonoBehaviour
         if (questComponent == null)
         {
             questComponent = gameObject.AddComponent<QuestComponent>();
-            questComponent.questComponentId = gameObject.name;
         }
     }
     // void Start()
@@ -54,11 +54,24 @@ public class FragmentConnection : MonoBehaviour
     {
         if (sharedQuest == null)
         {
-            sharedQuest = QuestManager.Instance.FindQuest(questName)
+            sharedQuest = QuestManager.Instance.FindQuestByName(questName)
                         ?? Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName);
         }
 
         quest = sharedQuest;
+
+        //!! Problem: quest must add itself in Start(), can't ADdTaskObject until that happens so we need to
+        // run a couroutine to wait until end of frame to add the task object to the quest
+        StartCoroutine(AddTaskObjectWhenReady());
+        //quest.AddTaskObject(questComponent);
+        //quest.GetTaskGroup().onTasksCompleted.AddListener(callback);
+    }
+    IEnumerator AddTaskObjectWhenReady()
+    {
+        while (quest == null || QuestManager.Instance.FindQuest(quest.questUniqueId.ID) == null)
+        {
+            yield return null; // wait for next frame
+        }
         quest.AddTaskObject(questComponent);
         quest.GetTaskGroup().onTasksCompleted.AddListener(callback);
     }

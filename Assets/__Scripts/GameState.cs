@@ -51,19 +51,23 @@ public enum GameStates
  [Serializable]
  public class QuestTask
  {
+    public string taskUniqueId;
     public string taskName;
+    public string questTaskTag;
     public bool isCollectibleTask;    
     public string taskDescription;
     public bool isCompleted;
     public int taskValue;
     public int taskMaxValue;
     public bool oneTimeCompletion;
-    public List<QuestTask> requiredTasks; // Tasks that must be completed before this task can be completed
+    [SerializeReference] 
+    public List<QuestTask> requiredTasks = null; // Tasks that must be completed before this task can be completed
  };
 
  [Serializable]
  public class QuestInfo
 {
+    public string questUniqueId;
     public bool isGlobalQuest;
     public string questName;
     public string sceneBelongingTo; // null/empty if global quest
@@ -78,6 +82,7 @@ public enum GameStates
 public class SceneQuestInfo
 {
     public string sceneName;    // "GLOBAL" for global quests
+    public int visit;
     public List<QuestInfo> questsInScene;
 }
 
@@ -92,6 +97,10 @@ public class GameState
 
     public static ScenesSO scenesSO;
 
+    // unique scene names list
+    
+    public List<string> sceneNames = new List<string>();
+
     public Scenes currentScene = Scenes.LoadingScreen;
     public Scenes previousScene = Scenes.LoadingScreen;
     public string currentSceneName = "";
@@ -104,37 +113,87 @@ public class GameState
     // Scene, Tasks Completed
     //[field: SerializeField] public Dictionary<string, List<string>> sceneProgressionInfo = new Dictionary<string, List<string>>();
 
-    public List<string> scenesInOrderOfVisit = new List<string>();
-    public SceneQuestInfo globalQuestInfo = new SceneQuestInfo { sceneName = "GLOBAL", questsInScene = new List<QuestInfo>() };
+    public List<int> scenesInOrderOfVisit = new List<int>();
+    public SceneQuestInfo globalQuestInfo = new SceneQuestInfo { sceneName = "GLOBAL", visit = -1, questsInScene = new List<QuestInfo>() };
     public List<SceneQuestInfo> sceneQuestInfos = new List<SceneQuestInfo>();
 
     public int numCurrentLevelObjectivesCompleted = 0;
     public int totalCurrentLevelObjectives = 0;
     public bool currentLevelCompleted = false;
 
-
-#region Quest Progression
-
-    public int GetSceneVisitCount(string sceneName)
+    public void Initialize()
     {
-        return scenesInOrderOfVisit.FindAll(s => s == sceneName).Count;
+        if (scenesSO == null)
+        {
+            scenesSO = Resources.Load<ScenesSO>("ScenesSO"); 
+            if (scenesSO == null)
+            {
+                Debug.LogError("GameState->Initialize: Failed to load ScenesSO from Resources. Make sure there is a ScenesSO asset in a Resources folder.");
+            }
+        }
+        sceneNames = scenesSO.GetAllScenes();
     }
 
-    public int QuestIndex(string sceneName, string questName)
+    // Enforces one scene in list and optionally visit order
+    public void AddScene(string sceneName, bool addToVisitOrder = true)
+    {
+        int index = sceneNames.FindIndex(s => s == sceneName);
+        if (index == -1)
+        {
+            sceneNames.Add(sceneName);
+            index = sceneNames.Count - 1;
+            //Debug.Log("Added scene: " + sceneName + " to game state with index: " + index);
+        }
+        if (addToVisitOrder)
+        {
+            scenesInOrderOfVisit.Add(index);
+        }
+    }
+    public bool SceneExists(string sceneName)
+    {
+        return sceneNames.Contains(sceneName);
+    }
+    public int SceneIndex(string sceneName)
+    {
+        // returns index of scene if found, otherwise -1
+        return sceneNames.FindIndex(s => s == sceneName);
+    }
+    public int GetSceneVisitCount(string sceneName)
+    {
+        int index = SceneIndex(sceneName);
+        if (index == -1)
+        {
+            Debug.LogError("GetSceneVisitCount: Scene: " + sceneName + " not found in game state.");
+            return 0;
+        }
+        return scenesInOrderOfVisit.FindAll(s => s == index).Count;
+    }
+    public int GetSceneVisitCount(int sceneIndex)
+    {
+        if (sceneIndex < 0 || sceneIndex >= sceneNames.Count)
+        {
+            Debug.LogError("GetSceneVisitCount: Scene index: " + sceneIndex + " is out of bounds in game state.");
+            return 0;
+        }
+        return scenesInOrderOfVisit.FindAll(s => s == sceneIndex).Count;
+    }
+
+#region Quest Progression
+    public int QuestIndex(string sceneName, string questUniqueId)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
-            return sceneInfo.questsInScene.FindIndex(q => q.questName == questName);
+            return sceneInfo.questsInScene.FindIndex(q => q.questUniqueId == questUniqueId);
         }
         return -1; // Quest not found
     }
-    public int TaskIndex(string sceneName, string questName, string taskName)
+    public int TaskIndex(string sceneName, string questUniqueId, string taskName)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
-            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questName == questName);
+            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questUniqueId == questUniqueId);
             if (questInfo != null)
             {
                 return questInfo.questTasks.FindIndex(t => t.taskName == taskName);
@@ -142,36 +201,36 @@ public class GameState
         }
         return -1; // Task not found
     }
-    public QuestInfo GetQuestInfo(string sceneName, string questName)
+    public QuestInfo GetQuestInfo(string sceneName, string questUniqueId)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
-            return sceneInfo.questsInScene.Find(q => q.questName == questName);
+            return sceneInfo.questsInScene.Find(q => q.questUniqueId == questUniqueId);
         }
         return null; // Quest not found
     }
-    public QuestTask GetTaskInfo(string sceneName, string questName, string taskName)
+    public QuestTask GetTaskInfo(string sceneName, string questUniqueId, string taskUniqueId)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
-            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questName == questName);
+            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questUniqueId == questUniqueId);
             if (questInfo != null)
             {
-                return questInfo.questTasks.Find(t => t.taskName == taskName);
+                return questInfo.questTasks.Find(t => t.taskUniqueId == taskUniqueId);
             }
         }
         return null; // Task not found
     }
-    public QuestTask GetTaskInfo(string sceneName, string taskName)
+    public QuestTask GetTaskInfo(string sceneName, string taskUniqueId)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
             foreach (var quest in sceneInfo.questsInScene)
             {
-                QuestTask taskInfo = quest.questTasks.Find(t => t.taskName == taskName);
+                QuestTask taskInfo = quest.questTasks.Find(t => t.taskUniqueId == taskUniqueId);
                 if (taskInfo != null)
                 {
                     return taskInfo;
@@ -180,25 +239,25 @@ public class GameState
         }
         return null; // Task not found
     }
-    public bool IsTaskComplete(string sceneName, string taskName)
+    public bool IsTaskComplete(string sceneName, string taskUniqueId)
     {
-        QuestTask taskInfo = GetTaskInfo(sceneName, taskName);
+        QuestTask taskInfo = GetTaskInfo(sceneName, taskUniqueId);
         if (taskInfo != null)
         {
             return taskInfo.isCompleted;
         }
         return false; // Task not found
     }
-    public bool IsQuestComplete(string sceneName, string questName)
+    public bool IsQuestComplete(string sceneName, string questUniqueId)
     {
-        QuestInfo questInfo = GetQuestInfo(sceneName, questName);
+        QuestInfo questInfo = GetQuestInfo(sceneName, questUniqueId);
         if (questInfo != null)
         {
             return questInfo.isCompleted;
         }
         return false; // Quest not found
     }
-    public void AddQuestToScene(string sceneName, QuestInfo questInfo)
+    public void AddQuestToScene(string sceneName, QuestInfo questInfo, int visit = -1)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
@@ -207,67 +266,68 @@ public class GameState
         }
         else
         {
-            SceneQuestInfo newSceneInfo = new SceneQuestInfo { sceneName = sceneName, questsInScene = new List<QuestInfo> { questInfo } };
+            SceneQuestInfo newSceneInfo = new SceneQuestInfo { sceneName = sceneName, visit = visit, questsInScene = new List<QuestInfo> { questInfo } };
             sceneQuestInfos.Add(newSceneInfo);
         }
     }
-    public void MarkQuestComplete(string sceneName, string questName)
+    public void MarkQuestComplete(string sceneName, string questUniqueId)
     {
-        QuestInfo questInfo = GetQuestInfo(sceneName, questName);
+        QuestInfo questInfo = GetQuestInfo(sceneName, questUniqueId);
         if (questInfo != null)
         {
             questInfo.isCompleted = true;
-            Debug.Log("Marked quest: " + questName + " in scene: " + sceneName + " as complete.");
+            Debug.Log("Marked quest: " + questInfo.questName + " in scene: " + sceneName + " as complete.");
         }
         else
         {
-            Debug.LogWarning("Cannot mark quest: " + questName + " as complete because it was not found in scene: " + sceneName);
+            Debug.LogWarning("Cannot mark quest: " + questUniqueId + " as complete because it was not found in scene: " + sceneName);
         }
     }
-    public void MarkTaskComplete(string sceneName, string questName, string taskName)
+    public void MarkTaskComplete(string sceneName, string questUniqueId, string taskUniqueId)
     {
-        QuestTask taskInfo = GetTaskInfo(sceneName, questName, taskName);
+        QuestTask taskInfo = GetTaskInfo(sceneName, questUniqueId, taskUniqueId);
         if (taskInfo != null)
         {
             taskInfo.isCompleted = true;
-            Debug.Log("Marked task: " + taskName + " in quest: " + questName + " in scene: " + sceneName + " as complete.");
+            Debug.Log("Marked task: " + taskInfo.taskName + " in quest: " + questUniqueId + " in scene: " + sceneName + " as complete.");
         }
         else
         {
-            Debug.LogWarning("Cannot mark task: " + taskName + " as complete because it was not found in quest: " + questName + " in scene: " + sceneName);
+            Debug.LogWarning("Cannot mark task: " + taskUniqueId + " as complete because it was not found in quest: " + questUniqueId + " in scene: " + sceneName);
         }
     }
-    public void AddTaskObjectToScene(string sceneName, string questName, QuestTask taskInfo)
+    public void AddTaskObjectToScene(string sceneName, string questUniqueId, QuestTask taskInfo)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
-            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questName == questName);
+            QuestInfo questInfo = sceneInfo.questsInScene.Find(q => q.questUniqueId == questUniqueId);
             if (questInfo != null)
             {
                 questInfo.questTasks.Add(taskInfo);
             }
             else
             {
-                Debug.LogWarning("Cannot add task: " + taskInfo.taskName + " for quest: " + questName + " in scene: " + sceneName + " because no info found for this quest in game state.");
+                Debug.LogWarning("QCannot add task: " + taskInfo.taskName + " for quest: " + questUniqueId + " in scene: " + sceneName + " because no info found for this quest in game state.");
             }
         }
         else
         {
-            Debug.LogWarning("Cannot add task: " + taskInfo.taskName + " for quest: " + questName + " in scene: " + sceneName + " because no info found for this scene in game state.");
+            Debug.LogError("SCannot add task: " + taskInfo.taskName + " for quest: " + questUniqueId + " in scene: " + sceneName + " because no info found for this scene in game state.");
         }
     }
-    public void AddNonTaskObjectToSceneAsCompleted(string sceneName, string objectName)
+    public void AddNonTaskObjectToSceneAsCompleted(string sceneName, string nonTaskUniqueId)
     {
         SceneQuestInfo sceneInfo = sceneQuestInfos.Find(s => s.sceneName == sceneName);
         if (sceneInfo != null)
         {
             QuestInfo nonTaskObjectAsQuest = new QuestInfo
             {
+                questUniqueId = "NonQuest_" + nonTaskUniqueId,
                 isGlobalQuest = false,
-                questName = objectName,
+                questName = "NonQuest_" + nonTaskUniqueId,
                 sceneBelongingTo = sceneName,
-                questDescription = "Non-task object: " + objectName,
+                questDescription = "NonQuest - Non-task object: " + nonTaskUniqueId,
                 isCompleted = true,
                 numObjectivesCompleted = 0,
                 totalObjectives = 0,
@@ -277,7 +337,7 @@ public class GameState
         }
         else
         {
-            Debug.LogWarning("Cannot add non-task object: " + objectName + " as completed for scene: " + sceneName + " because no progression info found for this scene in game state.");
+            Debug.LogWarning("Cannot add non-task object: " + nonTaskUniqueId + " as completed for scene: " + sceneName + " because no progression info found for this scene in game state.");
         }
     }
     public void AddGlobalQuest(QuestInfo questInfo)

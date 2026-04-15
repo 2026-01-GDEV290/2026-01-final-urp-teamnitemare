@@ -907,6 +907,18 @@ MonoBehaviour:
     onSceneStart:
       m_PersistentCalls:
         m_Calls: []
+    useIfVisitCountExceeded: 1
+  onHubReturnTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  hubReturnPosition: {fileID: 0}
+  hubReturnPlayerObject: {fileID: 0}
 --- !u!1 &1255798032
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,6 +933,7 @@ GameObject:
   - component: {fileID: 1255798035}
   - component: {fileID: 1255798034}
   - component: {fileID: 1255798033}
+  - component: {fileID: 1255798039}
   m_Layer: 10
   m_Name: Pawn
   m_TagString: Player
@@ -1078,6 +1091,19 @@ Transform:
   - {fileID: 1545844400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1255798039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255798032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: d7914e1e16cda4c4a937b70bfe1134c2
 --- !u!114 &1296740888 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8595966506057378435, guid: 98459f26e0fd628419ef22f1eab27033,
@@ -1212,6 +1238,7 @@ GameObject:
   - component: {fileID: 1338003851}
   - component: {fileID: 1338003850}
   - component: {fileID: 1338003855}
+  - component: {fileID: 1338003856}
   m_Layer: 0
   m_Name: InteractCube
   m_TagString: Untagged
@@ -1370,8 +1397,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questComponentId: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
   isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1338003856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338003849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: d6802476d32be6744af4cbbfd18e392d
 --- !u!1 &1350025395
 GameObject:
   m_ObjectHideFlags: 0
@@ -1386,6 +1428,7 @@ GameObject:
   - component: {fileID: 1350025397}
   - component: {fileID: 1350025396}
   - component: {fileID: 1350025401}
+  - component: {fileID: 1350025402}
   m_Layer: 0
   m_Name: InteractCube (1)
   m_TagString: Untagged
@@ -1544,8 +1587,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questComponentId: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
   isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1350025402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350025395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 474b7a8d07c6bc24da26c598dd3984c6
 --- !u!1 &1419844637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1667,6 +1725,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1512786759}
   - component: {fileID: 1512786758}
+  - component: {fileID: 1512786760}
   m_Layer: 0
   m_Name: QuestInteract
   m_TagString: Untagged
@@ -1686,6 +1745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9615d30b9386d5642ac8e8b8c74e2610, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  questUniqueId: {fileID: 0}
   taskGroup:
     taskGroupName: Interact
     isCollectibleGroup: 0
@@ -1727,6 +1787,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1512786760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1512786757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: f780ea5ef9a828a468ea8a8f88f1c25f
 --- !u!1 &1528187346
 GameObject:
   m_ObjectHideFlags: 0
