@@ -6,7 +6,10 @@ using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Unity.VisualScripting;
 
-// TODO: minigames (going IN to a minigame scene, returing BACK to this scene)
+// TODO: 'hubconnectedscene' minigames (going IN to a minigame scene, returing BACK to this scene)
+// TODO: Restart should reset tasks/quests, which means I need to implement visit # tracking in GAmeState
+// (or just have 1 visit)
+
 
 [Serializable]
 class SceneVisitTasks

@@ -10,8 +10,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 //using TMPro;
 
-// TODO: minigames (going IN to a minigame scene, returing BACK to a previous scene without resetting progress)
-// (requires knowing state of player [position, etc], and game world [objects moved/removed])
+// TODO: 'hubconnectedscene' minigames (going IN to a minigame scene, returing BACK to a scene)
 
 [Serializable]
 public class GameManager : MonoBehaviour

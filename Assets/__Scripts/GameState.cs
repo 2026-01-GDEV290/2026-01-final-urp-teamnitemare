@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 //using UnityEditor;
 
+// TODO: Implement visit-dependent quests for scenes (?)
+// TODO: Quest task dependencies ignored for now
+
 [Serializable]
 public enum Scenes
 {
