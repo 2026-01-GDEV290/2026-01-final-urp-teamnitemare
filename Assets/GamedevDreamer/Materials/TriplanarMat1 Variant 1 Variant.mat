@@ -38,7 +38,8 @@ Material:
     - _Blend_Sharpness_Top: 1.46
     - _Scale: 0.98
     m_Colors:
-    - _SideColor: {r: 0.13761303, g: 0.3275123, b: 0.8930817, a: 0}
+    - _SideColor: {r: 0.3046279, g: 0.41794112, b: 0.7509433, a: 0}
+    - _TopColor: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &7442572538244727095

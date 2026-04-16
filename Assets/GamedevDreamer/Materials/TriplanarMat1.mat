@@ -75,8 +75,8 @@ Material:
     - _AlphaToMask: 1
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Blend_Sharpness: 2.24
-    - _Blend_Sharpness_Top: 2.01
+    - _Blend_Sharpness: 1.89
+    - _Blend_Sharpness_Top: 1.39
     - _CastShadows: 1
     - _Cull: 2
     - _Dissolve: 1
@@ -93,7 +93,7 @@ Material:
     - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
-    - _SideColor: {r: 0.654088, g: 0.47381225, b: 0.2159724, a: 0}
+    - _SideColor: {r: 1, g: 0.9463968, b: 0.8886792, a: 0}
     - _TopColor: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
