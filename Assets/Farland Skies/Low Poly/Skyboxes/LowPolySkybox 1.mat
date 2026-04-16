@@ -59,7 +59,7 @@ Material:
     - _TopExponent: 2.17
     m_Colors:
     - _BottomColor: {r: 0, g: 0, b: 0, a: 1}
-    - _CloudsTint: {r: 0.03773582, g: 0.03773582, b: 0.03773582, a: 1}
+    - _CloudsTint: {r: 0, g: 0, b: 0, a: 1}
     - _MiddleColor: {r: 0.11320752, g: 0.078675665, b: 0.078675665, a: 1}
     - _MoonTint: {r: 0, g: 0, b: 0, a: 1}
     - _SkyBottomColor: {r: 0.016868481, g: 0, b: 0.47794116, a: 0}
