@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerBSK : MonoBehaviour
@@ -36,7 +37,18 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private float rotateSpeed = 10f;
     //[SerializeField] private float maxLookAngle = 85f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] walkSounds;
+    [SerializeField] private float walkSoundDistance = 1.8f;
+    [SerializeField] private float walkSoundVolume = 0.7f;
+    [SerializeField] private AudioSource walkSoundSource;
+
     [SerializeField] TMP_Text helpText;
+
+    [SerializeField] private GameObject audioCurvePrefab;
+
+    List<GameObject> activeAudioCurves = new List<GameObject>();
+    List<PitchBlackAttraction> activeAttractions = new List<PitchBlackAttraction>();
 
     private CharacterController characterController;
     private float verticalVelocity;
@@ -46,6 +58,8 @@ public class PlayerControllerBSK : MonoBehaviour
     private float rotationY;
     private float coyoteTimer;
     private float jumpBufferTimer;
+    private float walkSoundDistanceAccumulator;
+    private int walkSoundIndex;
 
     private InteractCollider interactCollider;
 
@@ -78,6 +92,19 @@ public class PlayerControllerBSK : MonoBehaviour
             playerCamera.transform.localPosition = cameraLocalPosition;
             playerCamera.transform.localRotation = Quaternion.identity;
         }
+
+        if (walkSoundSource == null)
+        {
+            walkSoundSource = GetComponent<AudioSource>();
+            if (walkSoundSource == null)
+            {
+                walkSoundSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
+        walkSoundSource.playOnAwake = false;
+        walkSoundSource.loop = false;
+        walkSoundSource.spatialBlend = 0f;
         
         if (wingAnimationControl == null)
         {
@@ -97,6 +124,16 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             Canvas canvas = helpText.GetComponentInParent<Canvas>();
             Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
+        }
+        activeAttractions = new List<PitchBlackAttraction>(
+            FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
+        // Instantiate 5 audio curves
+        for (int i = 0; i < 5; i++)
+        {
+            GameObject curve = Instantiate(audioCurvePrefab);
+            activeAudioCurves.Add(curve);
+            // keep them hidden until needed
+            curve.SetActive(false);
         }
     }
 
@@ -250,7 +287,10 @@ public class PlayerControllerBSK : MonoBehaviour
         //Debug.Log($"HandleMovement frame start: groundedCheck={wasGroundedThisFrame}, coyote={coyoteTimer:F3}, buffer={jumpBufferTimer:F3}");
 
         Vector3 move = (transform.right * inputX + transform.forward * inputZ).normalized;
-        characterController.Move(move * moveSpeed * Time.deltaTime);
+        Vector3 horizontalMove = move * moveSpeed * Time.deltaTime;
+        characterController.Move(horizontalMove);
+
+        UpdateWalkSound(horizontalMove, wasGroundedThisFrame);
 
         if (wasGroundedThisFrame && verticalVelocity < 0f)
         {
@@ -308,6 +348,50 @@ public class PlayerControllerBSK : MonoBehaviour
 
         verticalVelocity += gravityToUse * Time.deltaTime;
         characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+    }
+
+    void UpdateWalkSound(Vector3 horizontalMove, bool wasGroundedThisFrame)
+    {
+        if (!wasGroundedThisFrame || walkSounds == null || walkSounds.Length == 0)
+        {
+            if (!wasGroundedThisFrame)
+            {
+                walkSoundDistanceAccumulator = 0f;
+            }
+
+            return;
+        }
+
+        float moveDistance = horizontalMove.magnitude;
+        if (moveDistance <= 0.001f)
+        {
+            walkSoundDistanceAccumulator = 0f;
+            return;
+        }
+
+        walkSoundDistanceAccumulator += moveDistance;
+
+        float stepDistance = Mathf.Max(0.05f, walkSoundDistance);
+        while (walkSoundDistanceAccumulator >= stepDistance)
+        {
+            walkSoundDistanceAccumulator -= stepDistance;
+            AudioClip walkSound = walkSounds[walkSoundIndex % walkSounds.Length];
+            walkSoundIndex++;
+
+            if (walkSound == null)
+            {
+                continue;
+            }
+
+            if (walkSoundSource != null)
+            {
+                walkSoundSource.PlayOneShot(walkSound, walkSoundVolume);
+            }
+            else
+            {
+                AudioManager.PlayOneShot(walkSound, walkSoundVolume);
+            }
+        }
     }
 
     void InteractTrigger(InteractableBase interactable)
@@ -374,6 +458,7 @@ public class PlayerControllerBSK : MonoBehaviour
         verticalVelocity = -2f;
         jumpBufferTimer = 0f;
         coyoteTimer = coyoteTime;
+        walkSoundDistanceAccumulator = 0f;
 
         if (hasFeathers && wingAnimationControl != null)
         {
