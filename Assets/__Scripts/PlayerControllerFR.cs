@@ -4,11 +4,11 @@ using UnityEngine.InputSystem;
 using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerControllerFR : MonoBehaviour
+public class PlayerControllerFR : MonoBehaviour, ISaveable
 {
 
     InputSystem_Actions playerControls;
-    InputAction moveAction, lookAction, hitAction, jumpAction;
+    InputAction moveAction, lookAction, hitAction, interactAction, jumpAction;
 
     public float moveSpeed = 5f;
     public float rotateSpeed = 10f;
@@ -52,7 +52,7 @@ public class PlayerControllerFR : MonoBehaviour
     private InteractCollider interactCollider;
 
     bool lookingAtInteractable = false;
-    InteractableObject currentInteractable = null;
+    InteractableBase currentInteractable = null;
     
 
     private void Awake()
@@ -97,8 +97,11 @@ public class PlayerControllerFR : MonoBehaviour
         moveAction = playerControls.Player.Move;
         lookAction = playerControls.Player.Look;
         hitAction = playerControls.Player.Attack;
+        interactAction = playerControls.Player.Interact;
         jumpAction = playerControls.Player.Jump;
+
         hitAction.performed += AttackAction;
+        interactAction.performed += InteractAction;
         jumpAction.performed += JumpAction;
         //playerControls.Player.Jump.performed += JumpAction;
 
@@ -116,7 +119,7 @@ public class PlayerControllerFR : MonoBehaviour
         }
 
     }
-    void InteractTrigger(InteractableObject interactable)
+    void InteractTrigger(InteractableBase interactable)
     {
         if (interactable == null)
         {
@@ -124,7 +127,7 @@ public class PlayerControllerFR : MonoBehaviour
         }
 
         Debug.Log($"PlayerControllerFR received InteractTrigger from {interactable.gameObject.name}");
-        Debug.Log($"PlayerControllerFR found InteractableObject: {interactable.gameObject.name}");
+        Debug.Log($"PlayerControllerFR found InteractableBase: {interactable.gameObject.name}");
         Debug.Log($"Interactable text: {interactable.interactText}");
         interactCollider.SetInteractText(interactable.interactText);
         lookingAtInteractable = true;
@@ -132,7 +135,7 @@ public class PlayerControllerFR : MonoBehaviour
 
         // (on Interact button): interactable.Interact();
     }
-    void InteractLeaveTrigger(InteractableObject interactable)
+    void InteractLeaveTrigger(InteractableBase interactable)
     {
         if (interactable != null)
         {
@@ -152,6 +155,7 @@ public class PlayerControllerFR : MonoBehaviour
         }
 
         hitAction.performed -= AttackAction;
+        interactAction.performed -= InteractAction;
         jumpAction.performed -= JumpAction;
         //playerControls.Player.Jump.performed -= JumpAction;
         playerControls.Disable();
@@ -219,8 +223,7 @@ public class PlayerControllerFR : MonoBehaviour
 
         if (lookingAtInteractable && currentInteractable != null)
         {
-            Debug.Log($"Interacting with {currentInteractable.gameObject.name}");
-            currentInteractable.Interact();
+            DoInteractIfCan();
             return;
         }
 
@@ -325,6 +328,25 @@ public class PlayerControllerFR : MonoBehaviour
         }
 
         Debug.Log("No GrapplePoint found in line of sight");
+    }
+
+    void InteractAction(InputAction.CallbackContext context)
+    {
+        DoInteractIfCan();
+    }
+
+    void DoInteractIfCan()
+    {
+        if (lookingAtInteractable && currentInteractable != null)
+        {
+            Debug.Log($"Interacting with {currentInteractable.gameObject.name}");
+            if (currentInteractable.CanInteract())
+            {
+                currentInteractable.Interact();
+            }
+            return;
+        }
+        Debug.Log("Interact/Attack button pressed but no interactable in range");
     }
 
     void StartGrapple(Collider targetCollider)
@@ -930,4 +952,31 @@ public class PlayerControllerFR : MonoBehaviour
         Debug.Log($"Entered trigger: {other.gameObject.name}");
     }
 
+#region ISaveable implementation
+    private class TransformState
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 localScale;
+    }
+    public object CaptureState()
+    {
+        return new TransformState {
+            position = transform.position,
+            rotation = transform.rotation,
+            localScale = transform.localScale
+        };
+    }
+    public void RestoreState(object state)
+    {
+        Debug.Log("Restoring PlayerControllerFR state");
+        if (state is TransformState transformState)
+        {
+            Debug.Log($"Restoring position: {transformState.position}, rotation: {transformState.rotation}, localScale: {transformState.localScale}");
+            this.transform.position = transformState.position;
+            this.transform.rotation = transformState.rotation;
+            this.transform.localScale = transformState.localScale;
+        }
+    }
+#endregion ISaveable implementation
 }

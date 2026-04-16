@@ -14,6 +14,7 @@ public class InputManager : MonoBehaviour
 
     private InputAction pauseAction;
     private InputAction quitAction;
+    private InputAction reloadAction;
 
     //public PlayerX activePlayer = null;
 
@@ -47,9 +48,16 @@ public class InputManager : MonoBehaviour
         quitAction.Enable();
         quitAction.performed += QuitPressed;
 
+        reloadAction = playerControls.Player.Reload;
+        reloadAction.Enable();
+        reloadAction.performed += ReloadPressed;
+
     }
     void OnDisable()
     {
+        reloadAction.performed -= ReloadPressed;
+        reloadAction.Disable();
+
         quitAction.performed -= QuitPressed;
         quitAction.Disable();
 
@@ -106,6 +114,21 @@ public class InputManager : MonoBehaviour
     {
         Debug.Log("Quit triggered!");
         GameManager.Quit();
+    }
+
+    private void ReloadPressed(InputAction.CallbackContext context)
+    {
+        Debug.Log("Reload triggered!");
+        //GameManager.Instance.ReloadCurrentScene();
+        var sceneScript = GameManager.Instance.gameState.currentSceneScript;
+        if (sceneScript != null)
+        {
+            sceneScript.ReloadScene();
+        }
+        else
+        {
+            Debug.LogWarning("ReloadPressed: No currentSceneScript found in GameState to reload scene!");
+        }
     }
 
     void MouseRightButtonPressed(InputAction.CallbackContext context)

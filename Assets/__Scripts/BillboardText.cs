@@ -1,17 +1,54 @@
 using UnityEngine;
 using TMPro;
+using UnityEditor.EditorTools;
+
+// Text component is optional (created at runtime if not assigned)
 
 [RequireComponent(typeof(Collider))]
 public class BillboardText : MonoBehaviour
 {
+    public enum BillboardOrientation
+    {
+        FaceCamera,
+        FaceCameraForward,
+        FixedWorldRotation
+    }
+
+    public enum BillboardShowType
+    {
+        AlwaysShow,
+        ShowOnCollide,
+        ManualShow
+    }
+
     [Header("Text")]
+    [Tooltip("TextMeshPro component. (if null, created at runtime as a child of this GameObject.")]
     [SerializeField] private TextMeshPro worldText;
     [SerializeField] private string message = "Interact";
     [SerializeField] private Vector3 worldOffset = new Vector3(0f, 2f, 0f);
+    [SerializeField] private BillboardOrientation billboardOrientation = BillboardOrientation.FaceCamera;
+
+    [Header("Rotation Options")]
+    [Tooltip("Change Y rotation to the given fixedYRotation value (for FixedWorldRotation mode).")]
     [SerializeField] private bool useFixedYRotation = false;
+    [Tooltip("FixedWorldRotation:this sets the Y rotation in degrees. Does respond in editor/playtesting")]
     [SerializeField] private float fixedYRotation = 0f;
+    [Tooltip("FaceCamera mode: billboard keeps text upright (ignores Y rotation when facing camera).")]
+    [SerializeField] private bool ignoreYRotation = false;
+
+    [Header("Distance Scaling")]
+    [SerializeField] private bool scaleByDistance;
+    [Tooltip("If null, scales based on distance to main camera.")]
+    [SerializeField] private Transform distanceTarget;
+    [SerializeField] private float referenceDistance = 10f;
+    [SerializeField] private float minScaleMultiplier = 0.5f;
+    [SerializeField] private float maxScaleMultiplier = 2f;
+
+    private Vector3 originalRotation;
+    private Vector3 originalScale;
 
     [Header("Trigger")]
+    [SerializeField] private BillboardShowType showType = BillboardShowType.ShowOnCollide;
     [SerializeField] private bool onlyShowForPlayer = true;
     [SerializeField] private string playerTag = "InteractCollider"; //"Player";
     [SerializeField] private float timeOutOnTriggerEnter = 0f;
@@ -22,12 +59,23 @@ public class BillboardText : MonoBehaviour
 
     private void Awake()
     {
+        originalRotation = transform.rotation.eulerAngles;
+        originalScale = transform.localScale;
         //"InteractCollider" has a collider set to IsTrigger so this isn't a concern:
         //WarnIfColliderNotTrigger();
         EnsureTextObject();
         ApplyTextSettings();
-        SetTextVisible(false);
+        SetTextVisible(showType == BillboardShowType.AlwaysShow);
         timeOutOnTriggerEnterCountdown = timeOutOnTriggerEnter;
+    }
+
+    public void ShowBillboard()
+    {
+        SetTextVisible(true);
+    }
+    public void HideBillboard()
+    {
+        SetTextVisible(false);
     }
 
     private void LateUpdate()
@@ -37,11 +85,13 @@ public class BillboardText : MonoBehaviour
             return;
         }
 
-        if (timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
+        if (showType == BillboardShowType.ShowOnCollide &&
+            timeOutOnTriggerEnter > 0.01f && validTargetsInside > 0)
         {
             timeOutOnTriggerEnterCountdown -= Time.deltaTime;
             if (timeOutOnTriggerEnterCountdown <= 0.01f)
             {
+                Debug.Log("BillboardText: Time out reached for ShowOnCollide type. Hiding billboard until next trigger enter. GameObject: " + gameObject.name, this);
                 SetTextVisible(false);
                 return;
             }
@@ -56,26 +106,62 @@ public class BillboardText : MonoBehaviour
             if (mainCam != null)
             {
                 targetCameraTransform = mainCam.transform;
+                if (targetCameraTransform == null)
+                {
+                    Debug.LogWarning($"BillboardText on {gameObject.name} could not find a valid camera to face. Please ensure there is a Camera tagged MainCamera in the scene.", this);
+                    return;
+                }
             }
         }
 
-        if (useFixedYRotation)
+        switch (billboardOrientation)
         {
-            worldText.transform.rotation = Quaternion.Euler(0f, fixedYRotation, 0f);
+            case BillboardOrientation.FaceCamera:
+                //worldText.transform.LookAt(targetCameraTransform.position, Vector3.up);
+                //worldText.transform.rotation = Quaternion.LookRotation(-targetCameraTransform.forward, Vector3.up);
+                Vector3 toCamera = targetCameraTransform.position - textPosition;
+                if (ignoreYRotation)
+                    toCamera.y = 0f;
+                if (toCamera.sqrMagnitude > 0.0001f)
+                {
+                    worldText.transform.rotation = Quaternion.LookRotation(-toCamera, Vector3.up);
+                }
+                break;
+            case BillboardOrientation.FaceCameraForward:
+                worldText.transform.forward = targetCameraTransform.forward;
+                //worldText.transform.rotation
+                //worldText.transform.rotation = Quaternion.LookRotation(-targetCameraTransform.forward, Vector3.up);
+                break;
+            case BillboardOrientation.FixedWorldRotation:
+                // keep original rotation, or if fixedYRotation is used, adjust that
+                // (note this isn't really useful outside of editor/play mode testing)
+                if (useFixedYRotation)
+                    worldText.transform.rotation = Quaternion.Euler(0f, fixedYRotation, 0f);
+                break;
+            default:
+                break;
         }
-        else if (targetCameraTransform != null)
+        // size by distance?
+        if (scaleByDistance)
         {
-            Vector3 toCamera = targetCameraTransform.position - textPosition;
-            toCamera.y = 0f;
-            if (toCamera.sqrMagnitude > 0.0001f)
-            {
-                worldText.transform.rotation = Quaternion.LookRotation(-toCamera, Vector3.up);
-            }
+            Transform target = distanceTarget != null ? distanceTarget : targetCameraTransform.transform;
+            float distance = Vector3.Distance(transform.position, target.position);
+            float safeReferenceDistance = Mathf.Max(0.01f, referenceDistance);
+            float scaleMultiplier = distance / safeReferenceDistance;
+            scaleMultiplier = Mathf.Clamp(scaleMultiplier, minScaleMultiplier, maxScaleMultiplier);
+            transform.localScale = originalScale * scaleMultiplier;
+        }
+        else
+        {
+            transform.localScale = originalScale;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (showType == BillboardShowType.AlwaysShow || showType == BillboardShowType.ManualShow)
+            return;
+
         if (!IsValidTarget(other))
         {
             return;
@@ -84,10 +170,14 @@ public class BillboardText : MonoBehaviour
         validTargetsInside++;
         ResolveCameraFromCollider(other);
         SetTextVisible(true);
+        timeOutOnTriggerEnterCountdown = timeOutOnTriggerEnter;
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (showType == BillboardShowType.AlwaysShow || showType == BillboardShowType.ManualShow)
+            return;
+        
         if (!IsValidTarget(other))
         {
             return;
