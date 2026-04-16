@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InteractableObject : InteractableBase, ISaveable
+public class InteractableObject : InteractableBase
 {
     public UnityEngine.Events.UnityEvent onInteract;
 
@@ -39,6 +39,7 @@ public class InteractableObject : InteractableBase, ISaveable
         {
             return;
         }
+        Debug.Log("IBO->Interacted with object of type: " + interactableType + " with interactText: " + interactText);
         // default?
         //SetBillboardVisibility(false);
 

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-// TODO: Collectibles with same-name, count etc implementation
+// TODO: Collectibles with same-name, count etc implementation(?)
+// for now, just use QuestComponent's questTaskTag to differentiate collectibles
 
 [Serializable]
 public class TaskGroup
@@ -36,8 +37,12 @@ public class TaskGroup
         };
         foreach (var go in taskObjects)
         {
+            // Race condition workaround:
+            var uid = go.uniqueID ?? go.GetComponent<UniqueID>();
+            if (uid == null) { Debug.LogError($"Missing UniqueID on {go.name}"); continue; }
+            Debug.Log("Q-> uniqueID: " + uid.ID + ", name: " + go.gameObject.name + ", tag: " + go.questTaskTag + ", isCollectible: " + go.isCollectible);
             questInfo.questTasks.Add(new QuestTask {
-                taskUniqueId = go.uniqueID.ID, taskName = go.gameObject.name,
+                taskUniqueId = uid.ID, taskName = go.gameObject.name,
                 questTaskTag = go.questTaskTag, isCollectibleTask = go.isCollectible,
                 isCompleted = actedOnComplete, taskDescription = "",
                 taskValue = 1, taskMaxValue = 1, oneTimeCompletion = true, requiredTasks = null});
@@ -62,6 +67,7 @@ public class TaskGroup
     }
 }
 [RequireComponent(typeof(UniqueID))]
+[DefaultExecutionOrder(-80)]
 public class Quest : MonoBehaviour, ISaveable
 {
     public UniqueID questUniqueId;
@@ -69,7 +75,7 @@ public class Quest : MonoBehaviour, ISaveable
 
     public string QuestName => taskGroup.taskGroupName;
     public int TaskCount => taskGroup.taskObjects.Count;
-    public int TasksRemaining => taskGroup.taskMinimumForCompletion != 0 ? taskGroup.taskMinimumForCompletion - taskGroup.tasksCompleted : 0;
+    public int TasksRemaining => taskGroup.taskMinimumForCompletion <= 0 ? 0 : taskGroup.taskMinimumForCompletion - taskGroup.tasksCompleted;
 
     private string sceneName = "";
 
@@ -85,44 +91,58 @@ public class Quest : MonoBehaviour, ISaveable
         sceneName = SceneManager.GetActiveScene().name;
         if (questUniqueId == null)
             questUniqueId = GetComponent<UniqueID>();
+
     }
 
-    private void Start()
+    void OnEnable()
     {
+        Debug.Log("UniqueId: " + questUniqueId.ID + " for quest: " + QuestName + " in scene: " + sceneName);
         if (!questAdded)
         {
             Debug.Log("Quest->Start: Adding quest with name: " + QuestName + " to QuestManager from Start() in scene: " + sceneName);
             QuestManager.Instance.AddQuest(this);
             questAdded = true;
-        }
+        }  
     }
 
-    public static Quest CreateQuest(string questName, string sceneName, TaskGroup taskGroup)
+    private void Start()
     {
-        GameObject questGO = new GameObject(questName);
-        Quest quest = questGO.AddComponent<Quest>();
-        quest.sceneName = sceneName;
-        quest.taskGroup = taskGroup;
-        if (quest.taskGroup.onTasksCompleted == null)
-        {
-            quest.taskGroup.onTasksCompleted = new UnityEvent();
-        }
-        if (string.IsNullOrEmpty(quest.taskGroup.taskGroupName))
-        {
-            quest.taskGroup.taskGroupName = questName;
-        }
-        Debug.Log("Created quest with name: " + questName + " in scene: " + sceneName);
 
-        //!! Letting Start() handle this so UniqueID is properly set first:
-        //QuestManager.Instance.AddQuest(quest);
-        //quest.questAdded = true;
-        return quest;
+        if (taskGroup.taskMinimumForCompletion <= 0)
+        {
+            taskGroup.taskMinimumForCompletion = taskGroup.taskObjects.Count;
+        }
     }
-    public static Quest CreateQuest(string questName, string sceneName, string taskGroupName)
-    {
-        TaskGroup taskGroup = new TaskGroup { taskGroupName = taskGroupName };
-        return CreateQuest(questName, sceneName, taskGroup);
-    }
+// ! I can't develop a CreateQuest scenario where new uniqueID's are generated every time
+//!  which might be fine for a global quest created outside of a scene, but not for scene quests
+
+    // public static Quest CreateQuest(string questName, string sceneName, TaskGroup taskGroup)
+    // {
+    //     GameObject questGO = new GameObject(questName);
+    //     Quest quest = questGO.AddComponent<Quest>();
+    //     quest.sceneName = sceneName;
+    //     quest.taskGroup = taskGroup;
+    //     if (quest.taskGroup.onTasksCompleted == null)
+    //     {
+    //         quest.taskGroup.onTasksCompleted = new UnityEvent();
+    //     }
+    //     if (string.IsNullOrEmpty(quest.taskGroup.taskGroupName))
+    //     {
+    //         quest.taskGroup.taskGroupName = questName;
+    //     }
+    //     Debug.Log("Created quest with name: " + questName + " in scene: " + sceneName);
+
+    //     //!! Letting Start() handle this so UniqueID is properly set first:
+    //     //QuestManager.Instance.AddQuest(quest);
+    //     //quest.questAdded = true;
+    //     return quest;
+    // }
+    // public static Quest CreateQuest(string questName, string sceneName, string taskGroupName, int taskMinimumForCompletion = 0)
+    // {
+    //     TaskGroup taskGroup = new TaskGroup { taskGroupName = taskGroupName, taskMinimumForCompletion = taskMinimumForCompletion };
+    //     return CreateQuest(questName, sceneName, taskGroup);
+    // }
+
 
     public Quest FindQuestByName(string questName)
     {
@@ -142,7 +162,12 @@ public class Quest : MonoBehaviour, ISaveable
     public void AddTaskObject(QuestComponent go)
     {
         taskGroup.taskObjects.Add(go);
-        if (taskGroup.taskMinimumForCompletion != 0)
+        // ! Minimum loses its meaning if I adjust every time I add a task object??
+        if (taskGroup.taskMinimumForCompletion <= 0 || taskGroup.taskMinimumForCompletion < taskGroup.taskObjects.Count)
+        {
+            taskGroup.taskMinimumForCompletion = taskGroup.taskObjects.Count;
+        }
+        else
         {
             Debug.Log("Added task object w/o increment: " + go.uniqueID.ID + " to group: " + taskGroup.taskGroupName + " in scene: " + sceneName + ". Tasks remaining to complete group: " + TasksRemaining);
         }
@@ -151,8 +176,10 @@ public class Quest : MonoBehaviour, ISaveable
 
     private bool IsItOkayToActOnComplete()
     {
-        if (taskGroup.taskObjects.Count > taskGroup.taskMinimumForCompletion || taskGroup.actedOnComplete)
+        if (TasksRemaining > 0 || taskGroup.actedOnComplete)
             return false;
+
+        Debug.Log("IsItOkayToActOnComplete for group: " + taskGroup.taskGroupName + " in scene: " + sceneName + "? Tasks Remaining: " + TasksRemaining + ", ActedOnComplete: " + taskGroup.actedOnComplete);
 
         if (taskGroup.taskObjectToCompleteFirst != null && !taskGroup.completeReferencedTaskFirst)
         {
@@ -194,19 +221,22 @@ public class Quest : MonoBehaviour, ISaveable
         CompleteTaskObjectAndActOnComplete(go);
     }
 
+    // CompleteTaskObject calls this and checks that the task object exists in group
     private void CompleteTaskObjectAndActOnComplete(QuestComponent go)
     {
-        TaskGroup group = taskGroup;
-        Debug.Log("Removing Quest Object: " + go.uniqueID.ID + ", tasks left: " + TasksRemaining + " for group: " + group.taskGroupName + " in scene: " + sceneName);
         QuestManager.Instance.CompletedQuestObject(this, go);
 
-        group.taskObjects.Remove(go);
-        group.tasksCompleted++;
+        if (taskGroup.taskObjects.Remove(go))
+        {
+            taskGroup.tasksCompleted++;
+        }
+
+        Debug.Log("Removing Quest Object: " + go.uniqueID.ID + ", tasks left: " + TasksRemaining + " for group: " + taskGroup.taskGroupName + " in scene: " + sceneName);
 
         if (IsItOkayToActOnComplete())
         {
-            group.onTasksCompleted.Invoke();
-            group.actedOnComplete = true;
+            taskGroup.onTasksCompleted.Invoke();
+            taskGroup.actedOnComplete = true;
             QuestManager.Instance.CompletedQuest(this);
         }
     }
@@ -219,6 +249,7 @@ public class Quest : MonoBehaviour, ISaveable
             QuestManager.Instance.CompletedQuestObject(this, go);
         }
         taskGroup.taskObjects.Clear();
+        taskGroup.tasksCompleted = taskGroup.taskMinimumForCompletion;
         if (taskGroup.autoActOnComplete || actOnComplete)
         {
             taskGroup.onTasksCompleted.Invoke();
@@ -291,41 +322,55 @@ public class Quest : MonoBehaviour, ISaveable
         {
             data.taskGroupObjectIds.Add(go.uniqueID.ID);
         }
+        // clear up anything referencing scene objects before saving
+        data.taskGroup.taskObjectToCompleteFirst = null;
         data.taskGroup.taskObjects = null;
+        data.taskGroup.onTasksCompleted = null;
         return data;
     }
     public void RestoreState(object state)
     {
-        if (state is QuestData data)
-        {
-            sceneName = data.sceneName;
-            data.taskGroup.taskObjects = new List<QuestComponent>();
-            // find all QuestComponent objects matching the saved task group object ids and add them back to the task group
-            foreach (var go in FindObjectsByType<QuestComponent>(FindObjectsSortMode.None))
-            {
-                // get index of the task object in the saved task group object ids, if it exists
-                int index = data.taskGroupObjectIds.IndexOf(go.uniqueID.ID);
-                if (index != -1)
-                {
-                    data.taskGroup.taskObjects.Add(go);
-                    Debug.Log("Restored task object with id: " + go.uniqueID.ID + " to quest: " + QuestName + " in scene: " + sceneName);
-                }
-            }
-            data.taskGroup.onTasksCompleted = taskGroup.onTasksCompleted;
+        // if (state is QuestData data)
+        // {
+        //     sceneName = data.sceneName;
 
-            taskGroup = data.taskGroup;
-            taskGroup.actedOnComplete = data.actedOnComplete;
-            // redo any completion actions if needed
-            if (taskGroup.actedOnComplete)
-            {
-                taskGroup.onTasksCompleted.Invoke();
-            }
-            Debug.Log("Restored Quest state for quest: " + QuestName + " in scene: " + sceneName + ". Tasks remaining: " + TasksRemaining);
-        }
-        else
-        {
-            Debug.LogError("RestoreState: Invalid state object for Quest: " + QuestName + " in scene: " + sceneName);
-        }
+        //     // This is pointless I realize since these are references that exist in the scene, I shouldn't have to add them back:
+        //     // data.taskGroup.taskObjects = new List<QuestComponent>();
+        //     // // find all QuestComponent objects matching the saved task group object ids and add them back to the task group
+        //     // // Needed because we can't save/restore references to scene objects, but using UniqueIDs we can locate them
+        //     // foreach (var go in FindObjectsByType<QuestComponent>(FindObjectsSortMode.None))
+        //     // {
+        //     //     // get index of the task object in the saved task group object ids, if it exists
+        //     //     int index = data.taskGroupObjectIds.IndexOf(go.uniqueID.ID);
+        //     //     if (index != -1)
+        //     //     {
+        //     //         data.taskGroup.taskObjects.Add(go);
+        //     //         Debug.Log("Restored task object with id: " + go.uniqueID.ID + " to quest: " + QuestName + " in scene: " + sceneName);
+        //     //     }
+        //     // }
+        //     // replace data that references scene objects with current level data
+        //     data.taskGroup.taskObjects = taskGroup.taskObjects;
+        //     data.taskGroup.onTasksCompleted = taskGroup.onTasksCompleted;
+        //     data.taskGroup.taskObjectToCompleteFirst = taskGroup.taskObjectToCompleteFirst;
+        //     // tasks counts should be same, unless we call for them to remove themselves again
+
+        //     taskGroup = new TaskGroup();
+        //     taskGroup = data.taskGroup;
+        //     taskGroup.actedOnComplete = data.actedOnComplete;
+
+        //     Debug.Log("Restored Quest: " + QuestName + " in scene: " + sceneName + ". Tasks remaining: " + TasksRemaining);
+        //     // redo any completion actions if needed
+        //     if (taskGroup.actedOnComplete)
+        //     {
+        //         Debug.Log("Restoring completed Quest: " + QuestName + " in scene: " + sceneName + ". INVOKING onTasksComplete.");
+        //         taskGroup.onTasksCompleted.Invoke();
+        //     }
+        //     Debug.Log("Restored Quest state for quest: " + QuestName + " in scene: " + sceneName + ". Tasks remaining: " + TasksRemaining);
+        // }
+        // else
+        // {
+        //     Debug.LogError("RestoreState: Invalid state object for Quest: " + QuestName + " in scene: " + sceneName);
+        // }
     }
 #endregion ISaveable implementation
 

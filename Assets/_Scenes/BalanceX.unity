@@ -299,6 +299,7 @@ GameObject:
   m_Component:
   - component: {fileID: 335141345}
   - component: {fileID: 335141344}
+  - component: {fileID: 335141346}
   m_Layer: 0
   m_Name: TimerObject
   m_TagString: Untagged
@@ -321,6 +322,7 @@ MonoBehaviour:
   isEnabled: 1
   timerDuration: 1.5
   restartAfterExpire: 0
+  triggerCount: 0
   onTimerExpire:
     m_PersistentCalls:
       m_Calls:
@@ -351,6 +353,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &335141346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335141343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 8a55dc22397aa2c45b35ae2fa7bff31b
 --- !u!1 &487535631
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,8 +784,31 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 590647490}
   m_SourcePrefab: {fileID: 100100000, guid: 765b8b11ed2c32440856b4c0897a886a, type: 3}
+--- !u!1 &590647489 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
+    type: 3}
+  m_PrefabInstance: {fileID: 590647488}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &590647490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590647489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 3339665e23e489b4593922a4762e936e
 --- !u!1 &623338300
 GameObject:
   m_ObjectHideFlags: 0
@@ -994,25 +1032,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onSceneAwake:
-    m_PersistentCalls:
-      m_Calls: []
-  onSceneStart:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 498344175}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-  taskGroups: []
+  sceneVisitTasks:
+  - visitCount: 1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onHubReturnTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  hubReturnPosition: {fileID: 0}
+  hubReturnPlayerObject: {fileID: 0}
 --- !u!4 &803315842
 Transform:
   m_ObjectHideFlags: 0
@@ -1061,8 +1100,16 @@ MonoBehaviour:
   worldText: {fileID: 0}
   message: Balance!
   worldOffset: {x: 0, y: 1, z: 0}
+  billboardOrientation: 0
   useFixedYRotation: 1
   fixedYRotation: 0
+  ignoreYRotation: 0
+  scaleByDistance: 0
+  distanceTarget: {fileID: 0}
+  referenceDistance: 10
+  minScaleMultiplier: 0.5
+  maxScaleMultiplier: 2
+  showType: 1
   onlyShowForPlayer: 1
   playerTag: InteractCollider
   timeOutOnTriggerEnter: 1
@@ -1951,6 +1998,7 @@ GameObject:
   - component: {fileID: 1764494536}
   - component: {fileID: 1764494535}
   - component: {fileID: 1764494539}
+  - component: {fileID: 1764494540}
   m_Layer: 0
   m_Name: InteractSphere
   m_TagString: Untagged
@@ -2065,6 +2113,12 @@ MonoBehaviour:
   isInteractable: 1
   isOneTimeUse: 0
   interactionCount: 0
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 1
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -2080,6 +2134,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1764494540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764494534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: c48cfb28d2c41a145a69486544a41b31
 --- !u!1 &1770744166
 GameObject:
   m_ObjectHideFlags: 0
@@ -2228,8 +2295,6 @@ MonoBehaviour:
   invertCameraRoll: 1
   struggleBobAmount: 0.05
   struggleBobSpeed: 8
-  enableDirectionDebugLogs: 0
-  debugLogInterval: 0.35
   forwardMoveInterval: 0.5
   forwardMoveDistance: 0.25
   centerThresholdForForwardMove: 2.5

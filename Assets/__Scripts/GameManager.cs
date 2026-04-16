@@ -451,8 +451,8 @@ public class GameManager : MonoBehaviour
                 else
                     Debug.Log("GM->SceneAwake: (new)");
 
-                // This gets added even if we're reloading, also visitcount increased:
-                gameState.AddScene(sceneName, true);
+                // This gets added even if we're reloading, but visitcount increased only for new scene
+                gameState.AddScene(sceneName, !reloadCurrentSceneCalled);
             }
         }
         reloadCurrentSceneCalled = false;

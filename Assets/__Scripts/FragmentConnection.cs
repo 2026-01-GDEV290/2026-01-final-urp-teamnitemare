@@ -3,6 +3,11 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
+// TODO: This needs an Interactable component, or to inherit from ISaveable
+// otherwise it ignores state/quest progress (although it is stored in GameState)
+// to save/restore state and trigger onTasksComplete in the quest
+
+[RequireComponent(typeof(QuestComponent))]
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
 public class FragmentConnection : MonoBehaviour
@@ -24,8 +29,8 @@ public class FragmentConnection : MonoBehaviour
     private Collider targetCollider;
 
     private QuestComponent questComponent;
-    private static Quest sharedQuest;
-    private static readonly string questName = "Fragment-Connection-Quest";
+    //private static Quest sharedQuest;
+    private static readonly string questName = "QuestConnect";
     private Quest quest = null;
 
     void Awake()
@@ -35,6 +40,12 @@ public class FragmentConnection : MonoBehaviour
         if (questComponent == null)
         {
             questComponent = gameObject.AddComponent<QuestComponent>();
+        }
+
+        quest = GameObject.Find(questName)?.GetComponent<Quest>();
+        if (quest == null)
+        {
+            Debug.LogError("FC-No quest found with name: " + questName + ". Creating new quest.");
         }
     }
     // void Start()
@@ -52,30 +63,36 @@ public class FragmentConnection : MonoBehaviour
     // }
     void Start()
     {
-        if (sharedQuest == null)
-        {
-            sharedQuest = QuestManager.Instance.FindQuestByName(questName)
-                        ?? Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName);
-        }
+        //quest.AddTaskObject(questComponent);  // added in editor
+        quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
+        //! Quests created on the fly are problematic because of newly generated unique IDs on every scene launch
+        //! The only place this can be viable is in GLOBAL quests created outside of scenes, but even then
+        //! I don't know that the uniqueID will be persistent across game sessions so its better to generate global
+        //! uniqueID's and hardcode them, then manually assign the Quest data
+        // if (sharedQuest == null)
+        // {
+        //     sharedQuest = QuestManager.Instance.FindQuestByName(questName)
+        //                 ?? Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName, 4);
+        // }
 
-        quest = sharedQuest;
+        // quest = sharedQuest;
 
         //!! Problem: quest must add itself in Start(), can't ADdTaskObject until that happens so we need to
         // run a couroutine to wait until end of frame to add the task object to the quest
-        StartCoroutine(AddTaskObjectWhenReady());
+        // StartCoroutine(AddTaskObjectWhenReady());
         //quest.AddTaskObject(questComponent);
-        //quest.GetTaskGroup().onTasksCompleted.AddListener(callback);
+        //quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
     }
-    IEnumerator AddTaskObjectWhenReady()
-    {
-        while (quest == null || QuestManager.Instance.FindQuest(quest.questUniqueId.ID) == null)
-        {
-            yield return null; // wait for next frame
-        }
-        quest.AddTaskObject(questComponent);
-        quest.GetTaskGroup().onTasksCompleted.AddListener(callback);
-    }
-    private static void callback()
+    // IEnumerator AddTaskObjectWhenReady()
+    // {
+    //     while (quest == null || QuestManager.Instance.FindQuest(quest.questUniqueId.ID) == null)
+    //     {
+    //         yield return null; // wait for next frame
+    //     }
+    //     quest.AddTaskObject(questComponent);
+    //     quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
+    // }
+    private static void OnFragmentsConnected()
     {
         Debug.Log("FRAGMENT CallBACK");
     }

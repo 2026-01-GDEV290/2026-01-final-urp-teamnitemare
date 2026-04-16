@@ -51,6 +51,14 @@ public class TimerObject : MonoBehaviour, ISaveable
         return true;
     }
 
+    public void TriggerImmediately()
+    {
+        if (!isEnabled)
+            return;
+        CancelTimer();
+        TimerExpired();
+    }
+
     private void TimerExpired()
     {
         Debug.Log("Timer expired! on object: " + gameObject.name);

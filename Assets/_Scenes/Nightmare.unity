@@ -10764,13 +10764,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onSceneAwake:
-    m_PersistentCalls:
-      m_Calls: []
-  onSceneStart:
-    m_PersistentCalls:
-      m_Calls: []
-  taskGroups: []
+  sceneVisitTasks:
+  - visitCount: 1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onHubReturnTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  hubReturnPosition: {fileID: 0}
+  hubReturnPlayerObject: {fileID: 0}
 --- !u!4 &1043086523
 Transform:
   m_ObjectHideFlags: 0
@@ -12649,6 +12662,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1157733678}
     - targetCorrespondingSourceObject: {fileID: 2223643312856569240, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       insertIndex: -1
@@ -12658,6 +12675,25 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: 765b8b11ed2c32440856b4c0897a886a, type: 3}
+--- !u!1 &1157733677 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
+    type: 3}
+  m_PrefabInstance: {fileID: 1157733676}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1157733678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157733677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: b4e9b2dba3ea2cd45bc4ddb2e5040a58
 --- !u!1 &1158228126 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 41f57b54cba924c4887ef9a33446f65f,

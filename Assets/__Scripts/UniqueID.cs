@@ -4,6 +4,7 @@ using UnityEngine;
 // Also, this script is paired with:
 // Editor/UniqueIDValidator to ensure every ISaveable has a UniqueID, and that all UniqueIDs are unique
 // Editor/UniqueIDInspector to display the UniqueID in the Inspector (read-only) for debugging purposes
+[DefaultExecutionOrder(-250)]
 public class UniqueID : MonoBehaviour
 {
     [SerializeField, HideInInspector]

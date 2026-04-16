@@ -28,6 +28,7 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
     [SerializeField] string billBoardInteractText = "Interact";
     [SerializeField] bool showBillboardOnStart = true;
+    bool bDataRestored;
 
     protected virtual void Awake()
     {
@@ -58,6 +59,16 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
         if (!showBillboardOnStart)
         {
             SetBillboardVisibility(false);
+        }
+        Debug.Log("IB->Start: Starting interactable of type: " + interactableType + " with interactText: " + interactText + " and isInteractable: " + isInteractable);
+        if (bDataRestored)
+        {
+            if (interactionCount > 0)
+            {
+                Interact(true);
+                // Interact will increment interactionCount (presumably, base class here)
+                interactionCount--;
+            }
         }
     }
 
@@ -122,12 +133,15 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
             this.isOneTimeUse = data.isOneTimeUse;            
             this.interactionCount = data.interactionCount;
 
-            if (interactionCount > 0)
-            {
-                Interact(true);
-                // Interact will increment interactionCount (presumably, base class here)
-                interactionCount--;
-            }
+
+            Debug.Log("IB->RestoreState: Restored state for interactable of type: " + interactableType + " with interactText: " + interactText + " and isInteractable: " + isInteractable + " and interactionCount: " + interactionCount);
+            bDataRestored = true;
+            // if (interactionCount > 0)
+            // {
+            //     Interact(true);
+            //     // Interact will increment interactionCount (presumably, base class here)
+            //     interactionCount--;
+            // }
         }
     }
 #endregion ISaveable implementation

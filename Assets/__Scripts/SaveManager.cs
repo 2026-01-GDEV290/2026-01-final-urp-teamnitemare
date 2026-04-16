@@ -32,6 +32,7 @@ public class SaveManager
     public void Register(string id, ISaveable saveable)
     {
         sceneSaveables[id] = saveable;
+        //Debug.Log("Registered ISaveable with ID: " + id);
     }
 
 #region Capture to File
@@ -92,7 +93,12 @@ public class SaveManager
         if (temporarySceneState == null)
             return;
 
-        foreach (var kvp in sceneSaveables)
+        Debug.Log("SM->RestoreTemporarySceneState: Restoring temporary state for " + temporarySceneState.Count + " saveables.");
+
+        // create a copy of sceneSaveables to avoid modifying the collection while iterating
+        var saveablesCopy = new Dictionary<string, ISaveable>(sceneSaveables);
+
+        foreach (var kvp in saveablesCopy)
         {
             if (temporarySceneState.TryGetValue(kvp.Key, out var state))
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 // TODO: Collectibles with same-name, count etc implementation
+// for now, just use QuestComponent's questTaskTag to differentiate collectibles
 
 // QuestManager is per-level, created by Scene, updates Quest info in GameState
 [DefaultExecutionOrder(-99)]
@@ -17,6 +18,8 @@ public class QuestManager : MonoBehaviour
     // completedTasks
 
     private string sceneName = "";
+    int visit;
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -28,6 +31,11 @@ public class QuestManager : MonoBehaviour
             Instance = this;
             sceneName = SceneManager.GetActiveScene().name;
         }
+    }
+    public void Initialize(Scene scene)
+    {
+        sceneName = SceneManager.GetActiveScene().name;
+        visit = scene.VisitCount;
     }
     // void Start()
     // {
@@ -64,16 +72,17 @@ public class QuestManager : MonoBehaviour
             Debug.LogError("AddQuest: Cannot add null Quest.");
             return;
         }
-        if (quests.Exists(q => q.QuestName == quest.QuestName))
+        //if (quests.Exists(q => q.QuestName == quest.QuestName))
+        if (quests.Exists(q => q.questUniqueId.ID == quest.questUniqueId.ID))
         {
-            Debug.LogWarning("AddQuest: Quest with name: " + quest.QuestName + " already exists in QuestManager.");
+            Debug.LogWarning("AddQuest: Quest with unique ID: " + quest.questUniqueId.ID + " already exists in QuestManager.");
             return;
         }
         // set counts to 0
         //group.tasksCompleted = 0;
         quests.Add(quest);
 
-        GameManager.Instance.gameState.AddQuestToScene(sceneName, quest.ConvertToQuestInfo());
+        GameManager.Instance.gameState.AddQuestToScene(sceneName, quest.ConvertToQuestInfo(), visit);
     }
     public void AddTaskObject(Quest quest, QuestComponent go, bool questAddTaskObject = true)
     {
@@ -93,11 +102,11 @@ public class QuestManager : MonoBehaviour
             questTaskTag = go.questTaskTag, isCollectibleTask = go.isCollectible,
             isCompleted = false, taskDescription = "",
             taskValue = 1, taskMaxValue = 1, oneTimeCompletion = true, requiredTasks = null
-        });
+        }, visit);
     }
-    public void AddTaskObject(string questName, QuestComponent go, bool questAddTaskObject = true)
+    public void AddTaskObject(string questUniqueId, QuestComponent go, bool questAddTaskObject = true)
     {
-        Quest quest = quests.Find(g => g.QuestName == questName);
+        Quest quest = quests.Find(g => g.questUniqueId.ID == questUniqueId);
         AddTaskObject(quest, go);
     }
     public int FindQuestGroupIndexForTaskObject(QuestComponent go)
@@ -118,7 +127,7 @@ public class QuestManager : MonoBehaviour
             Debug.LogError("CompleteQuestObject: Quest is null.");
             return;
         }
-        GameManager.Instance.gameState.MarkTaskComplete(sceneName, quest.questUniqueId.ID, go.uniqueID.ID);
+        GameManager.Instance.gameState.MarkTaskComplete(sceneName, quest.questUniqueId.ID, go.uniqueID.ID, visit);
         // quest component removed before this is called
         // also, empty quests are removed afterwards by Quest script 
     }
@@ -137,12 +146,12 @@ public class QuestManager : MonoBehaviour
     public void CompletedNonQuestObject(QuestComponent go)
     {
         Debug.Log("Removing non-quest object: " + go.uniqueID.ID + " for scene: " + sceneName);
-        GameManager.Instance.gameState.AddNonTaskObjectToSceneAsCompleted(sceneName, go.uniqueID.ID);
+        GameManager.Instance.gameState.AddNonTaskObjectToSceneAsCompleted(sceneName, go.uniqueID.ID, visit);
     }
     public void CompletedQuest(Quest quest)
     {
         Debug.Log("Acting on quest complete for quest with quest group: " + quest.QuestName + " in scene: " + sceneName);
-        GameManager.Instance.gameState.MarkQuestComplete(sceneName, quest.questUniqueId.ID);
+        GameManager.Instance.gameState.MarkQuestComplete(sceneName, quest.questUniqueId.ID, visit);
         quests.Remove(quest);
     }
     public void CompleteAllTasksInQuest(Quest quest)
@@ -154,10 +163,10 @@ public class QuestManager : MonoBehaviour
         }
         quest.ForceCompleteTaskGroup();
     }
-    public void CompleteAllTasksInQuest(string questName)
+    public void CompleteAllTasksInQuest(string questUniqueId)
     {
-        Quest group = quests.Find(g => g.QuestName == questName);
-        CompleteAllTasksInQuest(group);
+        Quest quest = quests.Find(g => g.questUniqueId.ID == questUniqueId);
+        CompleteAllTasksInQuest(quest);
     }
     public void ForceCompleteAllQuests(bool actOnComplete = true)
     {
@@ -195,7 +204,7 @@ public class QuestManager : MonoBehaviour
 
     public bool IsGivenTaskComplete(QuestComponent go)
     {
-        bool complete = GameManager.Instance.gameState.IsTaskComplete(sceneName, go.uniqueID.ID);
+        bool complete = GameManager.Instance.gameState.IsTaskComplete(sceneName, go.uniqueID.ID, visit);
         Debug.Log("Checking if given task: " + go.uniqueID.ID + " is complete for scene: " + sceneName + ". Result: " + complete);
         return complete;
     }
@@ -205,5 +214,10 @@ public class QuestManager : MonoBehaviour
         Debug.Log("Clearing task group for scene (with NO progression updates): " + sceneName);
         quests.Clear();
         quests = new List<Quest>();
+    }
+
+    public void ClearTasksAndQuestsForScene()
+    {
+        GameManager.Instance.gameState.ClearTasksAndQuestsForScene(sceneName, visit);
     }
 }

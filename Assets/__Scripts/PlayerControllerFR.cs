@@ -969,11 +969,13 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
     }
     public void RestoreState(object state)
     {
+        Debug.Log("Restoring PlayerControllerFR state");
         if (state is TransformState transformState)
         {
-            transform.position = transformState.position;
-            transform.rotation = transformState.rotation;
-            transform.localScale = transformState.localScale;
+            Debug.Log($"Restoring position: {transformState.position}, rotation: {transformState.rotation}, localScale: {transformState.localScale}");
+            this.transform.position = transformState.position;
+            this.transform.rotation = transformState.rotation;
+            this.transform.localScale = transformState.localScale;
         }
     }
 #endregion ISaveable implementation

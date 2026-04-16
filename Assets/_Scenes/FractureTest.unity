@@ -1604,6 +1604,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 474b7a8d07c6bc24da26c598dd3984c6
+--- !u!114 &1414313727 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8244604769060255257, guid: 98459f26e0fd628419ef22f1eab27033,
+    type: 3}
+  m_PrefabInstance: {fileID: 4416442720948287478}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1419844637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1766,7 +1778,7 @@ MonoBehaviour:
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
-            m_StringArgument: 
+            m_StringArgument: asdfa
             m_BoolArgument: 1
           m_CallState: 2
     actedOnComplete: 0
@@ -2053,6 +2065,19 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6024471392981550858}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1578041324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578041323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 9aa7ea5f1911ad44a83006d73b358d81
 --- !u!1 &1632971839
 GameObject:
   m_ObjectHideFlags: 0
@@ -2154,6 +2179,93 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &1738721944
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1738721947}
+  - component: {fileID: 1738721946}
+  - component: {fileID: 1738721945}
+  m_Layer: 0
+  m_Name: QuestConnect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1738721945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738721944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: cfca4495ae272184781a14656e87398c
+--- !u!114 &1738721946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738721944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9615d30b9386d5642ac8e8b8c74e2610, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questUniqueId: {fileID: 0}
+  taskGroup:
+    taskGroupName: FragmentConnect
+    isCollectibleGroup: 0
+    completeReferencedTaskFirst: 0
+    taskObjects:
+    - {fileID: 1414313727}
+    - {fileID: 2097072587}
+    - {fileID: 1822987216}
+    - {fileID: 1754866089}
+    autoActOnComplete: 1
+    onTasksCompleted:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1578041323}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: asdfa
+            m_BoolArgument: 1
+          m_CallState: 2
+    actedOnComplete: 0
+    taskMinimumForCompletion: 0
+    tasksCompleted: 0
+--- !u!4 &1738721947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1738721944}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.3063, y: 1.885, z: -0.44869}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1754866082
 GameObject:
   m_ObjectHideFlags: 0
@@ -2168,6 +2280,8 @@ GameObject:
   - component: {fileID: 1754866085}
   - component: {fileID: 1754866084}
   - component: {fileID: 1754866083}
+  - component: {fileID: 1754866090}
+  - component: {fileID: 1754866089}
   m_Layer: 0
   m_Name: Fragment (3)
   m_TagString: Untagged
@@ -2311,6 +2425,35 @@ Transform:
   - {fileID: 1865365081}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1754866089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754866082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1754866090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754866082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 26e5cfa78d59dcb46a27bd97823c6431
 --- !u!1 &1814019853
 GameObject:
   m_ObjectHideFlags: 0
@@ -2370,6 +2513,8 @@ GameObject:
   - component: {fileID: 1822987212}
   - component: {fileID: 1822987211}
   - component: {fileID: 1822987210}
+  - component: {fileID: 1822987217}
+  - component: {fileID: 1822987216}
   m_Layer: 0
   m_Name: Fragment (2)
   m_TagString: Untagged
@@ -2513,6 +2658,35 @@ Transform:
   - {fileID: 1302146000}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1822987216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822987209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1822987217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822987209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 19c155a294fafe44cbb31b7c51a9fd42
 --- !u!1 &1838773366
 GameObject:
   m_ObjectHideFlags: 0
@@ -2853,6 +3027,8 @@ GameObject:
   - component: {fileID: 2097072581}
   - component: {fileID: 2097072586}
   - component: {fileID: 2097072585}
+  - component: {fileID: 2097072588}
+  - component: {fileID: 2097072587}
   m_Layer: 0
   m_Name: Fragment (1)
   m_TagString: Untagged
@@ -2996,6 +3172,35 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2097072587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097072580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &2097072588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097072580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 7b21a6defb523df4d949e1877ae7071f
 --- !u!1 &2106436774
 GameObject:
   m_ObjectHideFlags: 0
@@ -3420,7 +3625,7 @@ PrefabInstance:
     - target: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5505596679366546131, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
@@ -3516,14 +3721,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2223643312856569240, guid: 765b8b11ed2c32440856b4c0897a886a,
+    - targetCorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 0}
-    - targetCorrespondingSourceObject: {fileID: 550223555398937639, guid: 765b8b11ed2c32440856b4c0897a886a,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+      addedObject: {fileID: 1578041324}
   m_SourcePrefab: {fileID: 100100000, guid: 765b8b11ed2c32440856b4c0897a886a, type: 3}
 --- !u!54 &7547400424704196461
 Rigidbody:
@@ -3573,3 +3774,4 @@ SceneRoots:
   - {fileID: 2106436777}
   - {fileID: 1814019854}
   - {fileID: 1512786759}
+  - {fileID: 1738721947}
