@@ -15046,8 +15046,16 @@ MonoBehaviour:
   worldText: {fileID: 0}
   message: Grapple Poles
   worldOffset: {x: 0, y: 2, z: 0}
+  billboardOrientation: 0
   useFixedYRotation: 0
   fixedYRotation: 0
+  ignoreYRotation: 0
+  scaleByDistance: 0
+  distanceTarget: {fileID: 0}
+  referenceDistance: 10
+  minScaleMultiplier: 0.5
+  maxScaleMultiplier: 2
+  showType: 1
   onlyShowForPlayer: 1
   playerTag: InteractCollider
   timeOutOnTriggerEnter: 0
@@ -22623,47 +22631,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onSceneAwake:
-    m_PersistentCalls:
-      m_Calls: []
-  onSceneStart:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1578041323}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  taskGroups:
-  - taskGroupName: Boxes
-    completePriorGroupFirst: 1
-    taskObjects:
-    - {fileID: 1338003849}
-    - {fileID: 1350025395}
-    autoActOnComplete: 1
-    onTasksCompleted:
+  sceneVisitTasks:
+  - visitCount: 1
+    onSceneAwake:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 1578041323}
-          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_MethodName: SetActive
-          m_Mode: 6
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 1
-          m_CallState: 2
-    actedOnComplete: 0
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onHubReturnTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onReloadTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  hubReturnPosition: {fileID: 0}
+  hubReturnPlayerObject: {fileID: 0}
 --- !u!1001 &936535465
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -29282,6 +29278,7 @@ GameObject:
   - component: {fileID: 1255798035}
   - component: {fileID: 1255798034}
   - component: {fileID: 1255798033}
+  - component: {fileID: 1255798039}
   m_Layer: 10
   m_Name: Pawn
   m_TagString: Player
@@ -29439,6 +29436,19 @@ Transform:
   - {fileID: 1545844400}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180.611, z: 0}
+--- !u!114 &1255798039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1255798032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 05347009c7fc80b4c882ac681d12fa03
 --- !u!1001 &1259793721
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31460,6 +31470,7 @@ GameObject:
   - component: {fileID: 1338003852}
   - component: {fileID: 1338003851}
   - component: {fileID: 1338003850}
+  - component: {fileID: 1338003855}
   m_Layer: 0
   m_Name: InteractCube
   m_TagString: Untagged
@@ -31484,6 +31495,12 @@ MonoBehaviour:
   isInteractable: 1
   isOneTimeUse: 1
   interactionCount: 0
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 1
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -31600,6 +31617,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1338003855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338003849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 267b924a8d55e804dbcf1adc5e4a79e2
 --- !u!1001 &1339540777
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32037,6 +32067,7 @@ GameObject:
   - component: {fileID: 1350025398}
   - component: {fileID: 1350025397}
   - component: {fileID: 1350025396}
+  - component: {fileID: 1350025401}
   m_Layer: 0
   m_Name: InteractCube (1)
   m_TagString: Untagged
@@ -32061,6 +32092,12 @@ MonoBehaviour:
   isInteractable: 1
   isOneTimeUse: 1
   interactionCount: 0
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 1
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -32177,6 +32214,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1350025401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1350025395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: eaaa77da36f94f345b65288871bcd93a
 --- !u!4 &1350112049 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400124, guid: 459aeb780b3c43748b5a2bb13e1809c8,
@@ -42979,6 +43029,19 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6024471392981550858}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1578041324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1578041323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 341085d98b4f65b41bda6de719a3cd15
 --- !u!4 &1580195386 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4418787855013532553, guid: 656cd4c03e12b3a498e086edc38c8cdd,
@@ -46746,6 +46809,8 @@ GameObject:
   - component: {fileID: 1754866085}
   - component: {fileID: 1754866084}
   - component: {fileID: 1754866083}
+  - component: {fileID: 1754866090}
+  - component: {fileID: 1754866089}
   m_Layer: 0
   m_Name: Fragment (3)
   m_TagString: Untagged
@@ -46889,6 +46954,35 @@ Transform:
   - {fileID: 1865365081}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1754866089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754866082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1754866090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754866082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: c37d636b0cb639a45a10694a468f999d
 --- !u!1 &1756887481
 GameObject:
   m_ObjectHideFlags: 0
@@ -49307,13 +49401,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 563c7eb058528de44af42504f13c4410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onSceneAwake:
-    m_PersistentCalls:
-      m_Calls: []
-  onSceneStart:
-    m_PersistentCalls:
-      m_Calls: []
-  taskGroups: []
+  sceneVisitTasks:
+  - visitCount: 1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onHubReturnTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  onReloadTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
+  hubReturnPosition: {fileID: 0}
+  hubReturnPlayerObject: {fileID: 0}
 --- !u!1001 &1818715921
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -49476,6 +49592,8 @@ GameObject:
   - component: {fileID: 1822987212}
   - component: {fileID: 1822987211}
   - component: {fileID: 1822987210}
+  - component: {fileID: 1822987217}
+  - component: {fileID: 1822987216}
   m_Layer: 0
   m_Name: Fragment (2)
   m_TagString: Untagged
@@ -49619,6 +49737,35 @@ Transform:
   - {fileID: 1302146000}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1822987216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822987209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &1822987217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1822987209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 3ca4f23520d5fc045805a42eca69c4c2
 --- !u!1001 &1824488891
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -55992,6 +56139,8 @@ GameObject:
   - component: {fileID: 2097072581}
   - component: {fileID: 2097072586}
   - component: {fileID: 2097072585}
+  - component: {fileID: 2097072588}
+  - component: {fileID: 2097072587}
   m_Layer: 0
   m_Name: Fragment (1)
   m_TagString: Untagged
@@ -56135,6 +56284,35 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &2097072587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097072580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c6150d9a2b1ee489dadeac86a4b323, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: {fileID: 0}
+  questTaskTag: 
+  isCollectible: 0
+  onceOnly: 1
+--- !u!114 &2097072588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2097072580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 988d39643e4446948be9bc72e28e5062
 --- !u!1001 &2097836805
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57878,6 +58056,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3914583166428390076, guid: 765b8b11ed2c32440856b4c0897a886a,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1578041324}
     - targetCorrespondingSourceObject: {fileID: 2223643312856569240, guid: 765b8b11ed2c32440856b4c0897a886a,
         type: 3}
       insertIndex: -1
