@@ -11133,6 +11133,15 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     useIfVisitCountExceeded: 0
+  onReloadTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
   hubReturnPosition: {fileID: 0}
   hubReturnPlayerObject: {fileID: 0}
 --- !u!4 &1043086523
@@ -28097,9 +28106,29 @@ PrefabInstance:
       objectReference: {fileID: 725654952}
     - target: {fileID: 3094819055484542578, guid: 93d3bce6aa93b6c488c150792f906f74,
         type: 3}
+      propertyPath: forwardMoveDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094819055484542578, guid: 93d3bce6aa93b6c488c150792f906f74,
+        type: 3}
       propertyPath: otherPlayerController
       value: 
       objectReference: {fileID: 874672348}
+    - target: {fileID: 3094819055484542578, guid: 93d3bce6aa93b6c488c150792f906f74,
+        type: 3}
+      propertyPath: walkSounds.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3094819055484542578, guid: 93d3bce6aa93b6c488c150792f906f74,
+        type: 3}
+      propertyPath: 'walkSounds.Array.data[0]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 42e65e088b3f4374e851b8dbd38f3df9, type: 3}
+    - target: {fileID: 3094819055484542578, guid: 93d3bce6aa93b6c488c150792f906f74,
+        type: 3}
+      propertyPath: 'walkSounds.Array.data[1]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 8bc94ec6ed537e743b481638bdcd503d, type: 3}
     - target: {fileID: 4717991563618385682, guid: 93d3bce6aa93b6c488c150792f906f74,
         type: 3}
       propertyPath: m_Name
