@@ -39,6 +39,16 @@ public class BalanceController : MonoBehaviour, ISaveable
     [SerializeField] float forwardMoveInterval = 3f;
     [SerializeField] float forwardMoveDistance = 1.25f;
     [SerializeField] float centerThresholdForForwardMove = 2.5f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip[] walkSounds;
+    // [SerializeField] private float walkSoundDistance = 1.8f;
+    [SerializeField] private float walkSoundVolume = 0.7f;
+    [SerializeField] private AudioSource walkSoundSource;
+
+    private float walkSoundDistanceAccumulator;
+    private int walkSoundIndex;
+
     [SerializeField] bool invertNeedle = true;
 
     [SerializeField] RectTransform needle;
@@ -115,6 +125,18 @@ public class BalanceController : MonoBehaviour, ISaveable
             Canvas canvas = helpText.GetComponentInParent<Canvas>();
             Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
         }
+        if (walkSoundSource == null)
+        {
+            walkSoundSource = GetComponent<AudioSource>();
+            if (walkSoundSource == null)
+            {
+                walkSoundSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+
+        walkSoundSource.playOnAwake = false;
+        walkSoundSource.loop = false;
+        walkSoundSource.spatialBlend = 0f;
     }
 
     void OnEnable()
@@ -259,6 +281,28 @@ public class BalanceController : MonoBehaviour, ISaveable
         else
         {
             transform.position += forwardStep;
+        }
+
+        UpdateWalkSound(forwardStep, true);
+    }
+
+    void UpdateWalkSound(Vector3 horizontalMove, bool wasGroundedThisFrame)
+    {
+        AudioClip walkSound = walkSounds[walkSoundIndex % walkSounds.Length];
+        walkSoundIndex++;
+
+        if (walkSound == null)
+        {
+            return;
+        }
+
+        if (walkSoundSource != null)
+        {
+            walkSoundSource.PlayOneShot(walkSound, walkSoundVolume);
+        }
+        else
+        {
+            AudioManager.PlayOneShot(walkSound, walkSoundVolume);
         }
     }
 
