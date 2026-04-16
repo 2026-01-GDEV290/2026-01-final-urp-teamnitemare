@@ -1,6 +1,13 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
+// TODO: This needs an Interactable component, or to inherit from ISaveable
+// otherwise it ignores state/quest progress (although it is stored in GameState)
+// to save/restore state and trigger onTasksComplete in the quest
+
+[RequireComponent(typeof(QuestComponent))]
 [RequireComponent(typeof(Collider))]
 [RequireComponent(typeof(Rigidbody))]
 public class FragmentConnection : MonoBehaviour
@@ -21,22 +28,73 @@ public class FragmentConnection : MonoBehaviour
     private Collider ownCollider;
     private Collider targetCollider;
 
-    private void Awake()
+    private QuestComponent questComponent;
+    //private static Quest sharedQuest;
+    private static readonly string questName = "QuestConnect";
+    private Quest quest = null;
+
+    void Awake()
     {
         ownCollider = GetComponent<Collider>();
-    }
-    private void Start()
-    {
-        Scene sceneScript = GameManager.Instance.gameState.currentSceneScript;
-        if (sceneScript != null)
+        questComponent = GetComponent<QuestComponent>();
+        if (questComponent == null)
         {
-            int groupIndex = sceneScript.AddTaskGroup("FragmentConnectors", new UnityAction(callback), false, true);
-            sceneScript.AddTaskObject(groupIndex, gameObject);
+            questComponent = gameObject.AddComponent<QuestComponent>();
+        }
+
+        quest = GameObject.Find(questName)?.GetComponent<Quest>();
+        if (quest == null)
+        {
+            Debug.LogError("FC-No quest found with name: " + questName + ". Creating new quest.");
         }
     }
-    private static void callback()
+    // void Start()
+    // {
+    //     if (quest == null)
+    //     {
+    //         quest = QuestManager.Instance.FindQuest(questName);
+            
+    //         if (quest == null)
+    //         {
+    //             quest = Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName);
+    //         }
+    //         quest.AddTaskObject(questComponent);
+    //     }
+    // }
+    void Start()
     {
-        Debug.Log("CallBACK");
+        //quest.AddTaskObject(questComponent);  // added in editor
+        quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
+        //! Quests created on the fly are problematic because of newly generated unique IDs on every scene launch
+        //! The only place this can be viable is in GLOBAL quests created outside of scenes, but even then
+        //! I don't know that the uniqueID will be persistent across game sessions so its better to generate global
+        //! uniqueID's and hardcode them, then manually assign the Quest data
+        // if (sharedQuest == null)
+        // {
+        //     sharedQuest = QuestManager.Instance.FindQuestByName(questName)
+        //                 ?? Quest.CreateQuest(questName, SceneManager.GetActiveScene().name, questName, 4);
+        // }
+
+        // quest = sharedQuest;
+
+        //!! Problem: quest must add itself in Start(), can't ADdTaskObject until that happens so we need to
+        // run a couroutine to wait until end of frame to add the task object to the quest
+        // StartCoroutine(AddTaskObjectWhenReady());
+        //quest.AddTaskObject(questComponent);
+        //quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
+    }
+    // IEnumerator AddTaskObjectWhenReady()
+    // {
+    //     while (quest == null || QuestManager.Instance.FindQuest(quest.questUniqueId.ID) == null)
+    //     {
+    //         yield return null; // wait for next frame
+    //     }
+    //     quest.AddTaskObject(questComponent);
+    //     quest.GetTaskGroup().onTasksCompleted.AddListener(OnFragmentsConnected);
+    // }
+    private static void OnFragmentsConnected()
+    {
+        Debug.Log("FRAGMENT CallBACK");
     }
 
     private void Update()
@@ -104,10 +162,8 @@ public class FragmentConnection : MonoBehaviour
         isConnected = true;
         fragmentToConnectTo.isConnected = true;
 
-        //GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(gameObject);
-        //GameManager.Instance.gameState.currentSceneScript?.CompleteNonTaskObject(fragmentToConnectTo.gameObject);
-        GameManager.Instance.gameState.currentSceneScript?.RemoveTaskObject(gameObject);
-        GameManager.Instance.gameState.currentSceneScript?.RemoveTaskObject(fragmentToConnectTo.gameObject);
+        quest.CompleteTaskObject(questComponent);
+        quest.CompleteTaskObject(fragmentToConnectTo.questComponent);
     }
 
     private Vector3 ComputeSideDestination()

@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
 
-[Serializable]
-public class TimerObject : MonoBehaviour
+
+public class TimerObject : MonoBehaviour, ISaveable
 {
     [SerializeField] private bool isEnabled = true;
     public float timerDuration = 5f;
     public bool restartAfterExpire = false;
+    public int triggerCount = 0;
 
     public UnityEngine.Events.UnityEvent onTimerExpire;
 
@@ -50,14 +51,64 @@ public class TimerObject : MonoBehaviour
         return true;
     }
 
+    public void TriggerImmediately()
+    {
+        if (!isEnabled)
+            return;
+        CancelTimer();
+        TimerExpired();
+    }
+
     private void TimerExpired()
     {
         Debug.Log("Timer expired! on object: " + gameObject.name);
         onTimerExpire?.Invoke();
+        triggerCount++;
 
         if (restartAfterExpire)
         {
             StartTimer();
         }
     }
+
+#region ISaveable implementation
+    private class TimerObjectData
+    {
+        public bool isEnabled;
+        public float timerDuration;
+        public bool restartAfterExpire;
+        public int triggerCount;
+    }
+    public object CaptureState()
+    {
+        var data = new TimerObjectData
+        {
+            isEnabled = this.isEnabled,
+            timerDuration = this.timerDuration,
+            restartAfterExpire = this.restartAfterExpire,
+            triggerCount = this.triggerCount
+        };
+        return data;
+    }
+    public void RestoreState(object state)
+    {
+        if (state is TimerObjectData data)
+        {
+            this.isEnabled = data.isEnabled;
+            this.timerDuration = data.timerDuration;
+            this.restartAfterExpire = data.restartAfterExpire;
+            this.triggerCount = data.triggerCount;
+
+            if (triggerCount > 0)
+            {
+                onTimerExpire?.Invoke();
+                //! This is iffy as to timing..
+                if (restartAfterExpire)
+                {
+                    //StartTimer();
+                }
+            }
+        }
+    }
+#endregion ISaveable implementation
 }

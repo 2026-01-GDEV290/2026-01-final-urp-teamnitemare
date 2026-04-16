@@ -37,11 +37,11 @@ public class BootInitializer : MonoBehaviour
 
         // Input Manager
         GameObject inputManagerObject = new("InputManager");
-        inputManagerObject.AddComponent<InputManager>();
+        InputManager inputManager =inputManagerObject.AddComponent<InputManager>();
         DontDestroyOnLoad(inputManagerObject);
         Debug.Log("[BI]: InputManager initialized..");
 
 		// GameManager - reference InputManager
-        gameManagerObject.GetComponent<GameManager>().inputManager = inputManagerObject.GetComponent<InputManager>();
+        gameManagerObject.GetComponent<GameManager>().inputManager = inputManager;
     } 
 }

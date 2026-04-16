@@ -1,3 +1,4 @@
+/*
 #if UNITY_EDITOR
 using System.Text;
 using UnityEditor;
@@ -95,3 +96,4 @@ public class GameManagerEditor : Editor
     }
 }
 #endif
+*/
