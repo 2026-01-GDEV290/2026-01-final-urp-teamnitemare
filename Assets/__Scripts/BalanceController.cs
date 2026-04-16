@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 
-public class BalanceController : MonoBehaviour
+public class BalanceController : MonoBehaviour, ISaveable
 {
     [SerializeField] Animator anim;
     private InputSystem_Actions playerControls;
@@ -63,9 +63,51 @@ public class BalanceController : MonoBehaviour
     bool stopMovement = false;
     float canvasPPU = 100;
 
+    Vector3 originalPosition;
+    Quaternion originalRotation;
+    [SerializeField] GameObject otherPlayerController = null;
+    bool bReloadedScene = false;
+    bool bWasInControl = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        if (bReloadedScene)
+        {
+            Debug.Log("Awake: Detected scene reload. Restoring position and rotation.");
+            transform.position = originalPosition;
+            transform.rotation = originalRotation;
+            if (bWasInControl)
+            {
+                if (otherPlayerController != null)
+                {
+                    otherPlayerController.SetActive(false);
+                    this.gameObject.SetActive(true);
+                }
+                //ResumeMovement();
+            }
+            else
+            {
+                if (otherPlayerController != null)
+                {
+                    otherPlayerController.SetActive(true);
+                    this.gameObject.SetActive(false);
+                }
+            }
+            // StopMovement();
+            // ResumeMovement();
+        }
+        else
+        {
+            if (otherPlayerController != null)
+            {
+                otherPlayerController.SetActive(true);
+                this.gameObject.SetActive(false);
+            }
+            Debug.Log("Awake: Storing original position and rotation.");
+            originalPosition = transform.position;
+            originalRotation = transform.rotation;
+        }
         playerControls = new InputSystem_Actions();
         characterController = GetComponent<CharacterController>();
         if (helpText != null)
@@ -79,6 +121,14 @@ public class BalanceController : MonoBehaviour
     {
         playerControls.Enable();
         moveAction = playerControls.Player.Move;
+        if (helpText != null)
+        {
+            helpText.gameObject.SetActive(true);
+        }
+        if (needle != null)
+        {
+            needle.parent.gameObject.SetActive(true);
+        }
     }
 
     void OnDisable()
@@ -223,12 +273,13 @@ public class BalanceController : MonoBehaviour
         lean = 0f;
         leanVelocity = 0f;
         StopMovement();
+        bWasInControl = true;
         Invoke(nameof(ReloadScene), 1f);
     }
 
     void ReloadScene()
     {
-        GameManager.Instance.RestartCurrentScene();
+        GameManager.Instance.gameState.currentSceneScript.ReloadScene();
     }
 
     void ResetLeanAndCamera()
@@ -448,5 +499,35 @@ public class BalanceController : MonoBehaviour
     //     anim.SetFloat("LeanAmount", normalized);
     // }
 
+    #region ISaveable implementation
+    private class BalanceData
+    {
+        public Vector3 position;
+        public Quaternion rotation;
+        public bool bWasInControl;
+    }
+    public object CaptureState()
+    {
+        var data = new BalanceData();
+        data.position = transform.position;
+        data.rotation = transform.rotation;
+        data.bWasInControl = bWasInControl;
+        return data;
+    }
+    public void RestoreState(object state)
+    {
+        Debug.Log("Restoring BalanceController state");
+        if (state is BalanceData data)
+        {
+            bReloadedScene = true;
+            // Debug.Log($"Restoring position: {data.position}, rotation: {data.rotation}");
+            // transform.position = data.position;
+            // transform.rotation = data.rotation;
+            originalPosition = data.position;
+            originalRotation = data.rotation;
+            bWasInControl = data.bWasInControl;
+        }
+    }
+#endregion ISaveable implementation
 
 }

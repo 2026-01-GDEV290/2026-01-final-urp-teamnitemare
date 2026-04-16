@@ -1050,6 +1050,15 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
     useIfVisitCountExceeded: 0
+  onReloadTasks:
+    visitCount: -1
+    onSceneAwake:
+      m_PersistentCalls:
+        m_Calls: []
+    onSceneStart:
+      m_PersistentCalls:
+        m_Calls: []
+    useIfVisitCountExceeded: 0
   hubReturnPosition: {fileID: 0}
   hubReturnPlayerObject: {fileID: 0}
 --- !u!4 &803315842
@@ -1100,7 +1109,7 @@ MonoBehaviour:
   worldText: {fileID: 0}
   message: Balance!
   worldOffset: {x: 0, y: 1, z: 0}
-  billboardOrientation: 0
+  billboardOrientation: 2
   useFixedYRotation: 1
   fixedYRotation: 0
   ignoreYRotation: 0
@@ -2160,6 +2169,7 @@ GameObject:
   - component: {fileID: 1770744168}
   - component: {fileID: 1770744172}
   - component: {fileID: 1770744173}
+  - component: {fileID: 1770744174}
   m_Layer: 0
   m_Name: PlayerCapsule
   m_TagString: Untagged
@@ -2303,6 +2313,20 @@ MonoBehaviour:
   needleMaxOffset: 200
   screenFade: {fileID: 1662841240}
   helpText: {fileID: 1685876420}
+  otherPlayerController: {fileID: 0}
+--- !u!114 &1770744174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1770744166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fc02ae5f9c7f924b992080e542de12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 3d601b6cf84548146aff3298f075db21
 --- !u!1 &1902497729
 GameObject:
   m_ObjectHideFlags: 0

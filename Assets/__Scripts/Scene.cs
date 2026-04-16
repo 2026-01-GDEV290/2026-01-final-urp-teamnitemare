@@ -32,6 +32,8 @@ public class Scene : MonoBehaviour
     };
     [SerializeField] SceneVisitTasks onHubReturnTasks = new SceneVisitTasks() { visitCount = -1, onSceneAwake = new UnityEvent(), onSceneStart = new UnityEvent() };
 
+    [SerializeField] SceneVisitTasks onReloadTasks = new SceneVisitTasks() { visitCount = -1, onSceneAwake = new UnityEvent(), onSceneStart = new UnityEvent() };
+
     [SerializeField] public Transform hubReturnPosition = null;
     [SerializeField] public GameObject hubReturnPlayerObject = null;
 
@@ -47,8 +49,11 @@ public class Scene : MonoBehaviour
     public int VisitCount => visitCount;
 
     private bool sceneWasReloaded = false;
+    public bool SceneWasReloaded => sceneWasReloaded;
     bool sceneWasRestarted = false;
+    public bool SceneWasRestarted => sceneWasRestarted;
     bool returnedToHubFromScene = false;
+    public bool ReturnedToHubFromScene => returnedToHubFromScene;
 
     
     void Awake()
@@ -133,6 +138,10 @@ public class Scene : MonoBehaviour
  
 
         onSceneAwake.Invoke();
+        if (SceneWasReloaded)
+        {
+            onReloadTasks.onSceneAwake.Invoke();
+        }
     }
 
     void OnEnable()
@@ -150,7 +159,10 @@ public class Scene : MonoBehaviour
         GameManager.Instance.SceneStart();
 
         onSceneStart.Invoke();
-
+        if (SceneWasReloaded)
+        {
+            onReloadTasks.onSceneStart.Invoke();
+        }
     }
 
     // Update is called once per frame
