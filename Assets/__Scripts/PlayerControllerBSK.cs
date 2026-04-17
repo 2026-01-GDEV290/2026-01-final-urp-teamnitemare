@@ -267,7 +267,7 @@ public class PlayerControllerBSK : MonoBehaviour
         // x-axis of mouse controls pitch (looking up/down)
         rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
         rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
-        rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+        rotationX = Mathf.Clamp(rotationX, -90f, 35f);
         transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);
 
         if (playerCamera != null)
