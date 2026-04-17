@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
+using UnityEngine.Rendering;
 
 public class AudioVisualPulse : MonoBehaviour
 {
@@ -17,11 +19,14 @@ public class AudioVisualPulse : MonoBehaviour
 	[Header("Timing")]
 	[SerializeField] private float pulseInterval = 1.0f;
 	[SerializeField] private float attractionSoundInterval = 2.0f;
+	[SerializeField] private float silenceWhenVeryCloseDistance = 1.25f;
 	[SerializeField] private float circleLifetime = 0.45f;
 	[SerializeField] private float circleStagger = 0.05f;
 
 	[Header("Facing")]
 	[SerializeField] private float facingThreshold = 0.45f;
+	[SerializeField] private LayerMask occlusionMask = ~0;
+	[SerializeField] private Transform losIgnoreRoot;
 
 	[Header("Screen Spawn")]
 	[SerializeField] private float sideInset = 0.08f;
@@ -34,13 +39,17 @@ public class AudioVisualPulse : MonoBehaviour
 	[SerializeField] private float driftDistance = 0.8f;
 	[SerializeField] private float rotationOffsetDegrees = 0f;
 
+	[Header("Rendering")]
+	[SerializeField] private bool alwaysRenderOnTop = true;
+	[SerializeField] private int overlayRenderQueue = 4000;
+
 	private readonly List<LineRenderer> ringPool = new List<LineRenderer>();
 	private readonly Dictionary<LineRenderer, Coroutine> running = new Dictionary<LineRenderer, Coroutine>();
 	private List<PitchBlackAttraction> activeAttractions = new List<PitchBlackAttraction>();
 	private int nextIndex;
-	private float nextPulseTime;
 	private float nextAttractionSoundTime;
 	private bool wasFacingTarget;
+	private Coroutine pulseLoop;
 
 	void Awake()
 	{
@@ -49,25 +58,54 @@ public class AudioVisualPulse : MonoBehaviour
 			cam = Camera.main;
 		}
 
+		if (losIgnoreRoot == null && cam != null)
+		{
+			losIgnoreRoot = cam.transform.root;
+		}
+
 		BuildPool();
 		RefreshAttractions();
-		nextPulseTime = Time.time;
 		nextAttractionSoundTime = Time.time;
 	}
 
-	void Update()
+	void OnEnable()
 	{
+		if (pulseLoop == null)
+		{
+			pulseLoop = StartCoroutine(PulseLoop());
+		}
+	}
+
+	void OnDisable()
+	{
+		if (pulseLoop != null)
+		{
+			StopCoroutine(pulseLoop);
+			pulseLoop = null;
+		}
+	}
+
+	System.Collections.IEnumerator PulseLoop()
+	{
+		while (enabled)
+		{
+			RunPulseTick();
+			yield return new WaitForSeconds(Mathf.Max(0.01f, pulseInterval));
+		}
+	}
+
+	void RunPulseTick()
+	{
+		if (cam == null)
+		{
+			cam = Camera.main;
+		}
+
 		if (cam == null || ringPool.Count == 0)
 		{
 			return;
 		}
 
-		if (Time.time < nextPulseTime)
-		{
-			return;
-		}
-
-		nextPulseTime = Time.time + pulseInterval;
 		RefreshAttractions();
 
 		PitchBlackAttraction closest = GetClosestAttraction();
@@ -76,18 +114,30 @@ public class AudioVisualPulse : MonoBehaviour
 			return;
 		}
 
-		bool isFacingTarget = IsFacingTarget(closest.transform.position);
-		if (isFacingTarget)
+		Transform attractionTarget = GetAttractionTarget(closest.transform);
+		Vector3 targetPoint = attractionTarget.position;
+		bool isFacingTarget = IsFacingTarget(targetPoint);
+		bool hasClearLineOfSight = HasClearLineOfSight(attractionTarget, targetPoint);
+		bool shouldPausePulses = isFacingTarget && hasClearLineOfSight;
+		float distanceToTarget = Vector3.Distance(cam.transform.position, targetPoint);
+		bool shouldSilenceAudio = distanceToTarget <= Mathf.Max(0f, silenceWhenVeryCloseDistance);
+
+		if (shouldPausePulses)
 		{
 			wasFacingTarget = true;
-			nextAttractionSoundTime = Time.time;
+
+			if (!shouldSilenceAudio && Time.time >= nextAttractionSoundTime)
+			{
+				closest.PlaySound();
+				nextAttractionSoundTime = Time.time + Mathf.Max(0.05f, attractionSoundInterval);
+			}
+
 			return;
 		}
 
 		if (wasFacingTarget)
 		{
 			wasFacingTarget = false;
-			nextPulseTime = Time.time;
 			nextAttractionSoundTime = Time.time;
 		}
 
@@ -97,7 +147,7 @@ public class AudioVisualPulse : MonoBehaviour
 			nextAttractionSoundTime = Time.time + Mathf.Max(0.05f, attractionSoundInterval);
 		}
 
-		EmitPulse(closest.transform);
+		EmitPulse(attractionTarget);
 	}
 
 	void BuildPool()
@@ -120,14 +170,22 @@ public class AudioVisualPulse : MonoBehaviour
 			lr.numCapVertices = 2;
 			lr.numCornerVertices = 4;
 
+			Material mat;
 			if (ringMaterial != null)
 			{
-				lr.material = ringMaterial;
+				mat = new Material(ringMaterial);
 			}
 			else
 			{
-				lr.material = new Material(Shader.Find("Sprites/Default"));
+				mat = new Material(Shader.Find("Sprites/Default"));
 			}
+
+			if (alwaysRenderOnTop)
+			{
+				ConfigureOverlayMaterial(mat);
+			}
+
+			lr.material = mat;
 
 			lr.startColor = ringColor;
 			lr.endColor = ringColor;
@@ -135,6 +193,26 @@ public class AudioVisualPulse : MonoBehaviour
 
 			ringPool.Add(lr);
 		}
+	}
+
+	void ConfigureOverlayMaterial(Material mat)
+	{
+		if (mat == null)
+		{
+			return;
+		}
+
+		if (mat.HasProperty("_ZWrite"))
+		{
+			mat.SetInt("_ZWrite", 0);
+		}
+
+		if (mat.HasProperty("_ZTest"))
+		{
+			mat.SetInt("_ZTest", (int)CompareFunction.Always);
+		}
+
+		mat.renderQueue = Mathf.Max(3000, overlayRenderQueue);
 	}
 
 	void RefreshAttractions()
@@ -156,7 +234,8 @@ public class AudioVisualPulse : MonoBehaviour
 				continue;
 			}
 
-			float sqr = (a.transform.position - camPos).sqrMagnitude;
+			Transform target = GetAttractionTarget(a.transform);
+			float sqr = (target.position - camPos).sqrMagnitude;
 			if (sqr < bestSqr)
 			{
 				bestSqr = sqr;
@@ -167,11 +246,118 @@ public class AudioVisualPulse : MonoBehaviour
 		return best;
 	}
 
+	Transform GetAttractionTarget(Transform attractionTransform)
+	{
+		if (attractionTransform == null)
+		{
+			return null;
+		}
+
+		return attractionTransform.parent != null ? attractionTransform.parent : attractionTransform;
+	}
+
 	bool IsFacingTarget(Vector3 targetWorld)
 	{
 		Vector3 toTarget = (targetWorld - cam.transform.position).normalized;
 		float dot = Vector3.Dot(cam.transform.forward, toTarget);
 		return dot > facingThreshold;
+	}
+
+	bool HasClearLineOfSight(Transform target, Vector3 targetWorld)
+	{
+		if (target == null)
+		{
+			return false;
+		}
+
+		Vector3 origin = cam.transform.position;
+		Vector3 toTarget = targetWorld - origin;
+		float distance = toTarget.magnitude;
+
+		if (distance <= 0.0001f)
+		{
+			return true;
+		}
+
+		Vector3 dir = toTarget / distance;
+		Ray ray = new Ray(origin + dir * 0.05f, dir);
+		RaycastHit[] hits = Physics.RaycastAll(ray, distance, occlusionMask, QueryTriggerInteraction.Ignore);
+		Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+		for (int i = 0; i < hits.Length; i++)
+		{
+			Collider hitCollider = hits[i].collider;
+			if (hitCollider == null)
+			{
+				continue;
+			}
+
+			if (ShouldIgnoreAsInvisibleLosBlocker(hitCollider))
+			{
+				continue;
+			}
+
+			Transform hitTransform = hitCollider.transform;
+			if (hitTransform == null)
+			{
+				return false;
+			}
+
+			if (IsIgnoredLosHit(hitTransform))
+			{
+				continue;
+			}
+
+			if (hitTransform == target || hitTransform.IsChildOf(target))
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ShouldIgnoreAsInvisibleLosBlocker(Collider hitCollider)
+	{
+		if (hitCollider == null)
+		{
+			return false;
+		}
+
+		Renderer hitRenderer = hitCollider.GetComponent<Renderer>();
+		if (hitRenderer == null)
+		{
+			return false;
+		}
+
+		return !hitRenderer.enabled;
+	}
+
+	bool IsIgnoredLosHit(Transform hitTransform)
+	{
+		if (hitTransform == null)
+		{
+			return false;
+		}
+
+		if (cam != null && (hitTransform == cam.transform || hitTransform.IsChildOf(cam.transform)))
+		{
+			return true;
+		}
+
+		if (hitTransform == transform || hitTransform.IsChildOf(transform))
+		{
+			return true;
+		}
+
+		if (losIgnoreRoot != null && (hitTransform == losIgnoreRoot || hitTransform.IsChildOf(losIgnoreRoot)))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	void EmitPulse(Transform target)
