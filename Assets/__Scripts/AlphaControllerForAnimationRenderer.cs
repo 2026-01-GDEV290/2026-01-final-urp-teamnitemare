@@ -26,7 +26,7 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
     void Awake()
     {
         rend = GetComponent<Renderer>();
-        mat = rend.material;
+        mat = rend.sharedMaterial;
 
         // Store original colors
         originalBaseColor = mat.color;
@@ -67,7 +67,7 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
         //Debug.Log("Emission color: " + rend.material.GetColor("_EmissionColor"));
 
         //rend.material.color = new Color(rend.material.color.r, rend.material.color.g, rend.material.color.b, alpha);
-        var mat = rend.material;
+        var mat = rend.sharedMaterial;
         Color c = mat.color;
         c.a = alpha;
         mat.color = c;

@@ -70,6 +70,7 @@ public class lb_Bird : MonoBehaviour {
 		bColSize = birdCollider.size;
 		solidCollider = gameObject.GetComponent<SphereCollider>();
 		anim = gameObject.GetComponent<Animator>();
+		
 
 		idleAnimationHash = Animator.StringToHash("Base Layer.Idle");
 		//singAnimationHash = Animator.StringToHash ("Base Layer.sing");
@@ -100,7 +101,7 @@ public class lb_Bird : MonoBehaviour {
 		}
 	}
 
-	void PauseBird(){
+	public void PauseBird(){
 		if(!dead){
 			originalAnimSpeed = anim.speed;
 			anim.speed = 0;
@@ -111,7 +112,7 @@ public class lb_Bird : MonoBehaviour {
 		}
 	}
 
-	void UnPauseBird(){
+	public void UnPauseBird(){
 		if(!dead){
 			anim.speed = originalAnimSpeed;
 			GetComponent<Rigidbody>().isKinematic = false;
@@ -120,7 +121,7 @@ public class lb_Bird : MonoBehaviour {
 		}
 	}
 	
-	IEnumerator FlyToTarget(Vector3 target){
+	public IEnumerator FlyToTarget(Vector3 target){
 		if(Random.value < .5){
 			GetComponent<AudioSource>().PlayOneShot (flyAway1,.1f);
 		}else{
@@ -464,12 +465,13 @@ public class lb_Bird : MonoBehaviour {
 			GetComponent<AudioSource>().Stop();
 			anim.Play(flyAnimationHash);
 			Vector3 farAwayTarget = transform.position;
+			Debug.Log("Fleeing from crow! Current position: " + transform.position + " Bird Scale: " + controller.birdScale);
 			farAwayTarget += new Vector3(Random.Range (-100,100)*controller.birdScale,10*controller.birdScale,Random.Range (-100,100)*controller.birdScale);
 			StartCoroutine("FlyToTarget",farAwayTarget);
 		}
 	}
 
-	void CrowIsClose(){
+	public void CrowIsClose(){
 		if (fleeCrows && !dead){
 			Flee ();
 		}
@@ -536,7 +538,7 @@ public class lb_Bird : MonoBehaviour {
 		}
 	}
 
-	void SetController(lb_BirdController cont){
+	public void SetController(lb_BirdController cont){
 		controller = cont;
 	}
 

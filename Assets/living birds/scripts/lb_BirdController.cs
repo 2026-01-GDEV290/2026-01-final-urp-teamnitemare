@@ -33,7 +33,10 @@ public class lb_BirdController : MonoBehaviour {
 		if(!pause){
 			for(int i=0;i<myBirds.Length;i++){
 				if(myBirds[i].activeSelf){
-					myBirds[i].SendMessage ("Flee");
+					var birdScript = myBirds[i].GetComponent<lb_Bird>();
+					if (birdScript != null)
+						birdScript.CrowIsClose();
+					//myBirds[i].SendMessage ("Flee");
 				}
 			}
 		}
@@ -51,7 +54,10 @@ public class lb_BirdController : MonoBehaviour {
 		pause = true;
 		for(int i=0;i<myBirds.Length;i++){
 			if(myBirds[i].activeSelf){
-				myBirds[i].SendMessage ("PauseBird");
+				var birdScript = myBirds[i].GetComponent<lb_Bird>();
+				if (birdScript != null)
+					birdScript.PauseBird();
+				//myBirds[i].SendMessage ("PauseBird");
 			}
 		}
 	}
@@ -60,7 +66,10 @@ public class lb_BirdController : MonoBehaviour {
 		pause = false;
 		for(int i=0;i<myBirds.Length;i++){
 			if(myBirds[i].activeSelf){
-				myBirds[i].SendMessage ("UnPauseBird");
+				var birdScript = myBirds[i].GetComponent<lb_Bird>();
+				if (birdScript != null)
+					birdScript.UnPauseBird();
+				//myBirds[i].SendMessage ("UnPauseBird");
 			}
 		}
 	}
@@ -115,10 +124,14 @@ public class lb_BirdController : MonoBehaviour {
 			}else{
 				bird = Resources.Load (myBirdTypes[Random.Range (0,myBirdTypes.Count)],typeof(GameObject)) as GameObject;
 			}
+			Debug.Log("Loading bird type: " + bird.name);
 			myBirds[i] = Instantiate (bird,Vector3.zero,Quaternion.identity) as GameObject;
 			myBirds[i].transform.localScale = myBirds[i].transform.localScale*birdScale;
 			myBirds[i].transform.parent = transform;
-			myBirds[i].SendMessage ("SetController",this);
+			var birdScript = myBirds[i].GetComponent<lb_Bird>();
+			if (birdScript != null)
+				birdScript.SetController(this);
+			//myBirds[i].SendMessage ("SetController",this);
 			myBirds[i].SetActive (false);
 		}
 
@@ -315,13 +328,22 @@ public class lb_BirdController : MonoBehaviour {
 			}
 			if (ptArea == 0.0f || Random.value < gtArea/(gtArea+ptArea)){
 				target = birdGroundTargets[Mathf.FloorToInt (Random.Range (0,birdGroundTargets.Count))];
-				bird.SendMessage ("FlyToTarget",FindPointInGroundTarget(target));
+				var birdScript = bird.GetComponent<lb_Bird>();
+				if (birdScript != null)
+					StartCoroutine(birdScript.FlyToTarget(FindPointInGroundTarget(target)));
+				//bird.SendMessage ("FlyToTarget",FindPointInGroundTarget(target));
 			}else{
 				target = birdPerchTargets[Mathf.FloorToInt (Random.Range (0,birdPerchTargets.Count))];
-				bird.SendMessage ("FlyToTarget",target.transform.position);
+				var birdScript = bird.GetComponent<lb_Bird>();
+				if (birdScript != null)
+					StartCoroutine(birdScript.FlyToTarget(target.transform.position));
+				//bird.SendMessage ("FlyToTarget",target.transform.position);
 			}
 		}else{
-			bird.SendMessage ("FlyToTarget",currentCamera.transform.position+new Vector3(Random.Range (-100,100),Random.Range (5,10),Random.Range(-100,100)));
+			var birdScript = bird.GetComponent<lb_Bird>();
+			if (birdScript != null)
+				StartCoroutine(birdScript.FlyToTarget(currentCamera.transform.position+new Vector3(Random.Range (-100,100),Random.Range (5,10),Random.Range(-100,100))));
+			//bird.SendMessage ("FlyToTarget",currentCamera.transform.position+new Vector3(Random.Range (-100,100),Random.Range (5,10),Random.Range(-100,100)));
 		}
 	}
 
