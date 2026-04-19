@@ -71,7 +71,6 @@ public class lb_BirdExperiment : MonoBehaviour
     public bool playSequenceOnStart = true;
     public bool loopSequence = true;
     public bool disableDefaultBirdBehaviour = true;
-    public bool randomizeStepOrder = false;
     [Range(0.0f, 1.0f)] public float stepSkipChance = 0.0f;
     public Vector2 holdTimeRandomOffset = Vector2.zero;
     public List<AnimationStep> animationSequence = new List<AnimationStep>();
@@ -105,8 +104,35 @@ public class lb_BirdExperiment : MonoBehaviour
     public Vector3 featherEmitterPositionOffset = Vector3.zero;
     public Vector3 featherEmitterRotationOffset = Vector3.zero;
 
+    [Header("Audio")]
+    public bool playAudio = true;
+    public bool playSongAudioOnSingTrigger = true;
+    public bool playFlyAwayAudioOnTakeoff = true;
+    public string singTriggerParameterName = "sing";
+    public AudioClip song1;
+    public AudioClip song2;
+    public AudioClip flyAway1;
+    public AudioClip flyAway2;
+    public bool playSongAtBirdPosition = true;
+    public Vector3 songPositionOffset = Vector3.zero;
+    public bool playFlyAwayAtBirdPosition = true;
+    public Vector3 flyAwayPositionOffset = Vector3.zero;
+    public float positionalAudioMinDistance = 1.0f;
+    public float positionalAudioMaxDistance = 200.0f;
+    [Min(0.0f)] public float songVolume = 1.0f;
+    [Min(0.0f)] public float flyAwayVolume = 0.1f;
+    [Min(0.0f)] public float songVolumeBoost = 2.0f;
+    [Min(0.0f)] public float flyAwayVolumeBoost = 2.0f;
+    public bool useGlobalAudioThrottling = true;
+    [Range(0.0f, 1.0f)] public float songPlayChance = 1.0f;
+    [Range(0.0f, 1.0f)] public float flyAwayPlayChance = 1.0f;
+    public float minTimeBetweenAnyBirdAudio = 0.08f;
+    public float minTimeBetweenSongAudio = 0.35f;
+    public float minTimeBetweenFlyAwayAudio = 0.2f;
+
     GameObject spawnedBird;
     Animator birdAnimator;
+    AudioSource birdAudioSource;
     Coroutine sequenceCoroutine;
     Coroutine fleeCoroutine;
     Coroutine flyCoroutine;
@@ -116,6 +142,9 @@ public class lb_BirdExperiment : MonoBehaviour
     const string LandingBoolName = "landing";
     const float MinFleeDuration = 0.05f;
     static readonly int FlyAnimationHash = Animator.StringToHash("Base Layer.fly");
+    static float nextAnyBirdAudioTime;
+    static float nextSongAudioTime;
+    static float nextFlyAwayAudioTime;
 
     void Start()
     {
@@ -173,15 +202,11 @@ public class lb_BirdExperiment : MonoBehaviour
 
         spawnedBird = Instantiate(birdPrefab, spawnPos, spawnRot, transform);
         birdAnimator = spawnedBird.GetComponent<Animator>();
+        birdAudioSource = spawnedBird.GetComponent<AudioSource>();
+        ConfigureAnimationEventReceiver();
 
         if (disableDefaultBirdBehaviour)
         {
-            lb_Bird birdBehaviour = spawnedBird.GetComponent<lb_Bird>();
-            if (birdBehaviour != null)
-            {
-                birdBehaviour.enabled = false;
-            }
-
             Rigidbody birdBody = spawnedBird.GetComponent<Rigidbody>();
             if (birdBody != null)
             {
@@ -191,6 +216,30 @@ public class lb_BirdExperiment : MonoBehaviour
         }
 
         return spawnedBird;
+    }
+
+    void ConfigureAnimationEventReceiver()
+    {
+        if (spawnedBird == null)
+        {
+            return;
+        }
+
+        lb_BirdAnimationEventReceiver eventReceiver = spawnedBird.GetComponent<lb_BirdAnimationEventReceiver>();
+        if (eventReceiver == null)
+        {
+            eventReceiver = spawnedBird.AddComponent<lb_BirdAnimationEventReceiver>();
+        }
+
+        eventReceiver.Configure(
+            birdAnimator,
+            birdAudioSource,
+            playAudio && playSongAudioOnSingTrigger,
+            song1,
+            song2,
+            songVolume * songVolumeBoost,
+            playSongAtBirdPosition,
+            songPositionOffset);
     }
 
     public void StartAnimationSequence()
@@ -371,12 +420,19 @@ public class lb_BirdExperiment : MonoBehaviour
             yield break;
         }
 
+        int lastPlayedStepIndex = -1;
+
         do
         {
-            List<int> stepOrder = BuildStepOrder(animationSequence.Count);
-            for (int i = 0; i < stepOrder.Count; i++)
+            for (int i = 0; i < animationSequence.Count; i++)
             {
-                AnimationStep step = animationSequence[stepOrder[i]];
+                int stepIndex = Random.Range(0, animationSequence.Count);
+                if (animationSequence.Count > 1 && stepIndex == lastPlayedStepIndex)
+                {
+                    stepIndex = (stepIndex + Random.Range(1, animationSequence.Count)) % animationSequence.Count;
+                }
+
+                AnimationStep step = animationSequence[stepIndex];
                 if (step == null)
                 {
                     continue;
@@ -388,6 +444,8 @@ public class lb_BirdExperiment : MonoBehaviour
                 }
 
                 step.Apply(birdAnimator);
+                TryPlaySongAudioForStep(step);
+                lastPlayedStepIndex = stepIndex;
 
                 float holdTime = GetRandomizedHoldTime(step.holdTimeSeconds);
                 if (holdTime > 0.0f)
@@ -413,13 +471,15 @@ public class lb_BirdExperiment : MonoBehaviour
         Vector3 fleeTarget = startPos + BuildRandomFleeOffset();
         yield return MoveBirdTo(startPos, fleeTarget, fleeDuration, spawnFeatherEmitterOnFlee);
 
-        SetFleeAnimationState(false);
-        fleeCoroutine = null;
-
-        if (resumeSequenceAfterFlee)
+        if (spawnedBird != null)
         {
-            StartAnimationSequence();
+            Destroy(spawnedBird);
+            spawnedBird = null;
+            birdAnimator = null;
+            birdAudioSource = null;
         }
+
+        fleeCoroutine = null;
     }
 
     IEnumerator FleeAndReturnRoutine()
@@ -501,7 +561,163 @@ public class lb_BirdExperiment : MonoBehaviour
             Destroy(spawnedBird);
             spawnedBird = null;
             birdAnimator = null;
+            birdAudioSource = null;
         }
+    }
+
+    void TryPlaySongAudioForStep(AnimationStep step)
+    {
+        if (!playAudio || !playSongAudioOnSingTrigger || step == null)
+        {
+            return;
+        }
+
+        if (step.parameterType != AnimationParameterType.Trigger)
+        {
+            return;
+        }
+
+        if (step.parameterName != singTriggerParameterName)
+        {
+            return;
+        }
+
+        PlayRandomSongClip();
+    }
+
+    void PlayRandomSongClip()
+    {
+        if (!CanPlayBirdAudio(false))
+        {
+            return;
+        }
+
+        AudioClip clip = GetRandomClip(song1, song2);
+        PlayClip(clip, songVolume * songVolumeBoost, true);
+    }
+
+    void PlayRandomFlyAwayClip()
+    {
+        if (!CanPlayBirdAudio(true))
+        {
+            return;
+        }
+
+        AudioClip clip = GetRandomClip(flyAway1, flyAway2);
+        PlayClip(clip, flyAwayVolume * flyAwayVolumeBoost, false);
+    }
+
+    bool CanPlayBirdAudio(bool isFlyAway)
+    {
+        if (!playAudio)
+        {
+            return false;
+        }
+
+        float playChance = isFlyAway ? flyAwayPlayChance : songPlayChance;
+        if (playChance < 1.0f && Random.value > Mathf.Clamp01(playChance))
+        {
+            return false;
+        }
+
+        if (!useGlobalAudioThrottling)
+        {
+            return true;
+        }
+
+        float now = Time.time;
+        if (now < nextAnyBirdAudioTime)
+        {
+            return false;
+        }
+
+        if (isFlyAway)
+        {
+            if (now < nextFlyAwayAudioTime)
+            {
+                return false;
+            }
+
+            nextFlyAwayAudioTime = now + Mathf.Max(0.0f, minTimeBetweenFlyAwayAudio);
+        }
+        else
+        {
+            if (now < nextSongAudioTime)
+            {
+                return false;
+            }
+
+            nextSongAudioTime = now + Mathf.Max(0.0f, minTimeBetweenSongAudio);
+        }
+
+        nextAnyBirdAudioTime = now + Mathf.Max(0.0f, minTimeBetweenAnyBirdAudio);
+        return true;
+    }
+
+    AudioClip GetRandomClip(AudioClip clipA, AudioClip clipB)
+    {
+        if (clipA == null && clipB == null)
+        {
+            return null;
+        }
+
+        if (clipA == null)
+        {
+            return clipB;
+        }
+
+        if (clipB == null)
+        {
+            return clipA;
+        }
+
+        return Random.value < 0.5f ? clipA : clipB;
+    }
+
+    void PlayClip(AudioClip clip, float volume, bool isSong)
+    {
+        if (!playAudio || clip == null)
+        {
+            return;
+        }
+
+        bool playAtBird = isSong ? playSongAtBirdPosition : playFlyAwayAtBirdPosition;
+        Vector3 offset = isSong ? songPositionOffset : flyAwayPositionOffset;
+        if (playAtBird && spawnedBird != null)
+        {
+            PlayPositionalClip(clip, spawnedBird.transform.position + offset, volume);
+            return;
+        }
+
+        if (birdAudioSource == null)
+        {
+            return;
+        }
+
+        birdAudioSource.PlayOneShot(clip, Mathf.Max(0.0f, volume));
+    }
+
+    void PlayPositionalClip(AudioClip clip, Vector3 worldPosition, float volume)
+    {
+        if (clip == null)
+        {
+            return;
+        }
+
+        GameObject tempAudioObject = new GameObject("lb_birdPositionalAudio");
+        tempAudioObject.transform.position = worldPosition;
+
+        AudioSource source = tempAudioObject.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.spatialBlend = 1.0f;
+        source.rolloffMode = AudioRolloffMode.Logarithmic;
+        source.minDistance = Mathf.Max(0.01f, positionalAudioMinDistance);
+        source.maxDistance = Mathf.Max(source.minDistance + 0.01f, positionalAudioMaxDistance);
+        source.clip = clip;
+        source.volume = Mathf.Max(0.0f, volume);
+        source.Play();
+
+        Destroy(tempAudioObject, clip.length + 0.1f);
     }
 
     void ClearFeatherEmitters()
@@ -549,30 +765,6 @@ public class lb_BirdExperiment : MonoBehaviour
         }
 
         return highQuality ? baseName + "HQ" : baseName;
-    }
-
-    List<int> BuildStepOrder(int count)
-    {
-        List<int> order = new List<int>(count);
-        for (int i = 0; i < count; i++)
-        {
-            order.Add(i);
-        }
-
-        if (!randomizeStepOrder)
-        {
-            return order;
-        }
-
-        for (int i = order.Count - 1; i > 0; i--)
-        {
-            int swapIndex = Random.Range(0, i + 1);
-            int temp = order[i];
-            order[i] = order[swapIndex];
-            order[swapIndex] = temp;
-        }
-
-        return order;
     }
 
     float GetRandomizedHoldTime(float baseHoldTime)
@@ -630,6 +822,11 @@ public class lb_BirdExperiment : MonoBehaviour
         if (waitForFlyAnimationState)
         {
             yield return WaitForFlyAnimationState();
+        }
+
+        if (playFlyAwayAudioOnTakeoff)
+        {
+            PlayRandomFlyAwayClip();
         }
 
         if (spawnEmitterAtTakeoff)

@@ -188,9 +188,14 @@ MonoBehaviour:
   circlesPerPulse: 8
   pulseInterval: 4.5
   attractionSoundInterval: 2
+  silenceWhenVeryCloseDistance: 1.25
   circleLifetime: 0.6
   circleStagger: 0.05
   facingThreshold: 0.7
+  occlusionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  losIgnoreRoot: {fileID: 0}
   sideInset: 0.08
   verticalClamp: 0.1
   spawnDepth: 3.5
@@ -198,6 +203,8 @@ MonoBehaviour:
   endRadius: 0.2
   driftDistance: 0.25
   rotationOffsetDegrees: 135
+  alwaysRenderOnTop: 1
+  overlayRenderQueue: 4000
 --- !u!1 &1474004843034370505
 GameObject:
   m_ObjectHideFlags: 0
