@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Scenes/MainMenuX.unity
+    path: Assets/_Scenes/xMainMenuX.unity
     guid: cf0d2519f912b1146833f241953bbb85
   - enabled: 1
     path: Assets/_Scenes/Dorm.unity
@@ -33,7 +33,7 @@ EditorBuildSettings:
     path: Assets/_Scenes/Dream.unity
     guid: d7da102e086f7d84ca7105047790adf0
   - enabled: 0
-    path: Assets/_Scenes/xMainMenuX_q.unity
+    path: Assets/_Scenes/MainMenu.unity
     guid: 3b55c7f3b690668469095d1c9d7e26e2
   - enabled: 0
     path: Assets/_Scenes/xDream.unity

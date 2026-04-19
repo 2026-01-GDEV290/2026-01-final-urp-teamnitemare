@@ -2107,7 +2107,7 @@ GameObject:
   - component: {fileID: 8200000}
   - component: {fileID: 13500002}
   m_Layer: 0
-  m_Name: lb_crow
+  m_Name: lb_crow_original
   m_TagString: lb_bird
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2398,7 +2398,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 100126}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92a84cd7d0b8fdd4ea5b7054a6649a37, type: 3}
   m_Name: 
