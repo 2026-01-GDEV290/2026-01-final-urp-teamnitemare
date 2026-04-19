@@ -2526,6 +2526,7 @@ GameObject:
   - component: {fileID: 1633843342}
   - component: {fileID: 1633843341}
   - component: {fileID: 1633843340}
+  - component: {fileID: 1633843344}
   m_Layer: 0
   m_Name: Crows
   m_TagString: Untagged
@@ -2587,6 +2588,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1633843344}
+        m_TargetAssemblyTypeName: CrowChildrenPropagateCalls, Assembly-CSharp
+        m_MethodName: FleeTowardTransform
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 2025685109}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Transform, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   triggeredCount: 0
 --- !u!65 &1633843342
 BoxCollider:
@@ -2629,6 +2642,19 @@ Transform:
   - {fileID: 875147505}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1633843344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1633843339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be9a41cfebc48db4687b10dc8a00c0d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeBetweenCalls: 0.1
 --- !u!1 &1738721944
 GameObject:
   m_ObjectHideFlags: 0
@@ -3531,6 +3557,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b17ed530faa35c4781e459ef8681c75, type: 3}
+--- !u!1 &2025685108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2025685109}
+  m_Layer: 0
+  m_Name: DestinationPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2025685109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025685108}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 54.2, y: 7.6, z: 34.23}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2097072580
 GameObject:
   m_ObjectHideFlags: 0
@@ -4294,3 +4351,4 @@ SceneRoots:
   - {fileID: 1512786759}
   - {fileID: 1738721947}
   - {fileID: 1633843343}
+  - {fileID: 2025685109}

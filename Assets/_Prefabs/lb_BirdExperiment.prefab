@@ -141,7 +141,7 @@ MonoBehaviour:
   song1: {fileID: 8300000, guid: e2622b95524aab94b9a0448a1a4c6fc8, type: 3}
   song2: {fileID: 8300000, guid: aa29893140715234fa4c6f0f17bc3d88, type: 3}
   flyAway1: {fileID: 8300000, guid: 9dabaef0cd2ecb241956e3db52d3bc8d, type: 3}
-  flyAway2: {fileID: 8300000, guid: ae13220b2fee67344b8b455414c59ff4, type: 3}
+  flyAway2: {fileID: 8300000, guid: d6135bc91cdcc2e4b97e48f83fe629f3, type: 3}
   playSongAtBirdPosition: 1
   songPositionOffset: {x: 0, y: 0, z: 0}
   playFlyAwayAtBirdPosition: 1

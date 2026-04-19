@@ -314,6 +314,37 @@ public class lb_BirdExperiment : MonoBehaviour
         fleeCoroutine = StartCoroutine(FleeAndReturnRoutine());
     }
 
+    public void FleeTowardLocation(Vector3 worldPosition)
+    {
+        if (!canFlee || spawnedBird == null)
+        {
+            return;
+        }
+
+        if (fleeCoroutine != null)
+        {
+            StopCoroutine(fleeCoroutine);
+        }
+
+        if (flyCoroutine != null)
+        {
+            StopCoroutine(flyCoroutine);
+            flyCoroutine = null;
+        }
+
+        fleeCoroutine = StartCoroutine(FleeTowardLocationRoutine(worldPosition));
+    }
+
+    public void FleeTowardTransform(Transform target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        FleeTowardLocation(target.position);
+    }
+
     public void FlyToLocation(Vector3 worldPosition)
     {
         if (spawnedBird == null)
@@ -507,6 +538,24 @@ public class lb_BirdExperiment : MonoBehaviour
         {
             StartAnimationSequence();
         }
+    }
+
+    IEnumerator FleeTowardLocationRoutine(Vector3 targetPosition)
+    {
+        StopAnimationSequence();
+
+        Vector3 startPos = spawnedBird.transform.position;
+        yield return MoveBirdTo(startPos, targetPosition, fleeDuration, spawnFeatherEmitterOnFlee);
+
+        if (spawnedBird != null)
+        {
+            Destroy(spawnedBird);
+            spawnedBird = null;
+            birdAnimator = null;
+            birdAudioSource = null;
+        }
+
+        fleeCoroutine = null;
     }
 
     IEnumerator FlyToLocationRoutine(Vector3 targetPosition)
