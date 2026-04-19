@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerBSK : MonoBehaviour
@@ -33,9 +34,20 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] WingAnimationControl wingAnimationControl;
     //[SerializeField] private AlphaControllerForAnimationRenderer wingsAlphaControl;
 
+    [Header("Fracture Anti-Fall")]
+    [SerializeField] private float fractureAntiFallTriggerY = -10f;
+    [SerializeField] private float fractureAntiFallBoostStrength = 15f;
+
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
     //[SerializeField] private float maxLookAngle = 85f;
+
+    [Header("Grapple")]
+    [SerializeField] private float grappleHighlightCheckDistance = 30f;
+    [SerializeField] private float grappleScreenCenterToleranceX = 0.22f;
+    [SerializeField] private float grappleScreenCenterToleranceY = 0.34f;
+    [SerializeField] private LayerMask grappleHighlightMask = ~0;
+    [SerializeField] private float grapplePointCacheRefreshInterval = 1f;
 
     [Header("Audio")]
     [SerializeField] private AudioClip[] walkSounds;
@@ -60,11 +72,17 @@ public class PlayerControllerBSK : MonoBehaviour
     private float jumpBufferTimer;
     private float walkSoundDistanceAccumulator;
     private int walkSoundIndex;
+    private bool fractureAntiFallTriggered;
+    private bool isFractureScene;
 
     private InteractCollider interactCollider;
 
     bool lookingAtInteractable = false;
     InteractableBase currentInteractable = null;
+    GrappleFromPoint currentGrappleFromPoint = null;
+    GrapplePointGlow highlightedGrapplePoint = null;
+    readonly List<GrapplePointGlow> cachedGrapplePoints = new List<GrapplePointGlow>();
+    float nextGrapplePointCacheRefreshTime;
 
     [SerializeField] private bool hasFeathers = false;
 
@@ -72,6 +90,8 @@ public class PlayerControllerBSK : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         playerControls = new InputSystem_Actions();
+        UnityEngine.SceneManagement.Scene activeScene = SceneManager.GetActiveScene();
+        isFractureScene = !string.IsNullOrEmpty(activeScene.name) && activeScene.name.IndexOf("Fracture", System.StringComparison.OrdinalIgnoreCase) >= 0;
 
         rotationX = 0f;
         rotationY = transform.eulerAngles.y;
@@ -125,16 +145,22 @@ public class PlayerControllerBSK : MonoBehaviour
             Canvas canvas = helpText.GetComponentInParent<Canvas>();
             Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
         }
-        activeAttractions = new List<PitchBlackAttraction>(
-            FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
-        // Instantiate 5 audio curves
-        for (int i = 0; i < 5; i++)
+        fractureAntiFallTriggered = false;
+        if (!isFractureScene)
         {
-            GameObject curve = Instantiate(audioCurvePrefab);
-            activeAudioCurves.Add(curve);
-            // keep them hidden until needed
-            curve.SetActive(false);
+            activeAttractions = new List<PitchBlackAttraction>(
+                FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
+            // Instantiate 5 audio curves
+            for (int i = 0; i < 5; i++)
+            {
+                GameObject curve = Instantiate(audioCurvePrefab);
+                activeAudioCurves.Add(curve);
+                // keep them hidden until needed
+                curve.SetActive(false);
+            }
         }
+
+        RefreshCachedGrapplePoints();
     }
 
     private IEnumerator CheckFeatherState()
@@ -202,6 +228,8 @@ public class PlayerControllerBSK : MonoBehaviour
             interactCollider = interactColliders[0];
             interactCollider.OnPlayerHitInteractable += InteractTrigger;
             interactCollider.OnPlayerLeaveInteractable += InteractLeaveTrigger;
+            interactCollider.OnPlayerHitGrappleFromPoint += GrappleTrigger;
+            interactCollider.OnPlayerLeaveGrappleFromPoint += GrappleLeaveTrigger;
         }
         else
         {
@@ -234,7 +262,17 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             interactCollider.OnPlayerHitInteractable -= InteractTrigger;
             interactCollider.OnPlayerLeaveInteractable -= InteractLeaveTrigger;
+            interactCollider.OnPlayerHitGrappleFromPoint -= GrappleTrigger;
+            interactCollider.OnPlayerLeaveGrappleFromPoint -= GrappleLeaveTrigger;
         }
+
+        if (currentGrappleFromPoint != null)
+        {
+            currentGrappleFromPoint.SetSourceActive(false);
+            currentGrappleFromPoint = null;
+        }
+
+        SetHighlightedGrapplePoint(null);
     }
     
     void Start()
@@ -253,6 +291,7 @@ public class PlayerControllerBSK : MonoBehaviour
         Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
         HandleLook(lookInput);
+        UpdateGrappleHighlight();
         HandleMovement(moveInput);
     }
 
@@ -267,7 +306,14 @@ public class PlayerControllerBSK : MonoBehaviour
         // x-axis of mouse controls pitch (looking up/down)
         rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
         rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
-        rotationX = Mathf.Clamp(rotationX, -90f, 35f);
+        if (isFractureScene)
+        {
+            rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+        }
+        else
+        {
+            rotationX = Mathf.Clamp(rotationX, -90f, 45f);  // 35?
+        }
         transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);
 
         if (playerCamera != null)
@@ -295,6 +341,11 @@ public class PlayerControllerBSK : MonoBehaviour
         if (wasGroundedThisFrame && verticalVelocity < 0f)
         {
             verticalVelocity = -2f;
+        }
+
+        if (isFractureScene && transform.position.y > fractureAntiFallTriggerY)
+        {
+            fractureAntiFallTriggered = false;
         }
 
         if (wasGroundedThisFrame)
@@ -338,6 +389,17 @@ public class PlayerControllerBSK : MonoBehaviour
         else if (jumpBufferTimer > 0f)
         {
             //Debug.Log($"Jump buffer set but NOT jumping: buffer={jumpBufferTimer:F3}, coyote={coyoteTimer:F3}, wasGrounded={wasGroundedThisFrame}");
+        }
+
+        if (isFractureScene && hasFeathers && !fractureAntiFallTriggered && transform.position.y <= fractureAntiFallTriggerY)
+        {
+            fractureAntiFallTriggered = true;
+            verticalVelocity = Mathf.Max(verticalVelocity, fractureAntiFallBoostStrength);
+
+            if (wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
         }
 
         float gravityToUse = downwardGravity;
@@ -423,6 +485,11 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void AttackAction(InputAction.CallbackContext context)
     {
+        if (TryDoGrappleAttack())
+        {
+            return;
+        }
+
         DoInteractIfCan();
     }
 
@@ -443,6 +510,169 @@ public class PlayerControllerBSK : MonoBehaviour
             return;
         }
         Debug.Log("Interact/Attack button pressed but no interactable in range");
+    }
+
+    void GrappleTrigger(GrappleFromPoint grappleFromPoint)
+    {
+        if (grappleFromPoint == null)
+        {
+            return;
+        }
+
+        RefreshCachedGrapplePoints();
+        currentGrappleFromPoint = grappleFromPoint;
+        currentGrappleFromPoint.SetSourceActive(true);
+        Debug.Log($"PlayerControllerBSK entered GrappleFromPoint mode for {currentGrappleFromPoint.gameObject.name}");
+    }
+
+    void GrappleLeaveTrigger(GrappleFromPoint grappleFromPoint)
+    {
+        if (grappleFromPoint != null)
+        {
+            Debug.Log($"PlayerControllerBSK left GrappleFromPoint trigger for {grappleFromPoint.gameObject.name}");
+        }
+
+        if (currentGrappleFromPoint != null)
+        {
+            currentGrappleFromPoint.SetSourceActive(false);
+        }
+
+        currentGrappleFromPoint = null;
+        SetHighlightedGrapplePoint(null);
+    }
+
+    bool TryDoGrappleAttack()
+    {
+        if (currentGrappleFromPoint == null)
+        {
+            return false;
+        }
+
+        if (highlightedGrapplePoint == null)
+        {
+            Debug.Log("Attack pressed while in GrappleFromPoint mode, but no GrapplePoint is highlighted");
+            return true;
+        }
+
+        if (currentGrappleFromPoint.Matches(highlightedGrapplePoint))
+        {
+            Debug.Log($"Matched GrapplePoint {highlightedGrapplePoint.gameObject.name} from {currentGrappleFromPoint.gameObject.name}");
+            currentGrappleFromPoint.TriggerMatchedGrapple();
+            return true;
+        }
+
+        Debug.Log($"Highlighted GrapplePoint {highlightedGrapplePoint.gameObject.name} did not match {currentGrappleFromPoint.gameObject.name}");
+        return true;
+    }
+
+    void UpdateGrappleHighlight()
+    {
+        if (currentGrappleFromPoint == null || playerCamera == null)
+        {
+            SetHighlightedGrapplePoint(null);
+            return;
+        }
+
+        if (Time.time >= nextGrapplePointCacheRefreshTime)
+        {
+            RefreshCachedGrapplePoints();
+        }
+
+        GrapplePointGlow bestTarget = FindBestGrapplePointInView();
+        SetHighlightedGrapplePoint(bestTarget);
+    }
+
+    void RefreshCachedGrapplePoints()
+    {
+        cachedGrapplePoints.Clear();
+        GrapplePointGlow[] grapplePoints = FindObjectsByType<GrapplePointGlow>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        if (grapplePoints != null && grapplePoints.Length > 0)
+        {
+            cachedGrapplePoints.AddRange(grapplePoints);
+        }
+
+        nextGrapplePointCacheRefreshTime = Time.time + Mathf.Max(0.1f, grapplePointCacheRefreshInterval);
+    }
+
+    void SetHighlightedGrapplePoint(GrapplePointGlow newHighlightedPoint)
+    {
+        if (highlightedGrapplePoint == newHighlightedPoint)
+        {
+            return;
+        }
+
+        if (highlightedGrapplePoint != null)
+        {
+            highlightedGrapplePoint.SetHighlighted(false);
+        }
+
+        highlightedGrapplePoint = newHighlightedPoint;
+
+        if (highlightedGrapplePoint != null)
+        {
+            highlightedGrapplePoint.SetHighlighted(true);
+        }
+    }
+
+    GrapplePointGlow FindBestGrapplePointInView()
+    {
+        GrapplePointGlow bestTarget = null;
+        float bestCenterScore = float.MaxValue;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < cachedGrapplePoints.Count; i++)
+        {
+            GrapplePointGlow grapplePointGlow = cachedGrapplePoints[i];
+            if (grapplePointGlow == null)
+            {
+                continue;
+            }
+
+            Transform candidateTransform = grapplePointGlow.transform;
+            if (candidateTransform == null || !candidateTransform.CompareTag("GrapplePoint"))
+            {
+                continue;
+            }
+
+            Vector3 targetPoint = candidateTransform.position;
+            Vector3 toTarget = targetPoint - playerCamera.transform.position;
+            float distanceToTarget = toTarget.magnitude;
+            if (distanceToTarget <= 0.01f || distanceToTarget > grappleHighlightCheckDistance)
+            {
+                continue;
+            }
+
+            Vector3 viewportPoint = playerCamera.WorldToViewportPoint(targetPoint);
+            if (viewportPoint.z <= 0f)
+            {
+                continue;
+            }
+
+            if (viewportPoint.x < 0f || viewportPoint.x > 1f || viewportPoint.y < 0f || viewportPoint.y > 1f)
+            {
+                continue;
+            }
+
+            float centerOffsetX = Mathf.Abs(viewportPoint.x - 0.5f);
+            float centerOffsetY = Mathf.Abs(viewportPoint.y - 0.5f);
+            if (centerOffsetX > grappleScreenCenterToleranceX || centerOffsetY > grappleScreenCenterToleranceY)
+            {
+                continue;
+            }
+
+            float normalizedX = centerOffsetX / Mathf.Max(grappleScreenCenterToleranceX, 0.0001f);
+            float normalizedY = centerOffsetY / Mathf.Max(grappleScreenCenterToleranceY, 0.0001f);
+            float centerScore = (normalizedX * normalizedX) + (normalizedY * normalizedY);
+
+            if (distanceToTarget < bestDistance || (Mathf.Approximately(distanceToTarget, bestDistance) && centerScore < bestCenterScore))
+            {
+                bestTarget = grapplePointGlow;
+                bestCenterScore = centerScore;
+                bestDistance = distanceToTarget;
+            }
+        }
+
+        return bestTarget;
     }
 
     public void OnTeleported(Quaternion targetRotation, bool applyRotation)

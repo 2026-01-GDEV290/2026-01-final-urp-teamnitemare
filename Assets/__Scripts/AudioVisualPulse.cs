@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class AudioVisualPulse : MonoBehaviour
 {
@@ -50,9 +51,23 @@ public class AudioVisualPulse : MonoBehaviour
 	private float nextAttractionSoundTime;
 	private bool wasFacingTarget;
 	private Coroutine pulseLoop;
+	private bool disableInCurrentScene;
+
+	bool IsFractureScene()
+	{
+		UnityEngine.SceneManagement.Scene activeScene = SceneManager.GetActiveScene();
+		return !string.IsNullOrEmpty(activeScene.name) && activeScene.name.IndexOf("Fracture", StringComparison.OrdinalIgnoreCase) >= 0;
+	}
 
 	void Awake()
 	{
+		disableInCurrentScene = IsFractureScene();
+		if (disableInCurrentScene)
+		{
+			enabled = false;
+			return;
+		}
+
 		if (cam == null)
 		{
 			cam = Camera.main;
@@ -70,6 +85,12 @@ public class AudioVisualPulse : MonoBehaviour
 
 	void OnEnable()
 	{
+		if (disableInCurrentScene)
+		{
+			enabled = false;
+			return;
+		}
+
 		if (pulseLoop == null)
 		{
 			pulseLoop = StartCoroutine(PulseLoop());
