@@ -25760,6 +25760,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 99066595878233042, guid: 0b3f93284140f1d4997f47a0885610cc,
         type: 3}
+      propertyPath: m_text
+      value: Balance!
+      objectReference: {fileID: 0}
+    - target: {fileID: 99066595878233042, guid: 0b3f93284140f1d4997f47a0885610cc,
+        type: 3}
       propertyPath: m_fontSize
       value: 60
       objectReference: {fileID: 0}
