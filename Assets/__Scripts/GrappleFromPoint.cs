@@ -54,6 +54,16 @@ public class GrappleFromPoint : MonoBehaviour
         sourceLight.color = baseLightColor;
     }
 
+    public void ForceSourceLightOff()
+    {
+        CacheLightState();
+
+        if (sourceLight != null)
+        {
+            sourceLight.enabled = false;
+        }
+    }
+
     public bool Matches(GrapplePointGlow grapplePointGlow)
     {
         return linkedGrapplePoint != null && linkedGrapplePoint == grapplePointGlow;

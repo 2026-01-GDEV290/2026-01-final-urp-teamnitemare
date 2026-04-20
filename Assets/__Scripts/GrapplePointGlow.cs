@@ -40,6 +40,16 @@ public class GrapplePointGlow : MonoBehaviour
         glowLight.color = baseLightColor;
     }
 
+    public void ForceLightOff()
+    {
+        CacheLightState();
+
+        if (glowLight != null)
+        {
+            glowLight.enabled = false;
+        }
+    }
+
     public Light GetLight()
     {
         CacheLightState();
