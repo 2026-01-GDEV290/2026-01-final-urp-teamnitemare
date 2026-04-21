@@ -44,9 +44,14 @@ public class AudioVisualPulse : MonoBehaviour
 	[SerializeField] private bool alwaysRenderOnTop = true;
 	[SerializeField] private int overlayRenderQueue = 4000;
 
+	[Header("Birb Sphere Pulse")]
+	[SerializeField] private bool pulseBirbSphereEmission = true;
+	[SerializeField] private float birbSpherePulseLowIntensity = 0.25f;
+	[SerializeField] private float birbSpherePulseHighIntensity = 2.5f;
+
 	private readonly List<LineRenderer> ringPool = new List<LineRenderer>();
 	private readonly Dictionary<LineRenderer, Coroutine> running = new Dictionary<LineRenderer, Coroutine>();
-	private List<PitchBlackAttraction> activeAttractions = new List<PitchBlackAttraction>();
+	private List<ChirpAttract> activeAttractions = new List<ChirpAttract>();
 	private int nextIndex;
 	private float nextAttractionSoundTime;
 	private bool wasFacingTarget;
@@ -106,6 +111,47 @@ public class AudioVisualPulse : MonoBehaviour
 		}
 	}
 
+	void FixedUpdate()
+	{
+		if (disableInCurrentScene || cam == null)
+		{
+			return;
+		}
+
+		RefreshAttractions();
+
+		ChirpAttract closest = GetClosestAttraction();
+		if (closest == null)
+		{
+			return;
+		}
+
+		Transform attractionTarget = GetAttractionTarget(closest.transform);
+		if (attractionTarget == null)
+		{
+			return;
+		}
+
+		Vector3 targetPoint = attractionTarget.position;
+		bool isFacingTarget = IsFacingTarget(targetPoint);
+		bool hasClearLineOfSight = HasClearLineOfSight(attractionTarget, targetPoint);
+		bool shouldHoldBright = isFacingTarget && hasClearLineOfSight;
+
+		if (shouldHoldBright)
+		{
+			wasFacingTarget = true;
+			TrySetBirbSphereFullBrightness(attractionTarget);
+			return;
+		}
+
+		if (wasFacingTarget)
+		{
+			wasFacingTarget = false;
+			TrySetBirbSphereZeroBrightness(attractionTarget);
+			nextAttractionSoundTime = Time.time;
+		}
+	}
+
 	System.Collections.IEnumerator PulseLoop()
 	{
 		while (enabled)
@@ -129,7 +175,7 @@ public class AudioVisualPulse : MonoBehaviour
 
 		RefreshAttractions();
 
-		PitchBlackAttraction closest = GetClosestAttraction();
+		ChirpAttract closest = GetClosestAttraction();
 		if (closest == null)
 		{
 			return;
@@ -146,6 +192,7 @@ public class AudioVisualPulse : MonoBehaviour
 		if (shouldPausePulses)
 		{
 			wasFacingTarget = true;
+			TrySetBirbSphereFullBrightness(attractionTarget);
 
 			if (!shouldSilenceAudio && Time.time >= nextAttractionSoundTime)
 			{
@@ -238,18 +285,18 @@ public class AudioVisualPulse : MonoBehaviour
 
 	void RefreshAttractions()
 	{
-		activeAttractions = new List<PitchBlackAttraction>(FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
+		activeAttractions = new List<ChirpAttract>(FindObjectsByType<ChirpAttract>(FindObjectsSortMode.None));
 	}
 
-	PitchBlackAttraction GetClosestAttraction()
+	ChirpAttract GetClosestAttraction()
 	{
-		PitchBlackAttraction best = null;
+		ChirpAttract best = null;
 		float bestSqr = float.MaxValue;
 		Vector3 camPos = cam.transform.position;
 
 		for (int i = 0; i < activeAttractions.Count; i++)
 		{
-			PitchBlackAttraction a = activeAttractions[i];
+			ChirpAttract a = activeAttractions[i];
 			if (a == null || !a.gameObject.activeInHierarchy)
 			{
 				continue;
@@ -383,6 +430,9 @@ public class AudioVisualPulse : MonoBehaviour
 
 	void EmitPulse(Transform target)
 	{
+		int count = Mathf.Clamp(circlesPerPulse, 1, ringPool.Count);
+		TryPulseBirbSphere(target, count);
+
 		Vector3 toTargetWorld = (target.position - cam.transform.position).normalized;
 		Vector3 toTargetLocal = cam.transform.InverseTransformDirection(toTargetWorld);
 
@@ -410,7 +460,6 @@ public class AudioVisualPulse : MonoBehaviour
 		targetDir.Normalize();
 		targetDir = Quaternion.AngleAxis(rotationOffsetDegrees, cam.transform.forward) * targetDir;
 
-		int count = Mathf.Clamp(circlesPerPulse, 1, ringPool.Count);
 		for (int i = 0; i < count; i++)
 		{
 			LineRenderer lr = GetNextRing();
@@ -428,6 +477,60 @@ public class AudioVisualPulse : MonoBehaviour
 			Coroutine c = StartCoroutine(AnimateCircle(lr, startCenter, targetDir, delay));
 			running[lr] = c;
 		}
+	}
+
+	void TryPulseBirbSphere(Transform target, int circleCount)
+	{
+		if (!pulseBirbSphereEmission || target == null)
+		{
+			return;
+		}
+
+		BirbSphere birbSphere = target.GetComponentInParent<BirbSphere>();
+		if (birbSphere == null)
+		{
+			Debug.Log($"AudioVisualPulse: no BirbSphere found on {target.name} or its parents, so no emission pulse was triggered.");
+			return;
+		}
+
+		float totalVisualPulseDuration = Mathf.Max(
+			0.01f,
+			Mathf.Max(0.01f, circleLifetime) + Mathf.Max(0f, (circleCount - 1) * circleStagger));
+
+		Debug.Log($"AudioVisualPulse: pulsing BirbSphere '{birbSphere.name}' for {totalVisualPulseDuration:F2}s.");
+		birbSphere.PulseEmission(totalVisualPulseDuration);
+	}
+
+	void TrySetBirbSphereFullBrightness(Transform target)
+	{
+		if (target == null)
+		{
+			return;
+		}
+
+		BirbSphere birbSphere = target.GetComponentInParent<BirbSphere>();
+		if (birbSphere == null)
+		{
+			return;
+		}
+
+		birbSphere.SetFullBrightness();
+	}
+
+	void TrySetBirbSphereZeroBrightness(Transform target)
+	{
+		if (target == null)
+		{
+			return;
+		}
+
+		BirbSphere birbSphere = target.GetComponentInParent<BirbSphere>();
+		if (birbSphere == null)
+		{
+			return;
+		}
+
+		birbSphere.SetZeroBrightness();
 	}
 
 	LineRenderer GetNextRing()
