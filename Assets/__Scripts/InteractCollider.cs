@@ -10,7 +10,12 @@ public class InteractCollider : MonoBehaviour
     public event PlayerEnterTriggerHandler OnPlayerHitInteractable;
     public event PlayerEnterTriggerHandler OnPlayerLeaveInteractable;
 
+    public delegate void PlayerGrappleTriggerHandler(GrappleFromPoint grappleFromPoint);
+    public event PlayerGrappleTriggerHandler OnPlayerHitGrappleFromPoint;
+    public event PlayerGrappleTriggerHandler OnPlayerLeaveGrappleFromPoint;
+
     InteractableBase interactable = null;
+    GrappleFromPoint grappleFromPoint = null;
 
     [SerializeField] private TMP_Text interactText;
 
@@ -44,6 +49,15 @@ public class InteractCollider : MonoBehaviour
                 SetInteractText("");
             }
         }
+
+        if (grappleFromPoint != null)
+        {
+            if (!grappleFromPoint.gameObject.activeInHierarchy)
+            {
+                OnPlayerLeaveGrappleFromPoint?.Invoke(grappleFromPoint);
+                grappleFromPoint = null;
+            }
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -63,6 +77,14 @@ public class InteractCollider : MonoBehaviour
             interactable.SetBillboardText(interactable.interactText);
             interactable.SetBillboardVisibility(true);
         }
+
+        if (other.CompareTag("GrappleFromPoint") && other.TryGetComponent(out GrappleFromPoint grappleFromPointLocal))
+        {
+            grappleFromPoint = grappleFromPointLocal;
+            OnPlayerHitGrappleFromPoint?.Invoke(grappleFromPoint);
+            grappleFromPoint.SetSourceActive(true);
+            Debug.Log($"InteractCollider found GrappleFromPoint: {grappleFromPoint.gameObject.name}");
+        }
     }
     void OnTriggerExit(Collider other)
     {
@@ -72,6 +94,13 @@ public class InteractCollider : MonoBehaviour
             OnPlayerLeaveInteractable?.Invoke(interactable);
             interactable.SetBillboardVisibility(false);
             interactable = null;
+        }
+
+        if (grappleFromPoint != null && other.TryGetComponent(out GrappleFromPoint exitedGrappleFromPoint) && exitedGrappleFromPoint == grappleFromPoint)
+        {
+            OnPlayerLeaveGrappleFromPoint?.Invoke(grappleFromPoint);
+            grappleFromPoint.SetSourceActive(false);
+            grappleFromPoint = null;
         }
     }
 }

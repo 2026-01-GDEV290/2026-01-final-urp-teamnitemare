@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerBSK : MonoBehaviour
@@ -33,15 +34,40 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] WingAnimationControl wingAnimationControl;
     //[SerializeField] private AlphaControllerForAnimationRenderer wingsAlphaControl;
 
+    [Header("Fracture Anti-Fall")]
+    [SerializeField] private float fractureAntiFallTriggerY = -10f;
+    [SerializeField] private float fractureAntiFallBoostStrength = 15f;
+
     [Header("Look")]
     [SerializeField] private float rotateSpeed = 10f;
     //[SerializeField] private float maxLookAngle = 85f;
+
+    [Header("Grapple")]
+    [SerializeField] private float grappleHighlightCheckDistance = 30f;
+    [SerializeField] private float grappleScreenCenterToleranceX = 0.22f;
+    [SerializeField] private float grappleScreenCenterToleranceY = 0.34f;
+    [SerializeField] private LayerMask grappleHighlightMask = ~0;
+    [SerializeField] private float grapplePointCacheRefreshInterval = 1f;
+    [SerializeField] private GameObject grappleChainLinkPrefab;
+    [SerializeField] private float grappleMoveSpeed = 6f;
+    [SerializeField] private float grappleRotateSpeed = 120f;
+    [SerializeField] private float grappleCompletionDistance = 0.25f;
+    [SerializeField] private float grappleChainCompletionDistance = 0.35f;
 
     [Header("Audio")]
     [SerializeField] private AudioClip[] walkSounds;
     [SerializeField] private float walkSoundDistance = 1.8f;
     [SerializeField] private float walkSoundVolume = 0.7f;
     [SerializeField] private AudioSource walkSoundSource;
+
+    Vector3[] fragmentDestinations = new Vector3[]
+    {
+        new Vector3(3.138f, 17.51f, -46.261f),  // Fragment1 "Frag1"
+        new Vector3(4.56f, 16.09f, -51.98f),    // Fragment2 "Frag2"
+        new Vector3(-2.94f, 17.49f, -53.01f),   // Fragment3 "Frag3"
+        new Vector3(-4.965f, 17.47f, -44.38f),  // Fragment4 "Frag4"
+        new Vector3(-5.44f, 16.97f, -52.5f)     // Fragment5 "Frag5"
+    };
 
     [SerializeField] TMP_Text helpText;
 
@@ -60,11 +86,27 @@ public class PlayerControllerBSK : MonoBehaviour
     private float jumpBufferTimer;
     private float walkSoundDistanceAccumulator;
     private int walkSoundIndex;
+    private bool fractureAntiFallTriggered;
+    private bool isFractureScene;
+    private bool isGrappleMoveLocked;
+    private Transform grappleLockedParent;
+    private Transform grapplePlayerOriginalParent;
+    private Transform grappleDestinationAnchor;
+    private Vector3 grappleMoveDestinationPosition;
+    private Animator grappleLockedAnimator;
+    private Light[] grappleLockedLights;
+    private QuestComponent grappleLockedQuestComponent;
+    private GrappleChainLink activeGrappleChainLink;
+    private GameObject activeGrappleChainLinkObject;
 
     private InteractCollider interactCollider;
 
     bool lookingAtInteractable = false;
     InteractableBase currentInteractable = null;
+    GrappleFromPoint currentGrappleFromPoint = null;
+    GrapplePointGlow highlightedGrapplePoint = null;
+    readonly List<GrapplePointGlow> cachedGrapplePoints = new List<GrapplePointGlow>();
+    float nextGrapplePointCacheRefreshTime;
 
     [SerializeField] private bool hasFeathers = false;
 
@@ -72,6 +114,8 @@ public class PlayerControllerBSK : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         playerControls = new InputSystem_Actions();
+        UnityEngine.SceneManagement.Scene activeScene = SceneManager.GetActiveScene();
+        isFractureScene = !string.IsNullOrEmpty(activeScene.name) && activeScene.name.IndexOf("Fracture", System.StringComparison.OrdinalIgnoreCase) >= 0;
 
         rotationX = 0f;
         rotationY = transform.eulerAngles.y;
@@ -125,16 +169,22 @@ public class PlayerControllerBSK : MonoBehaviour
             Canvas canvas = helpText.GetComponentInParent<Canvas>();
             Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
         }
-        activeAttractions = new List<PitchBlackAttraction>(
-            FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
-        // Instantiate 5 audio curves
-        for (int i = 0; i < 5; i++)
+        fractureAntiFallTriggered = false;
+        if (!isFractureScene)
         {
-            GameObject curve = Instantiate(audioCurvePrefab);
-            activeAudioCurves.Add(curve);
-            // keep them hidden until needed
-            curve.SetActive(false);
+            activeAttractions = new List<PitchBlackAttraction>(
+                FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
+            // Instantiate 5 audio curves
+            for (int i = 0; i < 5; i++)
+            {
+                GameObject curve = Instantiate(audioCurvePrefab);
+                activeAudioCurves.Add(curve);
+                // keep them hidden until needed
+                curve.SetActive(false);
+            }
         }
+
+        RefreshCachedGrapplePoints();
     }
 
     private IEnumerator CheckFeatherState()
@@ -202,6 +252,8 @@ public class PlayerControllerBSK : MonoBehaviour
             interactCollider = interactColliders[0];
             interactCollider.OnPlayerHitInteractable += InteractTrigger;
             interactCollider.OnPlayerLeaveInteractable += InteractLeaveTrigger;
+            interactCollider.OnPlayerHitGrappleFromPoint += GrappleTrigger;
+            interactCollider.OnPlayerLeaveGrappleFromPoint += GrappleLeaveTrigger;
         }
         else
         {
@@ -234,7 +286,19 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             interactCollider.OnPlayerHitInteractable -= InteractTrigger;
             interactCollider.OnPlayerLeaveInteractable -= InteractLeaveTrigger;
+            interactCollider.OnPlayerHitGrappleFromPoint -= GrappleTrigger;
+            interactCollider.OnPlayerLeaveGrappleFromPoint -= GrappleLeaveTrigger;
         }
+
+        if (currentGrappleFromPoint != null)
+        {
+            currentGrappleFromPoint.SetSourceActive(false);
+            currentGrappleFromPoint = null;
+        }
+
+        EndGrappleMoveLock();
+
+        SetHighlightedGrapplePoint(null);
     }
     
     void Start()
@@ -252,7 +316,15 @@ public class PlayerControllerBSK : MonoBehaviour
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
+        if (isGrappleMoveLocked)
+        {
+            HandleLook(lookInput);
+            UpdateGrappleMoveLock();
+            return;
+        }
+
         HandleLook(lookInput);
+        UpdateGrappleHighlight();
         HandleMovement(moveInput);
     }
 
@@ -267,7 +339,14 @@ public class PlayerControllerBSK : MonoBehaviour
         // x-axis of mouse controls pitch (looking up/down)
         rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
         rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
-        rotationX = Mathf.Clamp(rotationX, -90f, 35f);
+        if (isFractureScene)
+        {
+            rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+        }
+        else
+        {
+            rotationX = Mathf.Clamp(rotationX, -90f, 45f);  // 35?
+        }
         transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);
 
         if (playerCamera != null)
@@ -295,6 +374,11 @@ public class PlayerControllerBSK : MonoBehaviour
         if (wasGroundedThisFrame && verticalVelocity < 0f)
         {
             verticalVelocity = -2f;
+        }
+
+        if (isFractureScene && transform.position.y > fractureAntiFallTriggerY)
+        {
+            fractureAntiFallTriggered = false;
         }
 
         if (wasGroundedThisFrame)
@@ -338,6 +422,17 @@ public class PlayerControllerBSK : MonoBehaviour
         else if (jumpBufferTimer > 0f)
         {
             //Debug.Log($"Jump buffer set but NOT jumping: buffer={jumpBufferTimer:F3}, coyote={coyoteTimer:F3}, wasGrounded={wasGroundedThisFrame}");
+        }
+
+        if (isFractureScene && hasFeathers && !fractureAntiFallTriggered && transform.position.y <= fractureAntiFallTriggerY)
+        {
+            fractureAntiFallTriggered = true;
+            verticalVelocity = Mathf.Max(verticalVelocity, fractureAntiFallBoostStrength);
+
+            if (wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
         }
 
         float gravityToUse = downwardGravity;
@@ -423,11 +518,26 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void AttackAction(InputAction.CallbackContext context)
     {
+        if (isGrappleMoveLocked)
+        {
+            return;
+        }
+
+        if (TryDoGrappleAttack())
+        {
+            return;
+        }
+
         DoInteractIfCan();
     }
 
     void InteractAction(InputAction.CallbackContext context)
     {
+        if (isGrappleMoveLocked)
+        {
+            return;
+        }
+
         DoInteractIfCan();
     }
 
@@ -443,6 +553,372 @@ public class PlayerControllerBSK : MonoBehaviour
             return;
         }
         Debug.Log("Interact/Attack button pressed but no interactable in range");
+    }
+
+    void GrappleTrigger(GrappleFromPoint grappleFromPoint)
+    {
+        if (grappleFromPoint == null)
+        {
+            return;
+        }
+
+        RefreshCachedGrapplePoints();
+        currentGrappleFromPoint = grappleFromPoint;
+        currentGrappleFromPoint.SetSourceActive(true);
+        Debug.Log($"PlayerControllerBSK entered GrappleFromPoint mode for {currentGrappleFromPoint.gameObject.name}");
+    }
+
+    void GrappleLeaveTrigger(GrappleFromPoint grappleFromPoint)
+    {
+        if (grappleFromPoint != null)
+        {
+            Debug.Log($"PlayerControllerBSK left GrappleFromPoint trigger for {grappleFromPoint.gameObject.name}");
+        }
+
+        if (currentGrappleFromPoint != null)
+        {
+            currentGrappleFromPoint.SetSourceActive(false);
+        }
+
+        currentGrappleFromPoint = null;
+        SetHighlightedGrapplePoint(null);
+    }
+
+    bool TryDoGrappleAttack()
+    {
+        if (isGrappleMoveLocked || currentGrappleFromPoint == null)
+        {
+            return false;
+        }
+
+        if (highlightedGrapplePoint == null)
+        {
+            Debug.Log("Attack pressed while in GrappleFromPoint mode, but no GrapplePoint is highlighted");
+            return true;
+        }
+
+        if (currentGrappleFromPoint.Matches(highlightedGrapplePoint))
+        {
+            Debug.Log($"Matched GrapplePoint {highlightedGrapplePoint.gameObject.name} from {currentGrappleFromPoint.gameObject.name}");
+            BeginGrappleMoveSequence();
+            return true;
+        }
+
+        Debug.Log($"Highlighted GrapplePoint {highlightedGrapplePoint.gameObject.name} did not match {currentGrappleFromPoint.gameObject.name}");
+        return true;
+    }
+
+    void UpdateGrappleHighlight()
+    {
+        if (isGrappleMoveLocked || currentGrappleFromPoint == null || playerCamera == null)
+        {
+            SetHighlightedGrapplePoint(null);
+            return;
+        }
+
+        GrapplePointGlow bestTarget = FindBestGrapplePointInView();
+        SetHighlightedGrapplePoint(bestTarget);
+    }
+
+    void BeginGrappleMoveSequence()
+    {
+        if (currentGrappleFromPoint == null || highlightedGrapplePoint == null)
+        {
+            return;
+        }
+
+        Transform movingParent = currentGrappleFromPoint.transform.parent;
+        if (movingParent == null)
+        {
+            Debug.LogWarning($"GrappleFromPoint {currentGrappleFromPoint.gameObject.name} has no parent to move.");
+            return;
+        }
+
+        int destinationIndex = GetFragmentDestinationIndex(movingParent.name);
+        if (destinationIndex < 0 || destinationIndex >= fragmentDestinations.Length)
+        {
+            Debug.LogWarning($"Unable to map {movingParent.name} to a fragment destination.");
+            return;
+        }
+
+        grappleMoveDestinationPosition = fragmentDestinations[destinationIndex];
+
+        currentGrappleFromPoint.ForceSourceLightOff();
+        highlightedGrapplePoint.ForceLightOff();
+        DisableLightsInHierarchy(movingParent);
+        DisableAnimatorInHierarchy(movingParent);
+
+        grapplePlayerOriginalParent = transform.parent;
+        grappleLockedParent = movingParent;
+        grappleLockedQuestComponent = movingParent.GetComponent<QuestComponent>();
+        isGrappleMoveLocked = true;
+
+        transform.SetParent(grappleLockedParent, true);
+
+        CreateGrappleDestinationAnchor(grappleMoveDestinationPosition);
+        CreateGrappleChainLink(grappleLockedParent, grappleDestinationAnchor);
+
+        currentGrappleFromPoint = null;
+        highlightedGrapplePoint = null;
+        fractureAntiFallTriggered = false;
+    }
+
+    int GetFragmentDestinationIndex(string objectName)
+    {
+        if (string.IsNullOrWhiteSpace(objectName))
+        {
+            return -1;
+        }
+
+        char lastCharacter = objectName[objectName.Length - 1];
+        if (!char.IsDigit(lastCharacter))
+        {
+            return -1;
+        }
+
+        return (lastCharacter - '0') - 1;
+    }
+
+    void CreateGrappleDestinationAnchor(Vector3 destinationPosition)
+    {
+        if (grappleDestinationAnchor != null)
+        {
+            Destroy(grappleDestinationAnchor.gameObject);
+            grappleDestinationAnchor = null;
+        }
+
+        GameObject anchorObject = new GameObject("GrappleDestinationAnchor");
+        anchorObject.transform.position = destinationPosition;
+        grappleDestinationAnchor = anchorObject.transform;
+    }
+
+    void CreateGrappleChainLink(Transform startPoint, Transform endPoint)
+    {
+        if (activeGrappleChainLinkObject != null)
+        {
+            Destroy(activeGrappleChainLinkObject);
+            activeGrappleChainLinkObject = null;
+            activeGrappleChainLink = null;
+        }
+
+        if (grappleChainLinkPrefab == null || startPoint == null || endPoint == null)
+        {
+            return;
+        }
+
+        activeGrappleChainLinkObject = Instantiate(grappleChainLinkPrefab);
+        activeGrappleChainLink = activeGrappleChainLinkObject.GetComponent<GrappleChainLink>();
+        if (activeGrappleChainLink == null)
+        {
+            activeGrappleChainLink = activeGrappleChainLinkObject.AddComponent<GrappleChainLink>();
+        }
+
+        activeGrappleChainLink.Bind(startPoint, endPoint, grappleChainCompletionDistance);
+    }
+
+    void UpdateGrappleMoveLock()
+    {
+        if (!isGrappleMoveLocked || grappleLockedParent == null || grappleDestinationAnchor == null)
+        {
+            EndGrappleMoveLock();
+            return;
+        }
+
+        grappleDestinationAnchor.position = grappleMoveDestinationPosition;
+
+        Vector3 destinationPosition = grappleMoveDestinationPosition;
+        grappleLockedParent.position = Vector3.MoveTowards(grappleLockedParent.position, destinationPosition, grappleMoveSpeed * Time.deltaTime);
+        grappleLockedParent.rotation = Quaternion.RotateTowards(grappleLockedParent.rotation, Quaternion.identity, grappleRotateSpeed * Time.deltaTime);
+
+        if (activeGrappleChainLink != null)
+        {
+            activeGrappleChainLink.Bind(grappleLockedParent, grappleDestinationAnchor, grappleChainCompletionDistance);
+        }
+
+        float remainingDistance = Vector3.Distance(grappleLockedParent.position, destinationPosition);
+        if (remainingDistance <= grappleCompletionDistance)
+        {
+            CompleteGrappleMoveLock();
+        }
+    }
+
+    void CompleteGrappleMoveLock()
+    {
+        if (grappleLockedParent != null)
+        {
+            grappleLockedParent.position = grappleDestinationAnchor != null ? grappleDestinationAnchor.position : grappleLockedParent.position;
+            grappleLockedParent.rotation = Quaternion.identity;
+        }
+
+        if (grappleLockedQuestComponent != null)
+        {
+            grappleLockedQuestComponent.CompleteTask();
+        }
+
+        EndGrappleMoveLock();
+    }
+
+    void EndGrappleMoveLock()
+    {
+        if (activeGrappleChainLinkObject != null)
+        {
+            Destroy(activeGrappleChainLinkObject);
+            activeGrappleChainLinkObject = null;
+            activeGrappleChainLink = null;
+        }
+
+        if (grappleDestinationAnchor != null)
+        {
+            Destroy(grappleDestinationAnchor.gameObject);
+            grappleDestinationAnchor = null;
+        }
+
+        if (transform.parent != grapplePlayerOriginalParent)
+        {
+            transform.SetParent(grapplePlayerOriginalParent, true);
+        }
+
+        isGrappleMoveLocked = false;
+        grappleLockedParent = null;
+        grapplePlayerOriginalParent = null;
+        grappleMoveDestinationPosition = Vector3.zero;
+
+        if (grappleLockedAnimator != null)
+        {
+            grappleLockedAnimator.enabled = false;
+            grappleLockedAnimator = null;
+        }
+
+        grappleLockedLights = null;
+        grappleLockedQuestComponent = null;
+    }
+
+    void DisableAnimatorInHierarchy(Transform root)
+    {
+        grappleLockedAnimator = root.GetComponent<Animator>();
+        if (grappleLockedAnimator == null)
+        {
+            grappleLockedAnimator = root.GetComponentInChildren<Animator>(true);
+        }
+
+        if (grappleLockedAnimator != null)
+        {
+            grappleLockedAnimator.enabled = false;
+        }
+    }
+
+    void DisableLightsInHierarchy(Transform root)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        grappleLockedLights = root.GetComponentsInChildren<Light>(true);
+        if (grappleLockedLights == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < grappleLockedLights.Length; i++)
+        {
+            if (grappleLockedLights[i] != null)
+            {
+                grappleLockedLights[i].enabled = false;
+            }
+        }
+    }
+    void RefreshCachedGrapplePoints()
+    {
+        cachedGrapplePoints.Clear();
+        GrapplePointGlow[] grapplePoints = FindObjectsByType<GrapplePointGlow>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        if (grapplePoints != null && grapplePoints.Length > 0)
+        {
+            cachedGrapplePoints.AddRange(grapplePoints);
+        }
+
+        nextGrapplePointCacheRefreshTime = Time.time + Mathf.Max(0.1f, grapplePointCacheRefreshInterval);
+    }
+
+    void SetHighlightedGrapplePoint(GrapplePointGlow newHighlightedPoint)
+    {
+        if (highlightedGrapplePoint == newHighlightedPoint)
+        {
+            return;
+        }
+
+        if (highlightedGrapplePoint != null)
+        {
+            highlightedGrapplePoint.SetHighlighted(false);
+        }
+
+        highlightedGrapplePoint = newHighlightedPoint;
+
+        if (highlightedGrapplePoint != null)
+        {
+            highlightedGrapplePoint.SetHighlighted(true);
+        }
+    }
+
+    GrapplePointGlow FindBestGrapplePointInView()
+    {
+        GrapplePointGlow bestTarget = null;
+        float bestCenterScore = float.MaxValue;
+        float bestDistance = float.MaxValue;
+
+        for (int i = 0; i < cachedGrapplePoints.Count; i++)
+        {
+            GrapplePointGlow grapplePointGlow = cachedGrapplePoints[i];
+            if (grapplePointGlow == null)
+            {
+                continue;
+            }
+
+            Transform candidateTransform = grapplePointGlow.transform;
+            if (candidateTransform == null || !candidateTransform.CompareTag("GrapplePoint"))
+            {
+                continue;
+            }
+
+            Vector3 targetPoint = candidateTransform.position;
+            Vector3 toTarget = targetPoint - playerCamera.transform.position;
+            float distanceToTarget = toTarget.magnitude;
+            if (distanceToTarget <= 0.01f || distanceToTarget > grappleHighlightCheckDistance)
+            {
+                continue;
+            }
+
+            Vector3 viewportPoint = playerCamera.WorldToViewportPoint(targetPoint);
+            if (viewportPoint.z <= 0f)
+            {
+                continue;
+            }
+
+            if (viewportPoint.x < 0f || viewportPoint.x > 1f || viewportPoint.y < 0f || viewportPoint.y > 1f)
+            {
+                continue;
+            }
+
+            float centerOffsetX = Mathf.Abs(viewportPoint.x - 0.5f);
+            float centerOffsetY = Mathf.Abs(viewportPoint.y - 0.5f);
+            if (centerOffsetX > grappleScreenCenterToleranceX || centerOffsetY > grappleScreenCenterToleranceY)
+            {
+                continue;
+            }
+
+            float normalizedX = centerOffsetX / Mathf.Max(grappleScreenCenterToleranceX, 0.0001f);
+            float normalizedY = centerOffsetY / Mathf.Max(grappleScreenCenterToleranceY, 0.0001f);
+            float centerScore = (normalizedX * normalizedX) + (normalizedY * normalizedY);
+
+            if (distanceToTarget < bestDistance || (Mathf.Approximately(distanceToTarget, bestDistance) && centerScore < bestCenterScore))
+            {
+                bestTarget = grapplePointGlow;
+                bestCenterScore = centerScore;
+                bestDistance = distanceToTarget;
+            }
+        }
+
+        return bestTarget;
     }
 
     public void OnTeleported(Quaternion targetRotation, bool applyRotation)
