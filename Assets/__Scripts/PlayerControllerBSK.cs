@@ -74,7 +74,7 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private GameObject audioCurvePrefab;
 
     List<GameObject> activeAudioCurves = new List<GameObject>();
-    List<PitchBlackAttraction> activeAttractions = new List<PitchBlackAttraction>();
+    //List<ChirpAttract> activeAttractions = new List<ChirpAttract>();
 
     private CharacterController characterController;
     private float verticalVelocity;
@@ -172,8 +172,6 @@ public class PlayerControllerBSK : MonoBehaviour
         fractureAntiFallTriggered = false;
         if (!isFractureScene)
         {
-            activeAttractions = new List<PitchBlackAttraction>(
-                FindObjectsByType<PitchBlackAttraction>(FindObjectsSortMode.None));
             // Instantiate 5 audio curves
             for (int i = 0; i < 5; i++)
             {
@@ -221,7 +219,7 @@ public class PlayerControllerBSK : MonoBehaviour
         wingAnimationControl.ResetToIdle();
         if (helpText != null)
         {
-            helpText.text = "You got feathers! Press Jump while in the air to boost yourself upwards.";            
+            helpText.text = "You got all feathers! Press Jump while in the air to boost yourself upwards.";            
             Invoke(nameof(ClearHelpText), 5f);
         }
     }
