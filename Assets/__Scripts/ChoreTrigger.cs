@@ -10,6 +10,8 @@ public class ChoreTrigger : MonoBehaviour
 
     [SerializeField] private GameObject choreObject;
 
+    [SerializeField] private GameObject choreSound;
+
     [SerializeField] private GameObject fade;
 
     void Update()
@@ -34,6 +36,7 @@ public class ChoreTrigger : MonoBehaviour
     void ClearChore()
     {
         choreObject.gameObject.SetActive(false);
+        choreSound.gameObject.SetActive(true);
     }
 
     private void OnTriggerEnter(Collider other)
