@@ -76,6 +76,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void StartGameButton()
     {
+        GameManager.Instance.gameState.ResetGameState();
         GameManager.Instance.LoadScene(Scenes.Game);
     }
 

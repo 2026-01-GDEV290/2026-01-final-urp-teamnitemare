@@ -223,6 +223,16 @@ public class PlayerControllerBSK : MonoBehaviour
             Invoke(nameof(ClearHelpText), 5f);
         }
     }
+    public void FeathersLost()
+    {
+        hasFeathers = false;
+        wings.SetActive(false);
+        // if (helpText != null)
+        // {
+        //     helpText.text = "You lost your feathers! You can no longer boost yourself while in the air.";
+        //     Invoke(nameof(ClearHelpText), 5f);
+        // }
+    }
     void ClearHelpText()
     {
         if (helpText != null)

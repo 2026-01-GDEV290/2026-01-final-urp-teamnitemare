@@ -144,6 +144,25 @@ public class GameState
         }
         sceneNames = scenesSO.GetAllScenes();
     }
+    public void ResetGameState()
+    {
+        currentGameState = GameStates.Loading;
+        inGameModalDialogueActive = false;
+        currentScene = Scenes.LoadingScreen;
+        previousScene = Scenes.LoadingScreen;
+        currentSceneName = "";
+        previousSceneName = "";
+        currentSceneScript = null;
+        currentLevel = GameLevels.None;
+        scenesInOrderOfVisit.Clear();
+        globalQuestInfo.questsInScene.Clear();
+        globalQuestInfo.questUniqueIdCompletionInOrder.Clear();
+        globalQuestInfo.taskUniqueIdCompletionInOrder.Clear();
+        sceneQuestInfos.Clear();
+        numCurrentLevelObjectivesCompleted = 0;
+        totalCurrentLevelObjectives = 0;
+        currentLevelCompleted = false;
+    }
 
 #region Scene Management
     // Enforces one scene in list and optionally visit order
