@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4cfdef0af5618664485799eb0f8c1372
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273061
+  packageName: Easy Placement Tool
+  packageVersion: 1.0
+  assetPath: Assets/PlacmentTool/Prefabs/ObjectPlacment/PointerPrefab.prefab
+  uploadId: 634312

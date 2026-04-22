@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a533d2b39960b8447b3b92e199d26890
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273061
+  packageName: Easy Placement Tool
+  packageVersion: 1.0
+  assetPath: Assets/PlacmentTool/Prefabs/Element/Sphere.prefab
+  uploadId: 634312

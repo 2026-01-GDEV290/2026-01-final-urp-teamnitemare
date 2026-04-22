@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6e1cad70600eaf54f87a4e94ab9782ec
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273061
+  packageName: Easy Placement Tool
+  packageVersion: 1.0
+  assetPath: Assets/PlacmentTool/Prefabs/ObjectPlacment/PointerHeightPrefab.prefab
+  uploadId: 634312

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0f3a5f92954a1fb4d931aa7fd4e4381b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273061
+  packageName: Easy Placement Tool
+  packageVersion: 1.0
+  assetPath: Assets/PlacmentTool/Material/Red.mat
+  uploadId: 634312

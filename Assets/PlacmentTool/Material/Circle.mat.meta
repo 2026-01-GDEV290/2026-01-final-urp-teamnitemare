@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 55490ec80d9f65a4e8f9da32688d7292
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 273061
+  packageName: Easy Placement Tool
+  packageVersion: 1.0
+  assetPath: Assets/PlacmentTool/Material/Circle.mat
+  uploadId: 634312
