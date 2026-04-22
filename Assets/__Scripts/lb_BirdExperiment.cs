@@ -94,6 +94,10 @@ public class lb_BirdExperiment : MonoBehaviour
     public bool resumeSequenceAfterFlyToLocation = true;
     public float flyToLocationDuration = 1.0f;
 
+    [Header("Debug")]
+    public bool enableMovementDebugLogs = false;
+    [Min(0.1f)] public float movementDebugLogInterval = 0.5f;
+
     [Header("Feather Emitter")]
     public bool enableFeatherEmitter = true;
     public bool spawnFeatherEmitterOnFlee = false;
@@ -318,7 +322,16 @@ public class lb_BirdExperiment : MonoBehaviour
     {
         if (!canFlee || spawnedBird == null)
         {
+            if (enableMovementDebugLogs)
+            {
+                Debug.Log($"{name} ignored FleeTowardLocation. canFlee={canFlee}, spawnedBirdExists={spawnedBird != null}", this);
+            }
             return;
+        }
+
+        if (enableMovementDebugLogs)
+        {
+            Debug.Log($"{name} FleeTowardLocation from {spawnedBird.transform.position} to {worldPosition}", this);
         }
 
         if (fleeCoroutine != null)
@@ -339,7 +352,16 @@ public class lb_BirdExperiment : MonoBehaviour
     {
         if (target == null)
         {
+            if (enableMovementDebugLogs)
+            {
+                Debug.LogWarning($"{name} received null target in FleeTowardTransform.", this);
+            }
             return;
+        }
+
+        if (enableMovementDebugLogs)
+        {
+            Debug.Log($"{name} FleeTowardTransform target={target.name}, targetPosition={target.position}", this);
         }
 
         FleeTowardLocation(target.position);
@@ -854,6 +876,12 @@ public class lb_BirdExperiment : MonoBehaviour
             yield break;
         }
 
+        if (enableMovementDebugLogs)
+        {
+            float requestedDistance = Vector3.Distance(from, to);
+            Debug.Log($"{name} MoveBirdTo started. from={from}, to={to}, distance={requestedDistance:F2}, duration={duration:F2}", this);
+        }
+
         Rigidbody birdBody = spawnedBird.GetComponent<Rigidbody>();
         if (birdBody != null)
         {
@@ -885,6 +913,7 @@ public class lb_BirdExperiment : MonoBehaviour
 
         float safeDuration = Mathf.Max(MinFleeDuration, duration);
         float t = 0.0f;
+        float nextProgressLog = Mathf.Max(0.1f, movementDebugLogInterval);
         while (t < safeDuration)
         {
             t += Time.deltaTime;
@@ -896,7 +925,19 @@ public class lb_BirdExperiment : MonoBehaviour
                 spawnedBird.transform.rotation = Quaternion.LookRotation(facingDir.normalized);
             }
             spawnedBird.transform.position = nextPos;
+
+            if (enableMovementDebugLogs && t >= nextProgressLog)
+            {
+                Debug.Log($"{name} MoveBirdTo progress={normalized:P0}, currentPosition={spawnedBird.transform.position}", this);
+                nextProgressLog += Mathf.Max(0.1f, movementDebugLogInterval);
+            }
+
             yield return null;
+        }
+
+        if (enableMovementDebugLogs)
+        {
+            Debug.Log($"{name} MoveBirdTo complete. finalPosition={spawnedBird.transform.position}", this);
         }
     }
 

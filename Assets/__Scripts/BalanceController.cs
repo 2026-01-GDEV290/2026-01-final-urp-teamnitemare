@@ -72,6 +72,15 @@ public class BalanceController : MonoBehaviour, ISaveable
 
     bool stopMovement = false;
     float canvasPPU = 100;
+    Coroutine freefallCoroutine;
+    bool isFreefalling;
+
+    [Header("Freefall")]
+    [SerializeField] float freefallSpeed = 12f;
+    [SerializeField] float defaultFreefallDuration = 1.5f;
+    [SerializeField] float freefallRightRollDegrees = -25f;
+    [SerializeField] float freefallSkyPitchDegrees = -55f;
+    [SerializeField] float freefallCameraAimDuration = 1.2f;
 
     Vector3 originalPosition;
     Quaternion originalRotation;
@@ -155,6 +164,8 @@ public class BalanceController : MonoBehaviour, ISaveable
 
     void OnDisable()
     {
+        StopFreefall();
+
         if (playerControls != null)
         {
             playerControls.Disable();
@@ -195,7 +206,10 @@ public class BalanceController : MonoBehaviour, ISaveable
     {
         if (stopMovement)
         {
-            ResetLeanAndCamera();
+            if (!isFreefalling)
+            {
+                ResetLeanAndCamera();
+            }
             return;
         }
         float dt = Time.deltaTime;
@@ -245,11 +259,93 @@ public class BalanceController : MonoBehaviour, ISaveable
         ResetLeanAndCamera();
     }
 
+    public void StopMovementAndDisableBalanceVisuals()
+    {
+        StopMovement();
+        if (helpText != null)
+        {
+            helpText.gameObject.SetActive(false);
+        }
+        if (needle != null)
+        {
+            needle.parent.gameObject.SetActive(false);
+        }
+    }
+
     public void ResumeMovement()
     {
         stopMovement = false;
         forwardMoveTimer = Mathf.Max(0.1f, forwardMoveInterval);
         waitingForCenteredForwardMove = false;
+    }
+
+    // Starts freefall movement only. Screen fade should be triggered externally.
+    public void Freefall()
+    {
+        Freefall(defaultFreefallDuration);
+    }
+
+    public void Freefall(float duration)
+    {
+        if (freefallCoroutine != null)
+        {
+            StopCoroutine(freefallCoroutine);
+        }
+
+        StopMovementAndDisableBalanceVisuals();
+        isFreefalling = true;
+        freefallCoroutine = StartCoroutine(FreefallRoutine(duration));
+    }
+
+    public void StopFreefall()
+    {
+        isFreefalling = false;
+
+        if (freefallCoroutine != null)
+        {
+            StopCoroutine(freefallCoroutine);
+            freefallCoroutine = null;
+        }
+
+        ResetLeanAndCamera();
+    }
+
+    IEnumerator FreefallRoutine(float duration)
+    {
+        float safeDuration = Mathf.Max(0f, duration);
+        float safeSpeed = Mathf.Max(0.01f, freefallSpeed);
+        float elapsed = 0f;
+        float safeAimDuration = Mathf.Max(0.01f, freefallCameraAimDuration);
+        Quaternion startCamRotation = playerCam != null ? playerCam.transform.localRotation : Quaternion.identity;
+        Quaternion freefallTargetCamRotation = cameraBaseLocalRotation * Quaternion.Euler(freefallSkyPitchDegrees, 0f, freefallRightRollDegrees);
+
+        while (safeDuration <= 0f || elapsed < safeDuration)
+        {
+            float dt = Time.deltaTime;
+            Vector3 fallStep = Vector3.down * safeSpeed * dt;
+
+            if (playerCam != null)
+            {
+                float cameraT = Mathf.Clamp01(elapsed / safeAimDuration);
+                float easedCameraT = Mathf.SmoothStep(0f, 1f, cameraT);
+                playerCam.transform.localRotation = Quaternion.Slerp(startCamRotation, freefallTargetCamRotation, easedCameraT);
+            }
+
+            if (characterController != null && characterController.enabled)
+            {
+                characterController.Move(fallStep);
+            }
+            else
+            {
+                transform.position += fallStep;
+            }
+
+            elapsed += dt;
+            yield return null;
+        }
+
+        isFreefalling = false;
+        freefallCoroutine = null;
     }
 
     void UpdateForwardStep(float dt)
