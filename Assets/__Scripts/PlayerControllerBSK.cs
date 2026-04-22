@@ -62,11 +62,11 @@ public class PlayerControllerBSK : MonoBehaviour
 
     Vector3[] fragmentDestinations = new Vector3[]
     {
-        new Vector3(3.138f, 17.51f, -46.261f),  // Fragment1 "Frag1"
-        new Vector3(4.56f, 16.09f, -51.98f),    // Fragment2 "Frag2"
-        new Vector3(-2.94f, 17.49f, -53.01f),   // Fragment3 "Frag3"
-        new Vector3(-4.965f, 17.47f, -44.38f),  // Fragment4 "Frag4"
-        new Vector3(-5.44f, 16.97f, -52.5f)     // Fragment5 "Frag5"
+        new Vector3(4.05f, 17.66f, -46.6f),  // Fragment1 "Frag1"
+        new Vector3(4.71f, 16.09f, -51.82f),    // Fragment2 "Frag2"
+        new Vector3(-3.58f, 17.65f, -53.38f),   // Fragment3 "Frag3"
+        new Vector3(-4.86f, 17.7f, -44.82f),  // Fragment4 "Frag4"
+        new Vector3(-6.08f, 17.03f, -52.87f)     // Fragment5 "Frag5"
     };
 
     [SerializeField] TMP_Text helpText;
