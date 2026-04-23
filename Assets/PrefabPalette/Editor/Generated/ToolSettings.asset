@@ -20,7 +20,7 @@ MonoBehaviour:
   placer_includeMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  placer_alignWithSurface: 0
+  placer_alignWithSurface: 1
   placer_mouseMoveThreshold: 0.5
   placer_maxRaycastDistance: 1000
   overlay_size: {x: 420, y: 0}

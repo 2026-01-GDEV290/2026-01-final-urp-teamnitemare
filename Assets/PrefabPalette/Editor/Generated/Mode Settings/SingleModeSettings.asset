@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: SingleModeSettings
   m_EditorClassIdentifier: 
   freeMode_placementOffset: {x: 0, y: 0, z: 0}
-  freeMode_rotationSpeed: 2
+  freeMode_rotationSpeed: 2.25

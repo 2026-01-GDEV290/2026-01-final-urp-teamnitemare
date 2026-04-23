@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48daecd9f359a624283faf63fb4d0cff, type: 3}
   m_Name: LineModeSettings
   m_EditorClassIdentifier: 
-  lineMode_ObjRndRotationMin: 0
-  lineMode_ObjRndRotationMax: 0
+  lineMode_ObjRndRotationMin: -87.88876
+  lineMode_ObjRndRotationMax: 57.64865
   linemode_ObjRndRotation: 0
   lineMode_rotateOnX: 0
   lineMode_rotateOnY: 0
   lineMode_rotateOnZ: 0
-  lineMode_chainLines: 0
+  lineMode_chainLines: 1
   lineMode_segmentOffset: {x: 0, y: 0, z: 0}
   lineMode_relativeRotation: {x: 0, y: 0, z: 0}
-  lineMode_lineSpacing: 1
-  lineMode_useAltObjs: 0
-  lineMode_useCollection: 0
-  lineMode_altCollectionName: 0
+  lineMode_lineSpacing: 0.64
+  lineMode_useAltObjs: 1
+  lineMode_useCollection: 1
+  lineMode_altCollectionName: 1
   lineMode_altObj: {fileID: 0}
   lineMode_randomAltObjs: 1
-  lineMode_altObjProbability: 0.5
+  lineMode_altObjProbability: 1
   lineMode_altObjInterval: 4
