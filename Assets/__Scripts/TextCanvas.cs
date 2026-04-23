@@ -83,6 +83,8 @@ public class TextCanvas : MonoBehaviour
         if (text != null)
         {
             SetText(newText);
+            // cancel any invokes
+            CancelInvoke();
             Invoke(nameof(ClearAndHideText), duration);
         }
     }
@@ -92,6 +94,8 @@ public class TextCanvas : MonoBehaviour
         if (text != null)
         {
             ShowText();
+            // cancel any invokes
+            CancelInvoke();
             Invoke(nameof(HideText), duration);
         }
     }
