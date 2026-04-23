@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public struct HitDecalInfo
-{
-    public float hitTime;
-    public GameObject decal;
-}
+// [System.Serializable]
+// public struct HitDecalInfo
+// {
+//     public float hitTime;
+//     public GameObject decal;
+// }
 
 public class MeleeWeapon : MonoBehaviour
 {
     //PlayerController playerController;
     //public GameObject decalPrefab; // Assign a prefab with DecalProjector component
-    [SerializeField] Material decalMaterial;
+    // [SerializeField] Material decalMaterial;
 
     //List<HitDecalInfo> hitDecals = new List<HitDecalInfo>();
 
@@ -23,7 +23,9 @@ public class MeleeWeapon : MonoBehaviour
     private float lastHitTime = 0f;
 
     public delegate void HitEvent(GameObject hitObject, Vector3 hitPoint);
-    public static event HitEvent OnHit;    
+    public static event HitEvent OnHit;
+
+    public bool isSwinging = false; // Set this to true when the weapon is in the middle of a swing animation
 
     void Awake()
     {
@@ -57,6 +59,11 @@ public class MeleeWeapon : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         Debug.Log("OnTrigger->Melee weapon hit: " + other.gameObject.name);
+        if (isSwinging)
+        {
+            OnHit?.Invoke(other.gameObject, other.ClosestPoint(transform.position));
+            //playerController.MeleeHit(other.gameObject);
+        }
     }
 
     void OnCollisionEnter(Collision collision)
