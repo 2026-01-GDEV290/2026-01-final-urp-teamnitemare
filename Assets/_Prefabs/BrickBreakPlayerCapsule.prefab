@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 2974533982598274583}
   - component: {fileID: 7884838851157941229}
   m_Layer: 0
-  m_Name: PlayerCapsule 1
+  m_Name: BrickBreakPlayerCapsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
