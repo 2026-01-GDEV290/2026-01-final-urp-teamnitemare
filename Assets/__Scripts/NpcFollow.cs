@@ -11,6 +11,8 @@ public class NpcFollow : MonoBehaviour
     [SerializeField] private GameObject visualCue;
     [SerializeField] private Animator animator;
     Follow com;
+    NPCFlee com1;
+
     private InputSystem_Actions playerControls;
 
     private void Awake()
@@ -89,7 +91,7 @@ public class NpcFollow : MonoBehaviour
 
             if (visualCue != null)
             {
-                visualCue.SetActive(false);
+                visualCue.SetActive(true);
             }
 
             if (prompt != null && !hasInteracted)
@@ -98,6 +100,7 @@ public class NpcFollow : MonoBehaviour
             }
 
             playerInRange = true;
+            com1.enabled = false;
         }
 
     }
@@ -111,7 +114,7 @@ public class NpcFollow : MonoBehaviour
 
         if (visualCue != null && !hasInteracted)
         {
-            visualCue.SetActive(true);
+            visualCue.SetActive(false);
         }
 
         if (animator != null)
