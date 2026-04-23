@@ -61,10 +61,13 @@ public class PlayerControllerBSK : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioClip featherJumpSound;
+    [SerializeField] private AudioClip grappleLaunchSound;
+    [SerializeField] private AudioClip grapplingPullSound;
     [SerializeField] private AudioClip[] walkSounds;
     [SerializeField] private float walkSoundDistance = 1.8f;
     [SerializeField] private float walkSoundVolume = 0.7f;
     [SerializeField] private AudioSource walkSoundSource;
+
 
     Vector3[] fragmentDestinations = new Vector3[]
     {
@@ -696,6 +699,11 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             Debug.LogWarning($"Unable to map {movingParent.name} to a fragment destination.");
             return;
+        }
+
+        if (grappleLaunchSound != null)
+        {
+            AudioSource.PlayClipAtPoint(grappleLaunchSound, transform.position);
         }
 
         grappleMoveDestinationPosition = fragmentDestinations[destinationIndex];
