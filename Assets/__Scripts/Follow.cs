@@ -12,11 +12,12 @@ public class Follow : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Transform target;
 
+    public static int numberOfFollowers = 0;
+
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
-
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -24,6 +25,7 @@ public class Follow : MonoBehaviour
     {
         //followBox = GameObject.FindGameObjectWithTag("FollowBox");
         AudioSource.PlayClipAtPoint(getSound, transform.position, volume);
+        numberOfFollowers++;
     }
 
     // Update is called once per frame
