@@ -12,6 +12,8 @@ public class Follow : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Transform target;
 
+    [SerializeField] private BirdFollowTrigger followTrigger;
+
     public static int numberOfFollowers = 0;
 
 
@@ -26,6 +28,10 @@ public class Follow : MonoBehaviour
         //followBox = GameObject.FindGameObjectWithTag("FollowBox");
         AudioSource.PlayClipAtPoint(getSound, transform.position, volume);
         numberOfFollowers++;
+        if (followTrigger != null)
+        {
+            followTrigger.OnNewBirbFollowing();
+        }
     }
 
     // Update is called once per frame
