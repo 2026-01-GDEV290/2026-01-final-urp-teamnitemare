@@ -9,6 +9,13 @@ public class SwitchToController : MonoBehaviour
     [SerializeField] private Animator birdFlee;
     [SerializeField] private GameObject bird;
 
+    [SerializeField] private lb_BirdExperiment birb;
+    [SerializeField] private Transform fleeTarget;
+
+    [SerializeField] private UnityEngine.Events.UnityEvent onDialogueEnd;
+    bool hasSwitched = false;
+    bool hasFled = false;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,21 +28,36 @@ public class SwitchToController : MonoBehaviour
     {
         if (!autoDialogue.activeInHierarchy)
         {
-            Invoke(nameof(BirdFlyingDelay), 3f); 
-
-            if (bird == null)
+            //Invoke(nameof(BirdFlyingDelay), 3f);
+            if (!hasFled)
             {
-            Invoke(nameof(SwitchToPlayer), 3f);
+                hasFled = true;
+                birb.FleeTowardTransform(fleeTarget);
             }
+            
+
+
+            //if (bird == null)
+            //{
+            if (!hasSwitched)
+            {
+                hasSwitched = true;
+                Invoke(nameof(SwitchToPlayer), 4f);
+            }
+                
+            //}
+            
         }
 
     }
 
     void SwitchToPlayer()
     {
-        player.SetActive(true);
-        cutsceneCamera.SetActive(false);
-
+        // player.SetActive(true);
+        // cutsceneCamera.SetActive(false);
+        onDialogueEnd.Invoke();
+        // disable this script
+        this.enabled = false;
     }
 
     void BirdFlyingDelay()
