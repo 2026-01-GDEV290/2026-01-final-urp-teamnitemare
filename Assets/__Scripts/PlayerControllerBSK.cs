@@ -54,6 +54,11 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private float grappleCompletionDistance = 0.25f;
     [SerializeField] private float grappleChainCompletionDistance = 0.35f;
 
+    [Header("Grapple Line")]
+    [SerializeField] private bool useGrappleLineRenderer = false;
+    [SerializeField] private float grappleLineWidth = 0.04f;
+    [SerializeField] private LineRenderer grappleLineRenderer;
+
     [Header("Audio")]
     [SerializeField] private AudioClip[] walkSounds;
     [SerializeField] private float walkSoundDistance = 1.8f;
@@ -98,6 +103,9 @@ public class PlayerControllerBSK : MonoBehaviour
     private QuestComponent grappleLockedQuestComponent;
     private GrappleChainLink activeGrappleChainLink;
     private GameObject activeGrappleChainLinkObject;
+    private Transform activeGrappleLineSource;
+    private Transform activeGrappleLineTarget;
+    private GameObject grappleCompletedTargetObject;
 
     private InteractCollider interactCollider;
 
@@ -169,6 +177,23 @@ public class PlayerControllerBSK : MonoBehaviour
             Canvas canvas = helpText.GetComponentInParent<Canvas>();
             Debug.Log("PPU:" + canvas.referencePixelsPerUnit);
         }
+
+        if (grappleLineRenderer == null && useGrappleLineRenderer)
+        {
+            grappleLineRenderer = GetComponent<LineRenderer>();
+            if (grappleLineRenderer == null)
+            {
+                grappleLineRenderer = gameObject.AddComponent<LineRenderer>();
+            }
+        }
+
+        if (grappleLineRenderer != null)
+        {
+            ConfigureGrappleLineRenderer();
+            grappleLineRenderer.positionCount = 2;
+            grappleLineRenderer.enabled = false;
+        }
+
         fractureAntiFallTriggered = false;
         if (!isFractureScene)
         {
@@ -621,11 +646,24 @@ public class PlayerControllerBSK : MonoBehaviour
         if (isGrappleMoveLocked || currentGrappleFromPoint == null || playerCamera == null)
         {
             SetHighlightedGrapplePoint(null);
+            SetGrappleLineActive(false);
             return;
         }
 
         GrapplePointGlow bestTarget = FindBestGrapplePointInView();
         SetHighlightedGrapplePoint(bestTarget);
+
+        if (currentGrappleFromPoint != null && highlightedGrapplePoint != null)
+        {
+            activeGrappleLineSource = currentGrappleFromPoint.transform;
+            activeGrappleLineTarget = highlightedGrapplePoint.transform;
+            SetGrappleLinePoints(currentGrappleFromPoint.transform.position, highlightedGrapplePoint.transform.position);
+            SetGrappleLineActive(true);
+        }
+        else
+        {
+            SetGrappleLineActive(false);
+        }
     }
 
     void BeginGrappleMoveSequence()
@@ -650,6 +688,10 @@ public class PlayerControllerBSK : MonoBehaviour
         }
 
         grappleMoveDestinationPosition = fragmentDestinations[destinationIndex];
+
+        activeGrappleLineSource = currentGrappleFromPoint.transform;
+        activeGrappleLineTarget = highlightedGrapplePoint.transform;
+        grappleCompletedTargetObject = highlightedGrapplePoint.gameObject;
 
         currentGrappleFromPoint.ForceSourceLightOff();
         highlightedGrapplePoint.ForceLightOff();
@@ -743,6 +785,8 @@ public class PlayerControllerBSK : MonoBehaviour
             activeGrappleChainLink.Bind(grappleLockedParent, grappleDestinationAnchor, grappleChainCompletionDistance);
         }
 
+        UpdateGrappleLine();
+
         float remainingDistance = Vector3.Distance(grappleLockedParent.position, destinationPosition);
         if (remainingDistance <= grappleCompletionDistance)
         {
@@ -756,6 +800,12 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             grappleLockedParent.position = grappleDestinationAnchor != null ? grappleDestinationAnchor.position : grappleLockedParent.position;
             grappleLockedParent.rotation = Quaternion.identity;
+        }
+
+        if (grappleCompletedTargetObject != null)
+        {
+            Destroy(grappleCompletedTargetObject);
+            grappleCompletedTargetObject = null;
         }
 
         if (grappleLockedQuestComponent != null)
@@ -774,6 +824,8 @@ public class PlayerControllerBSK : MonoBehaviour
             activeGrappleChainLinkObject = null;
             activeGrappleChainLink = null;
         }
+
+        SetGrappleLineActive(false);
 
         if (grappleDestinationAnchor != null)
         {
@@ -799,6 +851,56 @@ public class PlayerControllerBSK : MonoBehaviour
 
         grappleLockedLights = null;
         grappleLockedQuestComponent = null;
+    }
+
+    void SetGrappleLineActive(bool isActive)
+    {
+        if (!useGrappleLineRenderer || grappleLineRenderer == null)
+        {
+            return;
+        }
+
+        grappleLineRenderer.enabled = isActive;
+
+        if (!isActive)
+        {
+            activeGrappleLineSource = null;
+            activeGrappleLineTarget = null;
+            return;
+        }
+
+        grappleLineRenderer.positionCount = 2;
+        UpdateGrappleLine();
+    }
+
+    void SetGrappleLinePoints(Vector3 sourcePosition, Vector3 targetPosition)
+    {
+        if (!useGrappleLineRenderer || grappleLineRenderer == null)
+        {
+            return;
+        }
+
+        grappleLineRenderer.positionCount = 2;
+        grappleLineRenderer.widthMultiplier = 1f;
+        grappleLineRenderer.startWidth = grappleLineWidth;
+        grappleLineRenderer.endWidth = grappleLineWidth;
+        grappleLineRenderer.SetPosition(0, sourcePosition);
+        grappleLineRenderer.SetPosition(1, targetPosition);
+    }
+
+    void UpdateGrappleLine()
+    {
+        if (!useGrappleLineRenderer || grappleLineRenderer == null || !grappleLineRenderer.enabled)
+        {
+            return;
+        }
+
+        if (activeGrappleLineSource == null || activeGrappleLineTarget == null)
+        {
+            return;
+        }
+
+        SetGrappleLinePoints(activeGrappleLineSource.position, activeGrappleLineTarget.position);
     }
 
     void DisableAnimatorInHierarchy(Transform root)
@@ -836,6 +938,34 @@ public class PlayerControllerBSK : MonoBehaviour
             }
         }
     }
+
+    void ConfigureGrappleLineRenderer()
+    {
+        grappleLineRenderer.useWorldSpace = true;
+        grappleLineRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        grappleLineRenderer.receiveShadows = false;
+        grappleLineRenderer.textureMode = LineTextureMode.Stretch;
+        grappleLineRenderer.numCapVertices = 6;
+        grappleLineRenderer.widthMultiplier = 1f;
+        grappleLineRenderer.startWidth = grappleLineWidth;
+        grappleLineRenderer.endWidth = grappleLineWidth;
+
+        if (grappleLineRenderer.sharedMaterial == null)
+        {
+            Shader lineShader = Shader.Find("Sprites/Default");
+            if (lineShader != null)
+            {
+                grappleLineRenderer.sharedMaterial = new Material(lineShader);
+            }
+        }
+
+        if (grappleLineRenderer.startColor.a <= 0f && grappleLineRenderer.endColor.a <= 0f)
+        {
+            grappleLineRenderer.startColor = Color.white;
+            grappleLineRenderer.endColor = Color.white;
+        }
+    }
+
     void RefreshCachedGrapplePoints()
     {
         cachedGrapplePoints.Clear();
