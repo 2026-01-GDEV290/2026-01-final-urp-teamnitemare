@@ -30,7 +30,7 @@ EditorBuildSettings:
     path: Assets/_Scenes/birdCageRoom.unity
     guid: ad1bb412df8a11b4fbd4e8646f6482ff
   - enabled: 1
-    path: Assets/_Scenes/Dream.unity
+    path: Assets/_Scenes/fog.unity
     guid: d7da102e086f7d84ca7105047790adf0
   - enabled: 0
     path: Assets/_Scenes/xMainMenuX_q.unity
