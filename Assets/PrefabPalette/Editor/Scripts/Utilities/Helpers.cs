@@ -1,0 +1,216 @@
+using UnityEditor;
+using UnityEngine;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System;
+
+namespace PrefabPalette
+{
+    public static class Helpers
+    {
+        public static void IndentBlock(int levels, Action draw)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(levels * 15f);
+            GUILayout.BeginVertical();
+            draw();
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Clickable label that opens <paramref name="url"/>.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="url"></param>
+        public static void LinkLabel(string text, string url)
+        {   
+            if (GUILayout.Button(text, EditorStyles.linkLabel))
+            {
+                Application.OpenURL(url);
+            }
+
+            Rect r = GUILayoutUtility.GetLastRect();
+            EditorGUIUtility.AddCursorRect(r, MouseCursor.Link);
+        }
+
+        /// <summary>
+        /// Draws a label with correct indentation.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="style"></param>
+        public static void IndentedLabel(string text, int indentLevel, GUIStyle style = null)
+        {
+            style ??= EditorStyles.label;
+            
+            var indentWidth = 15f; // Unity indents at 15px.
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(indentLevel * indentWidth);
+            GUILayout.Label(text, style);
+            GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Draws tools logo in the centre of the ui. Defualts to blue 256x256
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="size"></param>
+        /// <param name="width"></param>
+        public static void DrawLogo(float size = 256, string name = "Logo_Blue_256")
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            Texture2D logo = Resources.Load<Texture2D>($"Imgs/{name}");
+            GUILayout.Label(logo, GUILayout.Width(size), GUILayout.Height(size));
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
+        public static void TitleText(string text, int fontSize = 20, float padding = 10)
+        {
+            GUIStyle titleStyle = new GUIStyle(EditorStyles.label)
+            {
+                fontSize = fontSize,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = Color.white }
+            };
+
+            GUILayout.Space(padding);
+            EditorGUILayout.LabelField(text, titleStyle);
+            GUILayout.Space(padding);
+        }
+
+        // "Label Grid" should be reworked as a generic to extend it for other types, but it'll do for now.
+        public static float CalculateLabelGridWidth(string[] labels, int columns = 2, float padding = 10f)
+        {
+            GUIStyle labelStyle = GUI.skin.label;
+            float maxLabelWidth = 0f;
+
+            foreach (var label in labels)
+            {
+                Vector2 size = labelStyle.CalcSize(new GUIContent(label));
+                if (size.x > maxLabelWidth)
+                    maxLabelWidth = size.x;
+            }
+
+            return (maxLabelWidth + padding) * columns;
+        }
+
+        public static void DrawLabelGrid(string[] labels, int columns = 2, float padding = 10f)
+        {
+            int total = labels.Length;
+            int rows = Mathf.CeilToInt((float)total / columns);
+
+            GUIStyle boxStyle = new GUIStyle(GUI.skin.box)
+            {
+                margin = new RectOffset(1, 1, 1, 1),
+                padding = new RectOffset(4, 4, 4, 4),
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
+            };
+
+            float maxLabelWidth = 0f;
+            foreach (var label in labels)
+            {
+                Vector2 size = GUI.skin.label.CalcSize(new GUIContent(label));
+                if (size.x > maxLabelWidth)
+                    maxLabelWidth = size.x;
+            }
+
+            float cellWidth = maxLabelWidth + padding;
+            float cellHeight = 30f;
+
+            for (int row = 0; row < rows; row++)
+            {
+                GUILayout.BeginHorizontal();
+                for (int col = 0; col < columns; col++)
+                {
+                    int index = row * columns + col;
+                    if (index < total)
+                    {
+                        GUILayout.Box(labels[index], boxStyle, GUILayout.Width(cellWidth), GUILayout.Height(cellHeight));
+                    }
+                    else
+                    {
+                        GUILayout.Box("", boxStyle, GUILayout.Width(cellWidth), GUILayout.Height(cellHeight));
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+        }
+
+        public static T LoadOrCreateAsset<T>(string folderPath, string assetName, out string assetPath) where T : ScriptableObject
+        {
+            // Find existing asset
+            T asset = AssetDatabase.FindAssets($"t:{typeof(T).Name}", new[] { folderPath })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<T>)
+                .FirstOrDefault();
+
+            if (asset != null)
+            {
+                assetPath = AssetDatabase.GetAssetPath(asset);
+                return asset;
+            }
+
+            // Create new asset
+            asset = ScriptableObject.CreateInstance<T>();
+            assetPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/{assetName}");
+            AssetDatabase.CreateAsset(asset, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            return AssetDatabase.LoadAssetAtPath<T>(assetPath);
+        }
+
+        /// <summary>
+        /// Draws a Line with <paramref name="spacePx"/> pixels space above and below.
+        /// </summary>
+        /// <param name="color">Line colour</param>
+        /// <param name="spacePx">Space in pixels</param>
+        public static void Line(Color color, float spacePx = 4)
+        {
+            GUILayout.Space(spacePx);
+            DrawLine(color);
+            GUILayout.Space(spacePx);
+        }
+
+        /// <summary>
+        /// Draws a thin rectangle across the full width of the ui window.
+        /// </summary>
+        /// <param name="color">Rect color</param>
+        /// <param name="thickness">Rect thickness</param>
+        /// <param name="padding"> Padding around rect</param>
+        public static void DrawLine(Color color, int thickness = 1, int padding = 10)
+        {
+            Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(padding + thickness));
+            r.height = thickness;
+            r.y += padding / 2;
+            r.x -= 2;
+            r.width += 6;
+            EditorGUI.DrawRect(r, color);
+        }
+
+        /// <summary>
+        /// Ensures correct syntax for compatibility with enums.
+        /// </summary>
+        public static string SanitiseEnumName(string name)
+        {
+            // Remove invalid characters & replace spaces with underscores
+            name = Regex.Replace(name, @"[^a-zA-Z0-9_]", "_");
+
+            // Ensure it doesn't start with a number
+            if (char.IsDigit(name[0]))
+            {
+                name = "_" + name;
+            }
+
+            return name;
+        }
+    }
+}
+

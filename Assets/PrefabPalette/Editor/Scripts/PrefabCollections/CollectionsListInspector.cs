@@ -1,0 +1,119 @@
+using UnityEditor;
+using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace PrefabPalette
+{
+    /// <summary>
+    /// Editor window for inspecting and managing the list of prefab collections.
+    /// Allows editing of collections, syncing with enum, saving changes, and cleaning up unused assets.
+    /// </summary>
+    public class CollectionsListInspector : EditorWindow
+    {
+        private PrefabCollectionList collectionsList;
+        private Editor editorInstance;
+        private Vector2 scrollPos;
+
+        public static void OpenWindow()
+        {
+            CollectionsListInspector window = GetWindow<CollectionsListInspector>("Collections Inspector");
+            window.collectionsList = PrefabCollectionList.Instance;
+            window.collectionsList.SyncListWithEnum();
+            window.editorInstance = Editor.CreateEditor(window.collectionsList);
+            window.Show();
+        }
+
+        private void OnGUI()
+        {
+            bool isEditorBusy = EditorApplication.isCompiling || EditorApplication.isUpdating;
+
+            Helpers.TitleText("Prefab Collections", 15);
+            Helpers.DrawLine(Color.grey);
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+            
+            if (editorInstance != null && !isEditorBusy)
+            {
+                // If window exists and not busy, show collections list.
+                editorInstance.OnInspectorGUI();
+            }
+
+            ShowBusyLabel(isEditorBusy);
+
+            EditorGUILayout.EndScrollView();
+
+            // Disable button if AssetDatabase is reloading
+            GUI.enabled = !isEditorBusy;
+
+            if (GUILayout.Button(GUI.enabled ? "Save" : "Please Stand By..."))
+            {
+                collectionsList.GenerateEnum();
+                CleanupCollectionsFolder(PrefabCollection.GetAllCollectionsInFolder, collectionsList);
+            }
+
+            EditorGUILayout.Space(10f);
+        }
+
+        private void ShowBusyLabel(bool isEditorBusy)
+        {
+            if (!isEditorBusy) 
+                return;
+
+            GUIStyle style = new GUIStyle()
+            {
+                fontSize = 18,
+                fontStyle = FontStyle.Italic,
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = Color.white }
+            };
+
+            // Center label.
+            EditorGUILayout.BeginVertical();
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField("Editor Updating...", style, GUILayout.ExpandWidth(true));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
+        }
+
+        // This shouldn't be a function of the list inspector, it would make more sense to be called
+        // from CollectionList.GenerateEnum()
+        /// <summary>
+        /// Delete PrefabCollection objects no longer in the list.
+        /// </summary>
+        /// <param name="collectionsInFolder"></param>
+        /// <param name="collectionsList"></param>
+        private void CleanupCollectionsFolder(List<PrefabCollection> collectionsInFolder, PrefabCollectionList collectionsList)
+        {
+            // Convert collectionNames to HashSet for quick lookup
+            HashSet<string> validCollections = new HashSet<string>(
+                collectionsList.collectionNames.Select(name => name.ToLower())
+            );
+
+            // Collect assets that need to be deleted
+            List<PrefabCollection> toDelete = collectionsInFolder
+                .Where(collection => !validCollections.Contains(collection.Name.ToString().ToLower()))
+                .ToList();
+
+            // Delete each asset
+            foreach (var collection in toDelete)
+            {
+                string assetPath = AssetDatabase.GetAssetPath(collection);
+                if (!string.IsNullOrEmpty(assetPath))
+                {
+                    AssetDatabase.DeleteAsset(assetPath);
+                    Debug.Log($"Deleted: {assetPath}");
+                }
+            }
+
+            // Remove deleted items from the list
+            collectionsInFolder.RemoveAll(toDelete.Contains);
+
+            // Save the project after asset deletion
+            EditorApplication.delayCall += () =>
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            };
+        }
+    }
+}

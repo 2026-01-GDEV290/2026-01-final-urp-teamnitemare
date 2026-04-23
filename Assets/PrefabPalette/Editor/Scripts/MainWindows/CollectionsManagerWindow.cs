@@ -1,0 +1,106 @@
+using System;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+namespace PrefabPalette
+{
+    /// <summary>
+    /// Editor window to manage prefab collections within the Prefab Palette system.
+    /// Provides UI to select collections, open related inspectors, and navigate to the palette window.
+    /// </summary>
+    public class CollectionsManagerWindow : EditorWindow
+    {
+        ToolSettings Settings => ToolContext.Instance.Settings;
+        float buttonSpace = 5;
+        Vector2 scrollPos;
+
+        /// <summary>
+        /// Opens the Collections Manager window via the Window dropdown menu.
+        /// </summary>
+        [MenuItem("Window/Prefab Palette/Collections Manager")]
+        public static void OpenMainWindow()
+        {
+            GetWindow<CollectionsManagerWindow>("Prefab Palete: Collections Manager");
+            PrefabCollectionList.Instance.Sync();
+        }
+
+        private void OnEnable()
+        {
+            Settings.collectionsManagerWindowScale.Resolve(Settings.globalMinWindowScale, Settings.globalMaxWindowScale, out Vector2 min, out Vector2 max);
+            minSize = min;
+            maxSize = max;
+        }
+
+        private void OnGUI()
+        {
+            scrollPos = GUILayout.BeginScrollView(scrollPos);
+
+            Helpers.DrawLogo();
+            Helpers.TitleText("Collections Manager");
+
+            // Force the name dropdown to None to avoid regenerating assets accidentally if the list inspector is open
+            if (HasOpenInstances<CollectionsListInspector>())
+            {
+                Settings.CurrentCollectionName = CollectionName.None;
+                EditorGUILayout.HelpBox("Collections Inspector window is open, close it when you're finished editing", MessageType.Warning);
+                GUILayout.EndScrollView();
+                return;
+            }
+     
+            Helpers.DrawLine(Color.grey);
+            GUILayout.Space(10);
+
+            if (GUILayout.Button("Manage Collections", GUILayout.Height(50)))
+            {
+                CollectionsListInspector.OpenWindow();
+
+                if (HasOpenInstances<PaletteWindow>())
+                {
+                    GetWindow<PaletteWindow>().Close();
+                }
+            }
+            
+            GUILayout.Space(10);
+            Helpers.DrawLine(Color.gray);
+
+            Settings.CurrentCollectionName = (CollectionName)EditorGUILayout.EnumPopup("Prefab Collection", Settings.CurrentCollectionName);
+
+            // if the enum only contains .None
+            if (!Enum.GetValues(typeof(CollectionName))
+                     .Cast<CollectionName>()
+                     .Any(c => c != CollectionName.None))
+            {
+                EditorGUILayout.HelpBox("You don't have any collections yet,\nAdd one by using the Manage Collections button", MessageType.Warning);
+                GUILayout.EndScrollView();
+                return;
+            }
+
+            if (Settings.CurrentCollectionName == CollectionName.None)
+            {
+                EditorGUILayout.HelpBox("Choose a Collection to get Started", MessageType.Warning);
+                GUILayout.EndScrollView();
+                return;
+            }
+
+            GUILayout.Space(buttonSpace);
+            if (GUILayout.Button("Edit Prefab Collection", GUILayout.Height(25)))
+            {
+                // Inspect the currentPrefabCollection scriptable object
+                PrefabCollectionInspector.OpenWindow(Settings.CurrentPrefabCollection);
+            }
+
+            GUILayout.Space(buttonSpace);
+
+            if (GUILayout.Button("Open Palette", GUILayout.Height(25)))
+            {
+                PaletteWindow.OnShowToolWindow();
+            }
+
+            GUILayout.Space(buttonSpace);
+            Helpers.DrawLine(Color.grey);
+            
+            GUILayout.EndScrollView();
+        }
+    }
+}
