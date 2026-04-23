@@ -9247,6 +9247,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Int_BA_Frame_01
       objectReference: {fileID: 0}
+    - target: {fileID: 3264650260439687135, guid: b973231003cf93b4f8dd9837bafc50cb,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3813802598777334903, guid: b973231003cf93b4f8dd9837bafc50cb,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10076,7 +10081,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -18693,7 +18698,7 @@ PrefabInstance:
     - target: {fileID: 6482195809108570800, guid: 3a3c0bbe58beeff4a8d63acd5a770137,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.5809994
+      value: -2.864
       objectReference: {fileID: 0}
     - target: {fileID: 6482195809108570800, guid: 3a3c0bbe58beeff4a8d63acd5a770137,
         type: 3}
@@ -18703,7 +18708,7 @@ PrefabInstance:
     - target: {fileID: 6482195809108570800, guid: 3a3c0bbe58beeff4a8d63acd5a770137,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 2.68091
+      value: 0.71
       objectReference: {fileID: 0}
     - target: {fileID: 6482195809108570800, guid: 3a3c0bbe58beeff4a8d63acd5a770137,
         type: 3}
@@ -25544,7 +25549,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.008204097, y: 0.0081863385, z: 0.0070810593}
   m_Center: {x: -0.0040750317, y: -0.0040657213, z: 0.0035017983}
@@ -28656,7 +28661,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
@@ -33378,7 +33383,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 0.008204097, y: 0.0081863385, z: 0.0070810593}
   m_Center: {x: -0.0040750317, y: -0.0040657213, z: 0.0035017983}
