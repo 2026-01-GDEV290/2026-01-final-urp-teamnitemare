@@ -42,7 +42,7 @@ public class SwitchToController : MonoBehaviour
             if (!hasSwitched)
             {
                 hasSwitched = true;
-                Invoke(nameof(SwitchToPlayer), 4f);
+                Invoke(nameof(SwitchToPlayer), 8f);
             }
                 
             //}
