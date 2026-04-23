@@ -60,6 +60,7 @@ public class PlayerControllerBSK : MonoBehaviour
     [SerializeField] private LineRenderer grappleLineRenderer;
 
     [Header("Audio")]
+    [SerializeField] private AudioClip featherJumpSound;
     [SerializeField] private AudioClip[] walkSounds;
     [SerializeField] private float walkSoundDistance = 1.8f;
     [SerializeField] private float walkSoundVolume = 0.7f;
@@ -393,6 +394,7 @@ public class PlayerControllerBSK : MonoBehaviour
         float inputX = moveInput.x;
         float inputZ = moveInput.y;
         float downwardGravity = -Mathf.Abs(gravity);
+        bool triggeredFeatherJumpThisFrame = false;
         
         // Cache grounded state at frame start for consistency
         bool wasGroundedThisFrame = characterController.isGrounded;
@@ -431,10 +433,7 @@ public class PlayerControllerBSK : MonoBehaviour
             verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
             //Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
 
-            if (hasFeathers && wingAnimationControl != null)
-            {
-                wingAnimationControl.WingFlap();
-            }
+            triggeredFeatherJumpThisFrame = hasFeathers;
 
             jumpBufferTimer = 0f;
             coyoteTimer = 0f;
@@ -444,11 +443,7 @@ public class PlayerControllerBSK : MonoBehaviour
             // Airborne feather boost can be triggered on every jump press while airborne.
             verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
             //Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
-
-            if (wingAnimationControl != null)
-            {
-                wingAnimationControl.WingFlap();
-            }
+            triggeredFeatherJumpThisFrame = true;
 
             jumpBufferTimer = 0f;
         }
@@ -461,10 +456,26 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             fractureAntiFallTriggered = true;
             verticalVelocity = Mathf.Max(verticalVelocity, fractureAntiFallBoostStrength);
+            triggeredFeatherJumpThisFrame = true;
+        }
 
+        if (triggeredFeatherJumpThisFrame)
+        {
             if (wingAnimationControl != null)
             {
                 wingAnimationControl.WingFlap();
+            }
+
+            if (featherJumpSound != null)
+            {
+                if (walkSoundSource != null)
+                {
+                    walkSoundSource.PlayOneShot(featherJumpSound);
+                }
+                else
+                {
+                    AudioManager.PlayOneShot(featherJumpSound);
+                }
             }
         }
 
