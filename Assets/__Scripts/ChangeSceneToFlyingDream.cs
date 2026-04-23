@@ -9,6 +9,8 @@ public class ChangeSceneToFlyingDream : MonoBehaviour
 
     [SerializeField] private GameObject fade;
 
+    [SerializeField] private GameObject soundCue;
+
 
     void Update()
     {
@@ -20,7 +22,8 @@ public class ChangeSceneToFlyingDream : MonoBehaviour
 
                 prompt.gameObject.SetActive(false);
                 fade.gameObject.SetActive(true);
-                SceneManager.LoadScene("Dream");
+                soundCue.gameObject.SetActive(true);
+                Invoke(nameof(SceneChange), 2f);
             }
         }
         else
@@ -49,5 +52,10 @@ public class ChangeSceneToFlyingDream : MonoBehaviour
         {
             playerInRange = false;
         }
+    }
+
+    void SceneChange()
+    {
+        SceneManager.LoadScene("Dream");
     }
 }
