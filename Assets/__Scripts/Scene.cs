@@ -17,7 +17,7 @@ class SceneVisitTasks
     public int visitCount = 0;
     [SerializeField] public UnityEvent onSceneAwake;
     [SerializeField] public UnityEvent onSceneStart;
-    [SerializeField] public bool useIfVisitCountExceeded = false; // if true, will use this SceneVisitTasks if visitCount exceeds the specified visitCount (instead of doing nothing)
+    [SerializeField] public bool useIfVisitCountExceeded = true; // if true, will use this SceneVisitTasks if visitCount exceeds the specified visitCount (instead of doing nothing)
 }
 
 // This script is mandatory to attach to each Scene. Easiest is to attach it to the Main Camera
