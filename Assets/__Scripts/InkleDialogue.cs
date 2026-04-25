@@ -134,7 +134,14 @@ public class InkleDialogue : MonoBehaviour
     }
     public void StartDialogue(string inkStoryJSON)
     {
-        ResetState();
+        if (DialogueIsPlaying)
+        {
+            Debug.LogWarning("InkleDialogue: Attempted to start dialogue while another dialogue is already playing. Ending current dialogue and starting new one.");
+            EndDialogue();
+        }
+        else
+            ResetState();
+
         DialogueIsPlaying = true;
         if (playerMovementDisabledDuringDialogue)
         {
