@@ -1,5 +1,6 @@
 using UnityEngine;
 
+//TODO: modify for game?  Imported from Sunny's toy
 public class FlightController : MonoBehaviour
 {
     public float FlySpeed = 5;
