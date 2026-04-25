@@ -45,6 +45,50 @@ public class EventGroupExecutionComponent : MonoBehaviour
     {
         return currentGroupName;
     }
+    public int GetTotalGroups()
+    {
+        return eventGroups.Count;
+    }
+    public int GetCompletedGroupsCount()
+    {
+        int count = 0;
+        for (int i = 0; i < eventGroups.Count; i++)
+        {
+            if (eventGroups[i].completed)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    public bool AreAllGroupsCompleted()
+    {
+        for (int i = 0; i < eventGroups.Count; i++)
+        {
+            if (!eventGroups[i].completed)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    public bool IsGroupNameCompleted(string groupName)
+    {
+        int index = eventGroups.FindIndex(g => g.groupName == groupName);
+        if (index != -1)
+        {
+            return eventGroups[index].completed;
+        }
+        return false;
+    }
+    public bool IsGroupCompleted(int index)
+    {
+        if (index >= 0 && index < eventGroups.Count)
+        {
+            return eventGroups[index].completed;
+        }
+        return false;
+    }
 
     public void ExecuteGroupAtStart()
     {
@@ -118,4 +162,47 @@ public class EventGroupExecutionComponent : MonoBehaviour
             }
         }
     }
+    
+    public void ResetAllGroups()
+    {
+        currentGroupIndex = 0;
+        currentGroupName = eventGroups.Count > 0 ? eventGroups[0].groupName : "";
+        for (int i = 0; i < eventGroups.Count; i++)
+        {
+            var group = eventGroups[i];
+            group.completed = false;
+            eventGroups[i] = group;
+        }
+    }
+    public void AddExecuteGroupListener(string groupName, UnityEngine.Events.UnityAction action)
+    {
+        int index = eventGroups.FindIndex(g => g.groupName == groupName);
+        if (index != -1)
+        {
+            eventGroups[index].events.AddListener(action);
+        }
+    }
+    public void AddExecuteGroupListener(int index, UnityEngine.Events.UnityAction action)
+    {
+        if (index >= 0 && index < eventGroups.Count)
+        {
+            eventGroups[index].events.AddListener(action);
+        }
+    }
+    public void RemoveExecuteGroupListener(string groupName, UnityEngine.Events.UnityAction action)
+    {
+        int index = eventGroups.FindIndex(g => g.groupName == groupName);
+        if (index != -1)
+        {
+            eventGroups[index].events.RemoveListener(action);
+        }
+    }
+    public void RemoveExecuteGroupListener(int index, UnityEngine.Events.UnityAction action)
+    {
+        if (index >= 0 && index < eventGroups.Count)
+        {
+            eventGroups[index].events.RemoveListener(action);
+        }
+    }
+
 }

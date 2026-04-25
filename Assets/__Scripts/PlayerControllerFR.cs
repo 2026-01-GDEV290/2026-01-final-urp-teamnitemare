@@ -190,6 +190,11 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
             return;
         }
 
+        if (GameManager.Instance.AreAllControlsDisabled())
+        {
+            return;
+        }
+
         Vector2 moveVector = moveAction.ReadValue<Vector2>();
         //characterController.Move(moveVector);
         Move(moveVector);
@@ -217,6 +222,11 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
     void AttackAction(InputAction.CallbackContext context)
     {
         if (isPlatformLocked)
+        {
+            return;
+        }
+
+        if (GameManager.Instance.AreAllControlsDisabled())
         {
             return;
         }
@@ -332,6 +342,10 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
 
     void InteractAction(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.AreAllControlsDisabled())
+        {
+            return;
+        }
         DoInteractIfCan();
     }
 

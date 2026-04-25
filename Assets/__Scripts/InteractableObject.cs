@@ -51,4 +51,13 @@ public class InteractableObject : InteractableBase
             isInteractable = false;
         }
     }
+    public void AddInteractListener(UnityEngine.Events.UnityAction action)
+    {
+        onInteract.AddListener(action);
+    }
+    public void RemoveInteractListener(UnityEngine.Events.UnityAction action)
+    {
+        onInteract.RemoveListener(action);
+    }
+
 }

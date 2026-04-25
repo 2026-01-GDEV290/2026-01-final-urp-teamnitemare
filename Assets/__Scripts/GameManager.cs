@@ -442,7 +442,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("GM->SceneAwake: (restart)");
                 // don't add scene again or increment visit count
                 // TODO: but reset progress for the scene:
-                //gameState.ResetSceneQuests();
+                gameState.ClearTasksAndQuestsForScene(sceneName, gameState.GetSceneVisitCount(sceneName));
             }
             else
             {

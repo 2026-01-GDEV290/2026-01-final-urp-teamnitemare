@@ -71,6 +71,16 @@ public class TimerObject : MonoBehaviour, ISaveable
         }
     }
 
+    public void AddTimerExpiredListener(UnityEngine.Events.UnityAction action)
+    {
+        onTimerExpire.AddListener(action);
+    }
+    public void RemoveTimerExpiredListener(UnityEngine.Events.UnityAction action)
+    {
+        onTimerExpire.RemoveListener(action);
+    }
+
+
 #region ISaveable implementation
     private class TimerObjectData
     {

@@ -14,7 +14,7 @@ public class Triggerable : MonoBehaviour, ISaveable
     {
         isActiveInScene = gameObject.activeInHierarchy;
     }
-    void Star()
+    void Start()
     {
         if (bDataRestored)
         {
@@ -25,6 +25,15 @@ public class Triggerable : MonoBehaviour, ISaveable
     public void SetIsActive(bool active)
     {
         isActive = active;
+    }
+
+    public void AddTriggerListener(UnityEngine.Events.UnityAction action)
+    {
+        onTrigger.AddListener(action);
+    }
+    public void RemoveTriggerListener(UnityEngine.Events.UnityAction action)
+    {
+        onTrigger.RemoveListener(action);
     }
 
     private void OnTriggerEnter(Collider other)
