@@ -23,6 +23,7 @@ MonoBehaviour:
   - birdCageRoom
   - Dream
   - DORM3
+  - Flying
   hubScenes: []
   gameSceneEnum: 2
   gameOverScene: 

@@ -33,6 +33,9 @@ EditorBuildSettings:
     path: Assets/_Scenes/DORM3.unity
     guid: 18550f8996b444741b04b4bcbbfa366c
   - enabled: 1
+    path: Assets/_Scenes/Flying.unity
+    guid: b8bcf84b66e31dc45b58d894c5bd3c49
+  - enabled: 1
     path: Assets/_Scenes/BalanceX.unity
     guid: 28131038fac8bba4abe64cef6547ca3c
   - enabled: 1
