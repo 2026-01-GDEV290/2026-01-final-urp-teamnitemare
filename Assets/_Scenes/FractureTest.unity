@@ -2785,6 +2785,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inkleDialoguePanelPrefab: {fileID: 5427993036277499850, guid: 4a7a96916d5b3724daeb101cd42c0e7e,
     type: 3}
+  speakerImages:
+  - speakerName: NpC1
+    portrait: {fileID: 21300000, guid: 02533643317613a4988e6231b606d0bb, type: 3}
   speakerTagPrefix: 'speaker:'
   speakerLocationTagPrefix: 'layout:'
   speakerImageTagPrefix: 'portrait:'

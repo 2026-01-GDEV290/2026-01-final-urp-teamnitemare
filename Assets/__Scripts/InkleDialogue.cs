@@ -11,9 +11,13 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 //using System.Diagnostics;
 
-//TODO: Separate out Inkle story component objects & variable/tag watches
+//TODO: Separate out InkleStoryComponent objects & variable/tag watches
 // Can keep general events for variable/tag watchers but these will
 // need to know story state..
+// InkleStoryComponent should be Interactable derived w/billboard that turns off
+// during interaction, and optionally back on afterwards
+// also option to disable player movement during dialogue, or allow player
+// on=exit collider to end dialogue..
 
 // special Inkle-related UnityEvents that take strings as parameters
 
@@ -38,6 +42,13 @@ public struct InkleTagWatch
     public StringEvent onTagFound;
 }
 
+[System.Serializable]
+public struct InkleSpeakerImages
+{
+    public string speakerName;
+    public Sprite portrait;
+}
+
 [Serializable]
 public struct InkleDialogueData
 {
@@ -50,6 +61,8 @@ public class InkleDialogue : MonoBehaviour
     [SerializeField] private GameObject inkleDialoguePanelPrefab;
     GameObject dialoguePanel;
     private InkleUILayout uiLayout;
+
+    [SerializeField] List<InkleSpeakerImages> speakerImages = new List<InkleSpeakerImages>();
 
     [SerializeField] string speakerTagPrefix = "speaker:";
     [SerializeField] string speakerLocationTagPrefix = "speakerLocation:";
@@ -510,13 +523,7 @@ public class InkleDialogue : MonoBehaviour
             else if (tag.Trim().StartsWith(speakerImageTagPrefix))
             {
                 speakerPortraitFound = true;
-                string imageName = tag.Substring(speakerImageTagPrefix.Length);
-                newPortrait = Resources.Load<Sprite>("InklePortraits/" + imageName);
-                if (newPortrait == null)
-                {
-                    newPortrait = Resources.Load<Sprite>("InklePortraits/" + "npcDefault");
-                }
-                Debug.Log("InkleDialogue: Loaded portrait sprite: " + (newPortrait != null ? newPortrait.name : "null") + " for tag: " + tag);
+                newPortrait = GetPortrait(speakerName, tag.Substring(speakerImageTagPrefix.Length));
             }
         }
         if (!speakerFound)
@@ -547,12 +554,47 @@ public class InkleDialogue : MonoBehaviour
             }
             uiLayout.speakerPanels[currentSpeakerIndex - 1].SetActive(true);
             uiLayout.displayNameText[currentSpeakerIndex - 1].text = speakerName;
+            if (newPortrait == null)
+            {
+                newPortrait = GetPortrait(speakerName);
+            }
         }
         if (speakerPortraitFound && speakerActive)
         {
             uiLayout.portraitImages[currentSpeakerIndex - 1].sprite = newPortrait;
         }
     }
+    Sprite GetPortrait(string speakerName, string imageName = "")
+    {
+        if (!string.IsNullOrEmpty(speakerName))
+        {
+            // ignoring case and whitespace
+            speakerName = speakerName.Trim().ToLower();
+            foreach (var speakerImage in speakerImages)
+            {
+                // ignore case and whitespace when comparing speaker names to find portrait
+                if (speakerImage.speakerName.Trim().ToLower() == speakerName)
+                {
+                    Debug.Log("InkleDialogue.GetPortrait: Found portrait sprite in speakerImages list for speaker: " + speakerName);
+                    //uiLayout.portraitImages[currentSpeakerIndex - 1].sprite = speakerImage.portrait;
+                    return speakerImage.portrait;
+                }
+            }
+            //TODO: try linked InkleStoryComponent
+        }
+        // else:
+        //  speakerName is empty OR no matching speakername's image found
+
+        // Last: try resources
+        Sprite newPortrait = Resources.Load<Sprite>("InklePortraits/" + imageName);
+        if (newPortrait == null)
+        {
+            newPortrait = Resources.Load<Sprite>("InklePortraits/" + "npcDefault");
+        }
+        Debug.Log("InkleDialogue.GetPortrait: Loaded portrait sprite: " + (newPortrait != null ? newPortrait.name : "null") + " for tag: " + tag);
+        return newPortrait;
+    }
+
     void ResetState()
     {
         DialogueIsPlaying = false;
@@ -684,6 +726,11 @@ public class InkleDialogue : MonoBehaviour
                 uiLayout.choices[i].SetActive(false);
             }
         }
+        // hide continue icon when choices are present
+        if (uiLayout.continueIcon != null)
+        {
+            uiLayout.continueIcon.enabled = false;
+        }
         // select first choice by default
         if (numChoices > 0)
         {
@@ -718,6 +765,11 @@ public class InkleDialogue : MonoBehaviour
             {
                 choice.SetActive(false);
             }
+        }
+        // show continue icon when choices are hidden (and supposedly more dialogue to continue)
+        if (uiLayout.continueIcon != null)
+        {
+            uiLayout.continueIcon.enabled = true;
         }
     }
     public void HideDialogueInterface()
