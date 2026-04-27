@@ -1183,6 +1183,7 @@ GameObject:
   - component: {fileID: 9065093020590431649}
   - component: {fileID: 3405456439113231779}
   - component: {fileID: 4018541698154315374}
+  - component: {fileID: 3016495624566979671}
   m_Layer: 5
   m_Name: InklePanel
   m_TagString: Untagged
@@ -1253,6 +1254,40 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3016495624566979671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5427993036277499850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43a44bd180b0f1946bb5036bab356d98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layout:
+    dialoguePanel: {fileID: 5427993036277499850}
+    dialogueText: {fileID: 1043031277356875360}
+    continueIcon: {fileID: 7397217320252225745}
+    speakerPanels:
+    - {fileID: 105765325257665065}
+    - {fileID: 3130769988919546215}
+    - {fileID: 7520416696039006688}
+    portraitImages:
+    - {fileID: 4500615516019732319}
+    - {fileID: 4774686966905127633}
+    - {fileID: 1998027748702550410}
+    displayNameText:
+    - {fileID: 7124276543125771137}
+    - {fileID: 7405884922337722807}
+    - {fileID: 351362700912372453}
+    choices:
+    - {fileID: 6342916004284130473}
+    - {fileID: 6302783970495842727}
+    choicesText:
+    - {fileID: 7114471781090974176}
+    - {fileID: 8208329557809822459}
 --- !u!1 &5688414143236584690
 GameObject:
   m_ObjectHideFlags: 0
@@ -1660,9 +1695,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: InkleDialogue, Assembly-CSharp
-        m_MethodName: MakeUIChoice
+      - m_Target: {fileID: 3016495624566979671}
+        m_TargetAssemblyTypeName: InkleUIPrefab, Assembly-CSharp
+        m_MethodName: InkleUIMakeChoice
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1793,9 +1828,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: InkleDialogue, Assembly-CSharp
-        m_MethodName: MakeUIChoice
+      - m_Target: {fileID: 3016495624566979671}
+        m_TargetAssemblyTypeName: InkleUIPrefab, Assembly-CSharp
+        m_MethodName: InkleUIMakeChoice
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

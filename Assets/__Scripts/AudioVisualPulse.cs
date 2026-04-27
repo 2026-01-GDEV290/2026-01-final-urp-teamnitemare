@@ -46,8 +46,8 @@ public class AudioVisualPulse : MonoBehaviour
 
 	[Header("Birb Sphere Pulse")]
 	[SerializeField] private bool pulseBirbSphereEmission = true;
-	[SerializeField] private float birbSpherePulseLowIntensity = 0.25f;
-	[SerializeField] private float birbSpherePulseHighIntensity = 2.5f;
+	// [SerializeField] private float birbSpherePulseLowIntensity = 0.25f;
+	// [SerializeField] private float birbSpherePulseHighIntensity = 2.5f;
 
 	private readonly List<LineRenderer> ringPool = new List<LineRenderer>();
 	private readonly Dictionary<LineRenderer, Coroutine> running = new Dictionary<LineRenderer, Coroutine>();

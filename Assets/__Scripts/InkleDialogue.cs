@@ -48,13 +48,8 @@ public struct InkleDialogueData
 public class InkleDialogue : MonoBehaviour
 {
     [SerializeField] private GameObject inkleDialoguePanelPrefab;
-    private GameObject dialoguePanel;
-    private TextMeshProUGUI dialogueText;
-    private List<Image> portraitImages;
-    private List<GameObject> speakerPanels;
-    private List<TextMeshProUGUI> displayNameText;
-    private List<GameObject> choices;
-    private List<TextMeshProUGUI> choicesText;
+    GameObject dialoguePanel;
+    private InkleUILayout uiLayout;
 
     [SerializeField] string speakerTagPrefix = "speaker:";
     [SerializeField] string speakerLocationTagPrefix = "speakerLocation:";
@@ -120,6 +115,21 @@ public class InkleDialogue : MonoBehaviour
     }
 
     // I would like to include this script in the prefab but it's tricky with a canvas element prefab
+
+    void LoadAndConfigureInklePanelPrefab()
+    {
+        GameObject canvas = GameObject.Find("Canvas");
+        if (inkleDialoguePanelPrefab == null)
+        {
+            Debug.LogError("InkleDialogue: Inkle dialogue panel prefab not assigned in inspector.");
+            //inkleDialoguePanelPrefab = Resources.Load<GameObject>("Prefabs/" + "InklePanel");
+            return;
+        }
+        dialoguePanel = Instantiate(inkleDialoguePanelPrefab, canvas.transform);
+        //dialoguePanel.transform.SetParent(canvas.transform, false);
+
+        uiLayout = dialoguePanel.GetComponent<InkleUIPrefab>().layout;
+        
     // prefab structure:
     // InklePanel (Canvas)
     // - InkleText (TextMeshProUGUI)
@@ -136,42 +146,31 @@ public class InkleDialogue : MonoBehaviour
     //     - DisplayNameText (TextMeshProUGUI)
     // - Speaker2 (dupe of Speaker1, with center location)
     // - Speaker3 (dupe of Speaker1, with right location)
-    void LoadAndConfigureInklePanelPrefab()
-    {
-        GameObject canvas = GameObject.Find("Canvas");
-        if (inkleDialoguePanelPrefab == null)
-        {
-            Debug.LogError("InkleDialogue: Inkle dialogue panel prefab not assigned in inspector.");
-            //inkleDialoguePanelPrefab = Resources.Load<GameObject>("Prefabs/" + "InklePanel");
-            return;
-        }
-        dialoguePanel = Instantiate(inkleDialoguePanelPrefab, canvas.transform);
-        //dialoguePanel.transform.SetParent(canvas.transform, false);
-        dialogueText = dialoguePanel.transform.Find("InkleText").GetComponent<TextMeshProUGUI>();
-        GameObject dialogueChoicesPanel = dialoguePanel.transform.Find("DialogueChoices").gameObject;
-        choices = new List<GameObject>();
-        choicesText = new List<TextMeshProUGUI>();
-        for (int i = 0; i < 10; i++)
-        {
-            GameObject choice = dialogueChoicesPanel.transform.Find($"Choice{i}")?.gameObject;
-            Debug.Log("Looking for choice: " + $"Choice{i}, found: " + (choice != null) + " with name: " + (choice != null ? choice.name : "null"));
-            if (choice == null)
-                break;
-            choices.Add(choice);
-            choicesText.Add(choice.transform.Find($"Choice{i}Text").GetComponent<TextMeshProUGUI>());
-        }
-        speakerPanels = new List<GameObject>();
-        displayNameText = new List<TextMeshProUGUI>();
-        portraitImages = new List<Image>();
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject speakerPanel = dialoguePanel.transform.Find($"Speaker{i+1}").gameObject;
-            if (speakerPanel == null)
-                break;
-            speakerPanels.Add(speakerPanel);
-            portraitImages.Add(speakerPanel.transform.Find("PortraitFrame").Find("PortraitImage").GetComponent<Image>());
-            displayNameText.Add(speakerPanel.transform.Find("SpeakerFrame").Find("DisplayNameText").GetComponent<TextMeshProUGUI>());
-        }
+        // dialogueText = dialoguePanel.transform.Find("InkleText").GetComponent<TextMeshProUGUI>();
+        // GameObject dialogueChoicesPanel = dialoguePanel.transform.Find("DialogueChoices").gameObject;
+        // choices = new List<GameObject>();
+        // choicesText = new List<TextMeshProUGUI>();
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     GameObject choice = dialogueChoicesPanel.transform.Find($"Choice{i}")?.gameObject;
+        //     Debug.Log("Looking for choice: " + $"Choice{i}, found: " + (choice != null) + " with name: " + (choice != null ? choice.name : "null"));
+        //     if (choice == null)
+        //         break;
+        //     choices.Add(choice);
+        //     choicesText.Add(choice.transform.Find($"Choice{i}Text").GetComponent<TextMeshProUGUI>());
+        // }
+        // speakerPanels = new List<GameObject>();
+        // displayNameText = new List<TextMeshProUGUI>();
+        // portraitImages = new List<Image>();
+        // for (int i = 0; i < 3; i++)
+        // {
+        //     GameObject speakerPanel = dialoguePanel.transform.Find($"Speaker{i+1}").gameObject;
+        //     if (speakerPanel == null)
+        //         break;
+        //     speakerPanels.Add(speakerPanel);
+        //     portraitImages.Add(speakerPanel.transform.Find("PortraitFrame").Find("PortraitImage").GetComponent<Image>());
+        //     displayNameText.Add(speakerPanel.transform.Find("SpeakerFrame").Find("DisplayNameText").GetComponent<TextMeshProUGUI>());
+        // }
         Debug.Log("InkleDialogue: Loaded dialogue panel prefab and assigned UI components. Hiding dialogue panel.");
         dialoguePanel.SetActive(false);
     }
@@ -340,13 +339,20 @@ public class InkleDialogue : MonoBehaviour
     //     restoreControlsAfterDialogueCoroutine = null;
     // }
 
-    void ContinueStory()
+    void ContinueStory(bool maximalContinue = false)
     {
         // if "canContinue" it means there is more text and no choices
         if (currentStory.canContinue)
         {
-            currentText = currentStory.Continue();
-            dialogueText.text = currentText;
+            if (maximalContinue)
+            {
+                currentText = currentStory.ContinueMaximally();
+            }
+            else
+            {
+                currentText = currentStory.Continue();
+            }
+            uiLayout.dialogueText.text = currentText;
             InternalCheckTagsAndHandleSpecialTags();
             CheckTagsAndInvokeTagEvents();
             
@@ -357,7 +363,7 @@ public class InkleDialogue : MonoBehaviour
                 ShowChoiceUI(currentChoices.Count);
                 for (int i = 0; i < currentChoices.Count; i++)
                 {
-                    choicesText[i].text = currentChoices[i].text;
+                    uiLayout.choicesText[i].text = currentChoices[i].text;
                 }
                 onChoicesPresented.Invoke();
                 // Select 1st choice by default (done in ShowChoiceUI).
@@ -371,6 +377,11 @@ public class InkleDialogue : MonoBehaviour
         {
             EndDialogue();
         }
+    }
+
+    void ContinueStoryMaximally()
+    {
+        ContinueStory(true);
     }
 
     public static void MakeUIChoice(int choiceIndex)
@@ -420,9 +431,9 @@ public class InkleDialogue : MonoBehaviour
             Debug.Log("InkleDialogue: No selected object. Cannot submit selected choice.");
             return;
         }
-        for (int i = 0; i < choices.Count; i++)
+        for (int i = 0; i < uiLayout.choices.Count; i++)
         {
-            if (selectedObject == choices[i] || selectedObject.transform.IsChildOf(choices[i].transform))
+            if (selectedObject == uiLayout.choices[i] || selectedObject.transform.IsChildOf(uiLayout.choices[i].transform))
             {
                 MakeChoice(i);
                 return;
@@ -440,7 +451,7 @@ public class InkleDialogue : MonoBehaviour
 
     void InternalCheckTagsAndHandleSpecialTags()
     {
-        SpeakerLocation currentSpeakerLocation = SpeakerLocation.Right; // default location
+        // SpeakerLocation currentSpeakerLocation = SpeakerLocation.Right; // default location
         bool speakerFound = false;
         bool speakerPortraitFound = false;
         string speakerName = "";
@@ -457,9 +468,9 @@ public class InkleDialogue : MonoBehaviour
                 if (string.IsNullOrEmpty(speakerName) || speakerName == "OFF")
                 {
                     // if speaker name is empty or "OFF", hide speaker panel(s)
-                    for (int i = 0; i < speakerPanels.Count; i++)
+                    for (int i = 0; i < uiLayout.speakerPanels.Count; i++)
                     {
-                        speakerPanels[i].SetActive(false);
+                        uiLayout.speakerPanels[i].SetActive(false);
                     }
                     speakerActive = false;
                     currentSpeakerIndex = 0;
@@ -480,15 +491,15 @@ public class InkleDialogue : MonoBehaviour
                 switch (location)
                 {
                     case "left":
-                        currentSpeakerLocation = SpeakerLocation.Left;
+                        // currentSpeakerLocation = SpeakerLocation.Left;
                         currentSpeakerIndex = 1;
                         break;
                     case "center":
-                        currentSpeakerLocation = SpeakerLocation.Center;
+                        // currentSpeakerLocation = SpeakerLocation.Center;
                         currentSpeakerIndex = 2;
                         break;
                     case "right":
-                        currentSpeakerLocation = SpeakerLocation.Right;
+                        // currentSpeakerLocation = SpeakerLocation.Right;
                         currentSpeakerIndex = 3;
                         break;
                     default:
@@ -512,9 +523,9 @@ public class InkleDialogue : MonoBehaviour
         {
             if (!speakerActive)
             {
-                for (int i = 0; i < speakerPanels.Count; i++)
+                for (int i = 0; i < uiLayout.speakerPanels.Count; i++)
                 {
-                    speakerPanels[i].SetActive(false);
+                    uiLayout.speakerPanels[i].SetActive(false);
                 }
                 currentSpeakerIndex = 0;
             }
@@ -527,19 +538,19 @@ public class InkleDialogue : MonoBehaviour
                 currentSpeakerIndex = (int)SpeakerLocation.Right;
             }
             // set speakers other than currentSpeakerIndex to inactive
-            for (int i = 0; i < speakerPanels.Count; i++)
+            for (int i = 0; i < uiLayout.speakerPanels.Count; i++)
             {
                 if (i != currentSpeakerIndex - 1)
                 {
-                    speakerPanels[i].SetActive(false);
+                    uiLayout.speakerPanels[i].SetActive(false);
                 }
             }
-            speakerPanels[currentSpeakerIndex - 1].SetActive(true);
-            displayNameText[currentSpeakerIndex - 1].text = speakerName;
+            uiLayout.speakerPanels[currentSpeakerIndex - 1].SetActive(true);
+            uiLayout.displayNameText[currentSpeakerIndex - 1].text = speakerName;
         }
         if (speakerPortraitFound && speakerActive)
         {
-            portraitImages[currentSpeakerIndex - 1].sprite = newPortrait;
+            uiLayout.portraitImages[currentSpeakerIndex - 1].sprite = newPortrait;
         }
     }
     void ResetState()
@@ -653,35 +664,35 @@ public class InkleDialogue : MonoBehaviour
         DialoguePanelIsActive = true;
         // enable interface
         dialoguePanel.SetActive(true);
-        for (int i = 0; i < speakerPanels.Count; i++)
+        for (int i = 0; i < uiLayout.speakerPanels.Count; i++)
         {
-            speakerPanels[i].SetActive(false);
+            uiLayout.speakerPanels[i].SetActive(false);
         }
         HideChoiceUI();
     }
     void ShowChoiceUI(int numChoices, int defaultChoiceIndex = 0)
     {
         //onChoicesPresented.Invoke();
-        for (int i = 0; i < choices.Count; i++)
+        for (int i = 0; i < uiLayout.choices.Count; i++)
         {
             if (i < numChoices)
             {
-                choices[i].SetActive(true);
+                uiLayout.choices[i].SetActive(true);
             }
             else
             {
-                choices[i].SetActive(false);
+                uiLayout.choices[i].SetActive(false);
             }
         }
         // select first choice by default
         if (numChoices > 0)
         {
-            Debug.Log("Highlighting first choice by default: " + choices[0].name);
+            Debug.Log("Highlighting first choice by default: " + uiLayout.choices[0].name);
             StartCoroutine(SelectFirstChoice());
-            // choices[0].GetComponent<UnityEngine.UI.Button>().Select();
+            // uiLayout.choices[0].GetComponent<UnityEngine.UI.Button>().Select();
             // The following might not work so a coroutine might be needed (see SelectFirstChoice coroutine)
             // EventSystem.current.SetSelectedGameObject(null);
-            // EventSystem.current.SetSelectedGameObject(choices[0].gameObject);
+            // EventSystem.current.SetSelectedGameObject(uiLayout.choices[0].gameObject);
         }
     }
 
@@ -691,17 +702,17 @@ public class InkleDialogue : MonoBehaviour
         //for at least one frame before we set the current selected object
         EventSystem.current.SetSelectedGameObject(null);
         yield return new WaitForEndOfFrame();
-        EventSystem.current.SetSelectedGameObject(choices[0].gameObject);
+        EventSystem.current.SetSelectedGameObject(uiLayout.choices[0].gameObject);
     }
 
     void HideChoiceUI()
     {
-        if (choices == null)
+        if (uiLayout.choices == null)
         {
             return;
         }
 
-        foreach (var choice in choices)
+        foreach (var choice in uiLayout.choices)
         {
             if (choice != null)
             {
@@ -721,13 +732,13 @@ public class InkleDialogue : MonoBehaviour
             dialoguePanel.SetActive(false);
         }
 
-        if (speakerPanels != null)
+        if (uiLayout.speakerPanels != null)
         {
-            for (int i = 0; i < speakerPanels.Count; i++)
+            for (int i = 0; i < uiLayout.speakerPanels.Count; i++)
             {
-                if (speakerPanels[i] != null)
+                if (uiLayout.speakerPanels[i] != null)
                 {
-                    speakerPanels[i].SetActive(false);
+                    uiLayout.speakerPanels[i].SetActive(false);
                 }
             }
         }

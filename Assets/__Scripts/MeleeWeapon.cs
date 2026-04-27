@@ -20,7 +20,7 @@ public class MeleeWeapon : MonoBehaviour
     //public float decalFadeTime = 10f;
 
     public float hitRecoverTime = 0.50f;
-    private float lastHitTime = 0f;
+    // private float lastHitTime = 0f;
 
     public delegate void HitEvent(GameObject hitObject, Vector3 hitPoint);
     public static event HitEvent OnHit;
