@@ -6,9 +6,11 @@ public class Triggerable : MonoBehaviour, ISaveable
     public bool isActive = true;
     public GameObject playerOrNullForAll = null;
     public UnityEngine.Events.UnityEvent onTrigger;
+    public UnityEngine.Events.UnityEvent onTriggerExit;
     public int triggeredCount = 0;
     bool isActiveInScene = false;
     bool bDataRestored = false;
+    GameObject objectTriggeredBy = null;
 
     void Awake()
     {
@@ -42,8 +44,19 @@ public class Triggerable : MonoBehaviour, ISaveable
         {
             if (playerOrNullForAll == null || other.gameObject == playerOrNullForAll)  
             {
+                objectTriggeredBy = other.gameObject;
                 onTrigger.Invoke();
                 triggeredCount++;
+            }
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (isActive && objectTriggeredBy == other.gameObject)
+        {
+            if (playerOrNullForAll == null || other.gameObject == playerOrNullForAll)
+            {
+                onTriggerExit.Invoke();
             }
         }
     }

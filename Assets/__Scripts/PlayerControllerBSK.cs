@@ -18,18 +18,20 @@ public class PlayerControllerBSK : MonoBehaviour
     [Header("References")]
     [SerializeField] private Camera playerCamera;
     [SerializeField] private Vector3 cameraLocalPosition = new Vector3(0f, 0.8f, 0f);
+    [SerializeField] CameraSwitchTimed cameraSwitchTimed;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float jumpHeight = 3f; //1.4f;
     [SerializeField] private float gravity = -20f;
     [SerializeField] private float coyoteTime = 0.12f;
-    [SerializeField] private float jumpBufferTime = 0.12f;
 
     [Header("Feather Boost")]
+    [SerializeField] Light featherObtainedLight = null;
     [SerializeField] private float featherJumpHeightMultiplier = 5;
     [SerializeField] private float featherFallGravityMultiplier = 0.55f;
     [SerializeField] private float featherAirBoostStrength = 15f;
+    [SerializeField] private float featherTimeBetweenBoosts = 1.5f;
     [SerializeField] private GameObject wings;
     [SerializeField] WingAnimationControl wingAnimationControl;
     //[SerializeField] private AlphaControllerForAnimationRenderer wingsAlphaControl;
@@ -92,8 +94,8 @@ public class PlayerControllerBSK : MonoBehaviour
     private float rotationX;
     private float rotationY;
     private float coyoteTimer;
-    private float jumpBufferTimer;
     private float walkSoundDistanceAccumulator;
+    private float featherBoostCooldownTimer;
     private int walkSoundIndex;
     private bool fractureAntiFallTriggered;
     private bool isFractureScene;
@@ -121,6 +123,7 @@ public class PlayerControllerBSK : MonoBehaviour
     float nextGrapplePointCacheRefreshTime;
 
     [SerializeField] private bool hasFeathers = false;
+    int feathersCollected = 0;
 
     void Awake()
     {
@@ -241,8 +244,29 @@ public class PlayerControllerBSK : MonoBehaviour
         }
     }
 
+    public void FeatherLightObtained()
+    {
+        if (featherObtainedLight != null)
+        {
+            featherObtainedLight.enabled = true;
+            feathersCollected++;
+            if (feathersCollected > 2)
+            {
+                feathersCollected = 3;
+                FeathersObtained();
+                return;
+            }
+            featherObtainedLight.intensity = 1f + (feathersCollected * 0.5f);
+        }
+    }
+
     public void FeathersObtained()
     {
+        if (featherObtainedLight != null)
+        {
+            featherObtainedLight.enabled = false;
+            //featherObtainedLight.intensity = 1f;
+        }
         hasFeathers = true;
         wings.SetActive(true);
         wingAnimationControl.ResetToIdle();
@@ -367,8 +391,68 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void JumpActionPerformed(InputAction.CallbackContext context)
     {
-        //Debug.Log($"Jump input fired. coyoteTimer={coyoteTimer:F3}, jumpBufferTimer will be set to {jumpBufferTime:F3}. CharController.isGrounded={characterController.isGrounded}");
-        jumpBufferTimer = jumpBufferTime;
+        if (isGrappleMoveLocked || characterController == null)
+        {
+            return;
+        }
+
+        float downwardGravity = -Mathf.Abs(gravity);
+        bool wasGroundedThisFrame = characterController.isGrounded;
+        bool canUseGroundJump = wasGroundedThisFrame || coyoteTimer > 0f;
+
+        if (canUseGroundJump)
+        {
+            float jumpHeightToUse = hasFeathers ? jumpHeight * featherJumpHeightMultiplier : jumpHeight;
+            verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
+            if (hasFeathers)
+            {
+                featherBoostCooldownTimer = featherTimeBetweenBoosts;
+            }
+
+            coyoteTimer = 0f;
+
+            if (wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
+
+            if (featherJumpSound != null)
+            {
+                if (walkSoundSource != null)
+                {
+                    walkSoundSource.PlayOneShot(featherJumpSound);
+                }
+                else
+                {
+                    AudioManager.PlayOneShot(featherJumpSound);
+                }
+            }
+
+            return;
+        }
+
+        if (!wasGroundedThisFrame && hasFeathers && featherBoostCooldownTimer <= 0f)
+        {
+            verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
+            featherBoostCooldownTimer = featherTimeBetweenBoosts;
+
+            if (wingAnimationControl != null)
+            {
+                wingAnimationControl.WingFlap();
+            }
+
+            if (featherJumpSound != null)
+            {
+                if (walkSoundSource != null)
+                {
+                    walkSoundSource.PlayOneShot(featherJumpSound);
+                }
+                else
+                {
+                    AudioManager.PlayOneShot(featherJumpSound);
+                }
+            }
+        }
     }
 
     void HandleLook(Vector2 lookVector)
@@ -428,38 +512,14 @@ public class PlayerControllerBSK : MonoBehaviour
             coyoteTimer -= Time.deltaTime;
         }
 
-        jumpBufferTimer -= Time.deltaTime;
+        featherBoostCooldownTimer -= Time.deltaTime;
 
-        if (jumpBufferTimer > 0f && coyoteTimer > 0f)
-        {
-            float jumpHeightToUse = hasFeathers ? jumpHeight * featherJumpHeightMultiplier : jumpHeight;
-            verticalVelocity = Mathf.Sqrt(jumpHeightToUse * -2f * downwardGravity);
-            //Debug.Log($"JUMP APPLIED: jumpHeight={jumpHeightToUse:F2}, vertVel={verticalVelocity:F2}");
-
-            triggeredFeatherJumpThisFrame = hasFeathers;
-
-            jumpBufferTimer = 0f;
-            coyoteTimer = 0f;
-        }
-        else if (jumpBufferTimer > 0f && !wasGroundedThisFrame && hasFeathers)
-        {
-            // Airborne feather boost can be triggered on every jump press while airborne.
-            verticalVelocity = Mathf.Max(verticalVelocity, featherAirBoostStrength);
-            //Debug.Log($"FEATHER BOOST APPLIED: vertVel={verticalVelocity:F2}");
-            triggeredFeatherJumpThisFrame = true;
-
-            jumpBufferTimer = 0f;
-        }
-        else if (jumpBufferTimer > 0f)
-        {
-            //Debug.Log($"Jump buffer set but NOT jumping: buffer={jumpBufferTimer:F3}, coyote={coyoteTimer:F3}, wasGrounded={wasGroundedThisFrame}");
-        }
-
-        if (isFractureScene && hasFeathers && !fractureAntiFallTriggered && transform.position.y <= fractureAntiFallTriggerY)
+        if (isFractureScene && hasFeathers && !fractureAntiFallTriggered && transform.position.y <= fractureAntiFallTriggerY && featherBoostCooldownTimer <= 0f)
         {
             fractureAntiFallTriggered = true;
             verticalVelocity = Mathf.Max(verticalVelocity, fractureAntiFallBoostStrength);
             triggeredFeatherJumpThisFrame = true;
+            featherBoostCooldownTimer = featherTimeBetweenBoosts;
         }
 
         if (triggeredFeatherJumpThisFrame)
@@ -672,6 +732,7 @@ public class PlayerControllerBSK : MonoBehaviour
             activeGrappleLineSource = currentGrappleFromPoint.transform;
             activeGrappleLineTarget = highlightedGrapplePoint.transform;
             SetGrappleLinePoints(currentGrappleFromPoint.transform.position, highlightedGrapplePoint.transform.position);
+            SetGrappleLineColor(currentGrappleFromPoint.Matches(highlightedGrapplePoint) ? Color.white : Color.red);
             SetGrappleLineActive(true);
         }
         else
@@ -730,6 +791,8 @@ public class PlayerControllerBSK : MonoBehaviour
         currentGrappleFromPoint = null;
         highlightedGrapplePoint = null;
         fractureAntiFallTriggered = false;
+
+        cameraSwitchTimed?.SwitchToTargetCamera();
     }
 
     int GetFragmentDestinationIndex(string objectName)
@@ -870,6 +933,7 @@ public class PlayerControllerBSK : MonoBehaviour
 
         grappleLockedLights = null;
         grappleLockedQuestComponent = null;
+        cameraSwitchTimed?.SwitchBackToPreviousCamera();
     }
 
     void SetGrappleLineActive(bool isActive)
@@ -905,6 +969,17 @@ public class PlayerControllerBSK : MonoBehaviour
         grappleLineRenderer.endWidth = grappleLineWidth;
         grappleLineRenderer.SetPosition(0, sourcePosition);
         grappleLineRenderer.SetPosition(1, targetPosition);
+    }
+
+    void SetGrappleLineColor(Color lineColor)
+    {
+        if (!useGrappleLineRenderer || grappleLineRenderer == null)
+        {
+            return;
+        }
+
+        grappleLineRenderer.startColor = lineColor;
+        grappleLineRenderer.endColor = lineColor;
     }
 
     void UpdateGrappleLine()
@@ -1021,7 +1096,6 @@ public class PlayerControllerBSK : MonoBehaviour
     {
         GrapplePointGlow bestTarget = null;
         float bestCenterScore = float.MaxValue;
-        float bestDistance = float.MaxValue;
 
         for (int i = 0; i < cachedGrapplePoints.Count; i++)
         {
@@ -1067,11 +1141,10 @@ public class PlayerControllerBSK : MonoBehaviour
             float normalizedY = centerOffsetY / Mathf.Max(grappleScreenCenterToleranceY, 0.0001f);
             float centerScore = (normalizedX * normalizedX) + (normalizedY * normalizedY);
 
-            if (distanceToTarget < bestDistance || (Mathf.Approximately(distanceToTarget, bestDistance) && centerScore < bestCenterScore))
+            if (centerScore < bestCenterScore)
             {
                 bestTarget = grapplePointGlow;
                 bestCenterScore = centerScore;
-                bestDistance = distanceToTarget;
             }
         }
 
@@ -1089,7 +1162,6 @@ public class PlayerControllerBSK : MonoBehaviour
 
         // Keep a small downward velocity so grounded logic settles immediately.
         verticalVelocity = -2f;
-        jumpBufferTimer = 0f;
         coyoteTimer = coyoteTime;
         walkSoundDistanceAccumulator = 0f;
 

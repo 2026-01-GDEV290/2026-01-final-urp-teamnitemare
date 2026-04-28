@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
 
 [Serializable]
 public enum InteractableType
@@ -21,6 +22,12 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     public bool isInteractable = true;
     public bool isOneTimeUse = false;
     public int interactionCount = 0;
+    public int interactionExitCount = 0;
+
+    [SerializeField] Collider interactionCollider = null;
+    [SerializeField] bool autoInteractOnColliderTrigger = false;
+    [SerializeField] bool autoInteractOnColliderExitTrigger = false;
+    [SerializeField]GameObject playerAutoInteractOrNullForAll = null;
 
     [SerializeField] GameObject billBoardObject = null;
     [SerializeField] Vector3 billBoardOffset = new Vector3(0f, 2f, 0f);
@@ -28,6 +35,8 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
     [SerializeField] string billBoardInteractText = "Interact";
     [SerializeField] bool showBillboardOnStart = true;
+
+    GameObject objectTriggeredBy = null;
     bool bDataRestored;
 
     protected virtual void Awake()
@@ -77,6 +86,7 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     public abstract void SetIsInteractable(bool value);
 
     public abstract void Interact(bool forceOverride = false);
+    public abstract void InteractExit();
 
     public void SetBillboardText(string text)
     {
@@ -97,8 +107,31 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
             billBoardTextObject.gameObject.SetActive(visible);
         }
     }
-    
-#region ISaveable implementation
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (autoInteractOnColliderTrigger && (playerAutoInteractOrNullForAll == null || other.gameObject == playerAutoInteractOrNullForAll))
+        {
+            if (isInteractable)
+            {
+                Interact();
+                objectTriggeredBy = other.gameObject;
+            }
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (autoInteractOnColliderTrigger && objectTriggeredBy == other.gameObject)
+        {
+            if (autoInteractOnColliderExitTrigger && isInteractable)
+            {
+                InteractExit();
+            }
+            objectTriggeredBy = null;
+        }
+    }
+
+    #region ISaveable implementation
     private class InteractableData
     {
         public InteractableType interactableType;

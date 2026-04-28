@@ -3,6 +3,7 @@ using UnityEngine;
 public class InteractableObject : InteractableBase
 {
     public UnityEngine.Events.UnityEvent onInteract;
+    public UnityEngine.Events.UnityEvent onInteractExit;
 
     InteractableObject() : base()
     {
@@ -50,6 +51,15 @@ public class InteractableObject : InteractableBase
         {
             isInteractable = false;
         }
+    }
+    public override void InteractExit()
+    {
+        if (!isInteractable)
+        {
+            return;
+        }
+        onInteractExit.Invoke();
+        interactionExitCount++;
     }
     public void AddInteractListener(UnityEngine.Events.UnityAction action)
     {

@@ -239,6 +239,14 @@ public class InkleDialogue : MonoBehaviour
             GameManager.Instance.DisableAllControls();
         }
         currentStory = new Story(inkStoryJSON);
+
+        currentStory.onError += (msg, type) => {
+            if( type == Ink.ErrorType.Warning )
+                Debug.LogWarning(msg);
+            else
+                Debug.LogError(msg);
+        };
+
         ConfigureEventSystemForDialogue();
         SetupVariableListeners();
         ShowDialogueInterface();
@@ -397,6 +405,7 @@ public class InkleDialogue : MonoBehaviour
         ContinueStory(true);
     }
 
+    // Static call for UI buttons absent a direct InkleDialogue reference.
     public static void MakeUIChoice(int choiceIndex)
     {
         if (Instance == null)
