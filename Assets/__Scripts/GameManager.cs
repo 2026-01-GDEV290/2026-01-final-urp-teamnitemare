@@ -625,6 +625,10 @@ public class GameManager : MonoBehaviour
     {
         playerState.currentlyDisabledControls |= DisabledControls.Interact;
     }
+    public void DisableAttackControl()
+    {
+        playerState.currentlyDisabledControls |= DisabledControls.Attack;
+    }
     public bool DisableAllControls()
     {
         //playerInput.enabled = false;
@@ -636,12 +640,54 @@ public class GameManager : MonoBehaviour
         //playerInput.enabled = true;
         playerState.currentlyDisabledControls = DisabledControls.None;
     }
-    public bool AreControlsDisabled(DisabledControls controlsToCheck)
+    bool InternalAreControlsDisabledByGameState(bool bIgnoreModalDialogue = false)
     {
+        if (gameState.currentGameState == GameStates.Paused)
+        {
+            return true;
+        }
+        if (gameState.inGameModalDialogueActive && !bIgnoreModalDialogue)
+        {
+            return true;
+        }
+        return false;
+    }
+    public bool AreControlsDisabled(DisabledControls controlsToCheck, bool bIgnoreModalDialogue = false)
+    {
+        if (InternalAreControlsDisabledByGameState(bIgnoreModalDialogue))
+        {
+            return true;
+        }
         return (playerState.currentlyDisabledControls & controlsToCheck) != DisabledControls.None;
     }
-    public bool AreAllControlsDisabled()
+    public bool AreLookControlsDisabled(bool horizontal = true, bool vertical = true, bool bIgnoreModalDialogue = false)
     {
+        if (InternalAreControlsDisabledByGameState(bIgnoreModalDialogue))
+        {
+            return true;
+        }
+        DisabledControls controlsToCheck = (horizontal ? DisabledControls.LookHorizontal : DisabledControls.None)
+            | (vertical ? DisabledControls.LookVertical : DisabledControls.None);
+        return AreControlsDisabled(controlsToCheck, bIgnoreModalDialogue);
+    }
+    public bool AreMoveControlsDisabled(bool left = true, bool right = true, bool up = true, bool down = true, bool bIgnoreModalDialogue = false)
+    {
+        if (InternalAreControlsDisabledByGameState(bIgnoreModalDialogue))
+        {
+            return true;
+        }
+        DisabledControls controlsToCheck = (left ? DisabledControls.MoveLeft : DisabledControls.None)
+            | (right ? DisabledControls.MoveRight : DisabledControls.None)
+            | (up ? DisabledControls.MoveUp : DisabledControls.None)
+            | (down ? DisabledControls.MoveDown : DisabledControls.None);
+        return AreControlsDisabled(controlsToCheck, bIgnoreModalDialogue);
+    }
+    public bool AreAllControlsDisabled(bool bIgnoreModalDialogue = false)
+    {
+        if (InternalAreControlsDisabledByGameState(bIgnoreModalDialogue))
+        {
+            return true;
+        }
         return playerState.currentlyDisabledControls == DisabledControls.All;
     }
 #endregion Conrol Limitation
