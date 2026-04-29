@@ -8,12 +8,14 @@ public class PlayerPreferences : MonoBehaviour
     const string MAIN_MUTED_KEY = "MainMuted";
     const string MUSIC_VOLUME_KEY = "MusicVolume";
     const string SFX_VOLUME_KEY = "SfxVolume";
+    const string MOUSE_SENSITIVITY_KEY = "MouseSensitivity";
 
     public string playerName = "Player";
     public float mainVolume = 1.0f;
     public bool mainMuted = false;
     public float musicVolume = 1.0f;
     public float sfxVolume = 1.0f;
+    public float mouseSensitivity = 1.0f;
 
     bool isDirty = false;
 
@@ -66,6 +68,7 @@ public class PlayerPreferences : MonoBehaviour
         PlayerPrefs.SetInt(MAIN_MUTED_KEY, mainMuted ? 1 : 0);
         PlayerPrefs.SetFloat(MUSIC_VOLUME_KEY, musicVolume);
         PlayerPrefs.SetFloat(SFX_VOLUME_KEY, sfxVolume);
+        PlayerPrefs.SetFloat(MOUSE_SENSITIVITY_KEY, mouseSensitivity);
         PlayerPrefs.Save();
         Debug.Log("Preferences saved");
         isDirty = false;
@@ -78,6 +81,7 @@ public class PlayerPreferences : MonoBehaviour
         mainMuted = PlayerPrefs.GetInt(MAIN_MUTED_KEY, 0) == 1;
         musicVolume = PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY, 1.0f);
         sfxVolume = PlayerPrefs.GetFloat(SFX_VOLUME_KEY, 1.0f);
+        mouseSensitivity = PlayerPrefs.GetFloat(MOUSE_SENSITIVITY_KEY, 1.0f);
         Debug.Log("Preferences loaded");
         isDirty = false;
     }
@@ -87,7 +91,7 @@ public class PlayerPreferences : MonoBehaviour
         mainVolume = Mathf.Clamp01(volume); // Clamps value between 0 and 1
         AudioListener.volume = mainVolume;
         isDirty = true;
-        Debug.Log($"Main volume set to {mainVolume}");
+        //Debug.Log($"Main volume set to {mainVolume}");
     }
 
     private void SetState()

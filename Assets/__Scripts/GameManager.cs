@@ -610,12 +610,24 @@ public class GameManager : MonoBehaviour
         playerState.currentlyDisabledControls |= (horizontal ? DisabledControls.LookHorizontal : DisabledControls.None) 
             | (vertical ? DisabledControls.LookVertical : DisabledControls.None);   
     }
+    public void EnableLookControls(bool horizontal = true, bool vertical = true)
+    {
+        playerState.currentlyDisabledControls &= ~((horizontal ? DisabledControls.LookHorizontal : DisabledControls.None)
+            | (vertical ? DisabledControls.LookVertical : DisabledControls.None));
+    }
     public void DisableMoveControls(bool left = true, bool right = true, bool up = true, bool down = true)
     {
         playerState.currentlyDisabledControls |= (left ? DisabledControls.MoveLeft : DisabledControls.None)
             | (right ? DisabledControls.MoveRight : DisabledControls.None)
             | (up ? DisabledControls.MoveUp : DisabledControls.None)
             | (down ? DisabledControls.MoveDown : DisabledControls.None);
+    }
+    public void EnableMoveControls(bool left = true, bool right = true, bool up = true, bool down = true)
+    {
+        playerState.currentlyDisabledControls &= ~((left ? DisabledControls.MoveLeft : DisabledControls.None)
+            | (right ? DisabledControls.MoveRight : DisabledControls.None)
+            | (up ? DisabledControls.MoveUp : DisabledControls.None)
+            | (down ? DisabledControls.MoveDown : DisabledControls.None));
     }
     public void DisableJumpControl()
     {

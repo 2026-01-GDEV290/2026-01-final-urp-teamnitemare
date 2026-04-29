@@ -13,6 +13,7 @@ public class PauseScript : MonoBehaviour
         //{            
          //   inputManager.GetComponent<InputManager>().PauseMenuClose();
         //}
+        AudioManager.PlayDialogueButtonPressAudioClip();
         GameManager.Instance.ResumeGame();
     }
     public void MainMenuButtonPressed()
@@ -22,6 +23,7 @@ public class PauseScript : MonoBehaviour
         //GameManager.Instance.ResumeGame();
         // LoadScene detects and does this:
         //GameManager.Instance.ClosePauseMenuAndResumeTime();
+        AudioManager.PlayDialogueButtonCancelAudioClip();
         GameManager.Instance.LoadScene(Scenes.MainMenu);
     }
 }
