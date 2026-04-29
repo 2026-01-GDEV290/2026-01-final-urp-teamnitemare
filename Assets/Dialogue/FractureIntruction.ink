@@ -1,2 +1,2 @@
 With new gained support, pull together the fractured pieces of the life you've created... 
-(Jump on the platforms and click left mouse or enter to attach it to the correct link)
+(Jump on the floating sections of the apartment and face the platform. Click left mouse or enter when facing the correct link on the platform to attach them.)

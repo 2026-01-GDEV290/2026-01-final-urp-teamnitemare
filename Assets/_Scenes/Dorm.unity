@@ -14534,6 +14534,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
+  onTriggerExit:
+    m_PersistentCalls:
+      m_Calls: []
   triggeredCount: 0
 --- !u!65 &693680530
 BoxCollider:
@@ -16925,6 +16928,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prompt: {fileID: 334100261}
   choreObject: {fileID: 1933639097}
+  choreSound: {fileID: 0}
   fade: {fileID: 346384303}
 --- !u!65 &875848913
 BoxCollider:
@@ -17483,6 +17487,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prompt: {fileID: 2047476286}
   choreObject: {fileID: 0}
+  choreSound: {fileID: 0}
   fade: {fileID: 0}
 --- !u!65 &892262560
 BoxCollider:
@@ -19306,6 +19311,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.x
       value: 0.13797718
+      objectReference: {fileID: 0}
+    - target: {fileID: 7511100814708643531, guid: 32611347f00890c428be8b065c9dbdee,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.89015555
+      objectReference: {fileID: 0}
+    - target: {fileID: 7511100814708643531, guid: 32611347f00890c428be8b065c9dbdee,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.2689319
+      objectReference: {fileID: 0}
+    - target: {fileID: 7511100814708643531, guid: 32611347f00890c428be8b065c9dbdee,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.10052
+      objectReference: {fileID: 0}
+    - target: {fileID: 7511100814708643531, guid: 32611347f00890c428be8b065c9dbdee,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.52
       objectReference: {fileID: 0}
     - target: {fileID: 7734188908301110470, guid: 32611347f00890c428be8b065c9dbdee,
         type: 3}
@@ -21785,6 +21810,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prompt: {fileID: 425524508}
   choreObject: {fileID: 219419306}
+  choreSound: {fileID: 0}
   fade: {fileID: 346384303}
 --- !u!65 &1167694981
 BoxCollider:
@@ -34421,6 +34447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prompt: {fileID: 1244970213}
   choreObject: {fileID: 1876535759}
+  choreSound: {fileID: 0}
   fade: {fileID: 346384303}
 --- !u!65 &1597130294
 BoxCollider:

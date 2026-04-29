@@ -14,6 +14,8 @@ public class Follow : MonoBehaviour
 
     [SerializeField] private BirdFollowTrigger followTrigger;
 
+    [SerializeField] private GameObject visualCue;
+
     public static int numberOfFollowers = 0;
 
 
@@ -56,5 +58,9 @@ public class Follow : MonoBehaviour
             transform.LookAt(target);
         }
 
+        if (visualCue != null)
+        {
+            visualCue.SetActive(false);
+        }
     }
 }
