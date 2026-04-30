@@ -39,15 +39,24 @@ public class PlayerControllerSwitcher : MonoBehaviour, ISaveable
 
     void SetActivePlayer(GameObject newPlayer, MonoBehaviour newController)
     {
-        // Disable both players' controls and cameras
+        // Disable both players' controls, cameras and listeners
+        
+        GameObject player1Cam = playerPawn1.GetComponentInChildren<Camera>(true).gameObject;
+        player1Cam.GetComponent<AudioListener>().enabled = false;
+        playerPawn1.SetActive(false);
+        GameObject player2Cam = playerPawn2.GetComponentInChildren<Camera>(true).gameObject;
+        player2Cam.GetComponent<AudioListener>().enabled = false;
+        playerPawn2.SetActive(false);
+        // do this last to avoid being unable to disable the child objects
         player1Controller.enabled = false;
         player2Controller.enabled = false;
-        playerPawn1.GetComponentInChildren<Camera>(true).gameObject.SetActive(false);
-        playerPawn2.GetComponentInChildren<Camera>(true).gameObject.SetActive(false);
 
-        // Enable the new player's control and camera
+        // Enable the new player's control, camera and listener
         newController.enabled = true;
-        newPlayer.GetComponentInChildren<Camera>(true).gameObject.SetActive(true);
+        GameObject newPlayerCam = newPlayer.GetComponentInChildren<Camera>(true).gameObject;
+        newPlayerCam.SetActive(true);
+        newPlayerCam.GetComponent<AudioListener>().enabled = true;
+        newPlayer.SetActive(true);
 
         // Update active player reference
         activePlayerPawn = newPlayer;

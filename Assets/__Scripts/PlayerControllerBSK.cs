@@ -914,6 +914,7 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             Destroy(grappleDestinationAnchor.gameObject);
             grappleDestinationAnchor = null;
+            cameraSwitchTimed?.SwitchBackToPreviousCamera();
         }
 
         if (transform.parent != grapplePlayerOriginalParent)
@@ -934,7 +935,6 @@ public class PlayerControllerBSK : MonoBehaviour
 
         grappleLockedLights = null;
         grappleLockedQuestComponent = null;
-        cameraSwitchTimed?.SwitchBackToPreviousCamera();
     }
 
     void SetGrappleLineActive(bool isActive)
