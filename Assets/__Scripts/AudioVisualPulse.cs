@@ -67,6 +67,7 @@ public class AudioVisualPulse : MonoBehaviour
 	void Awake()
 	{
 		disableInCurrentScene = IsFractureScene();
+
 		if (disableInCurrentScene)
 		{
 			enabled = false;
@@ -121,6 +122,7 @@ public class AudioVisualPulse : MonoBehaviour
 		RefreshAttractions();
 
 		ChirpAttract closest = GetClosestAttraction();
+		
 		if (closest == null)
 		{
 			return;
@@ -136,6 +138,8 @@ public class AudioVisualPulse : MonoBehaviour
 		bool isFacingTarget = IsFacingTarget(targetPoint);
 		bool hasClearLineOfSight = HasClearLineOfSight(attractionTarget, targetPoint);
 		bool shouldHoldBright = isFacingTarget && hasClearLineOfSight;
+
+		//Debug.Log("AudioVisualPulse.FixedUpdate: closest attraction is " + closest.name + ", shouldHoldBright=" + shouldHoldBright);
 
 		if (shouldHoldBright)
 		{
@@ -182,6 +186,11 @@ public class AudioVisualPulse : MonoBehaviour
 		}
 
 		Transform attractionTarget = GetAttractionTarget(closest.transform);
+		if (attractionTarget == null)
+		{
+			return;
+		}
+
 		Vector3 targetPoint = attractionTarget.position;
 		bool isFacingTarget = IsFacingTarget(targetPoint);
 		bool hasClearLineOfSight = HasClearLineOfSight(attractionTarget, targetPoint);
@@ -321,7 +330,16 @@ public class AudioVisualPulse : MonoBehaviour
 			return null;
 		}
 
-		return attractionTransform.parent != null ? attractionTransform.parent : attractionTransform;
+		if (attractionTransform.parent != null)
+		{
+			BirbSphere birbSphere = attractionTransform.parent.GetComponent<BirbSphere>();
+			if (birbSphere != null)
+			{
+				return attractionTransform.parent;
+			}
+		}
+
+		return attractionTransform;
 	}
 
 	bool IsFacingTarget(Vector3 targetWorld)
@@ -431,6 +449,7 @@ public class AudioVisualPulse : MonoBehaviour
 	void EmitPulse(Transform target)
 	{
 		int count = Mathf.Clamp(circlesPerPulse, 1, ringPool.Count);
+
 		TryPulseBirbSphere(target, count);
 
 		Vector3 toTargetWorld = (target.position - cam.transform.position).normalized;

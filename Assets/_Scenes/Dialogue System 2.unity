@@ -12007,7 +12007,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1773623360729482, guid: 11aaea5348574644a9eb4f4504fcce3f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1773623360729482, guid: 11aaea5348574644a9eb4f4504fcce3f, type: 3}
       propertyPath: m_TagString
@@ -22145,6 +22145,79 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 44c2c1ab745c05740b134b9f0487d99b, type: 3}
+--- !u!1001 &1121125894
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3947083356892867863, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: lookSpeed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4442054863039405766, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_Name
+      value: PlayerControllerBasicFPS
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4a36e39ef99a9c6458b5635fc465442c, type: 3}
 --- !u!1001 &1127017639
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33864,6 +33937,15 @@ MonoBehaviour:
   onTriggerExit:
     m_PersistentCalls:
       m_Calls: []
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 1
+  hideBillboardOnInteract: 1
+  showBillboardOnInteractExit: 1
+  triggerOnlyOnce: 0
   triggeredCount: 0
 --- !u!65 &1740688655
 BoxCollider:
@@ -43222,3 +43304,4 @@ SceneRoots:
   - {fileID: 49339768}
   - {fileID: 454728502}
   - {fileID: 718551376}
+  - {fileID: 1121125894}

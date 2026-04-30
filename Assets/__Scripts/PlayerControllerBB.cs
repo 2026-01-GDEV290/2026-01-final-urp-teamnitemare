@@ -111,10 +111,16 @@ public class PlayerControllerBB : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 moveInput = playerControls.Player.Move.ReadValue<Vector2>();
-        Move(moveInput);
-        Vector2 lookInput = playerControls.Player.Look.ReadValue<Vector2>();
-        Rotate(lookInput);
+        if (!GameManager.Instance.AreLookControlsDisabled())
+        {
+            Vector2 lookInput = playerControls.Player.Look.ReadValue<Vector2>();
+            Rotate(lookInput);
+        }
+        if (!GameManager.Instance.AreMoveControlsDisabled())
+        {
+            Vector2 moveInput = playerControls.Player.Move.ReadValue<Vector2>();
+            Move(moveInput);
+        }        
     }
 
     void FixedUpdate()
@@ -219,6 +225,10 @@ public class PlayerControllerBB : MonoBehaviour
 
     public void Jump()
     {
+        if (GameManager.Instance.AreMoveControlsDisabled())
+        {
+            return;
+        }
         if (characterController.isGrounded)
         {
             verticalVelocity = jumpForce;
@@ -227,6 +237,10 @@ public class PlayerControllerBB : MonoBehaviour
 
     public void Attack()
     {
+        if (GameManager.Instance.AreControlsDisabled(DisabledControls.Attack))
+        {
+            return;
+        }
         if (!haveWeapon)
         {
             //Debug.Log("PlayerControllerBB Attack: No weapon, cannot attack");

@@ -14587,6 +14587,15 @@ MonoBehaviour:
   onTriggerExit:
     m_PersistentCalls:
       m_Calls: []
+  billBoardObject: {fileID: 0}
+  billBoardOffset: {x: 0, y: 2, z: 0}
+  billBoardTextObject: {fileID: 0}
+  billBoardTextOffset: {x: 0, y: 1, z: 0}
+  billBoardInteractText: Interact
+  showBillboardOnStart: 1
+  hideBillboardOnInteract: 1
+  showBillboardOnInteractExit: 1
+  triggerOnlyOnce: 0
   triggeredCount: 0
 --- !u!65 &693680530
 BoxCollider:
@@ -50270,7 +50279,7 @@ PrefabInstance:
     - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.649
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 8680866519427323941, guid: 4a36e39ef99a9c6458b5635fc465442c,
         type: 3}

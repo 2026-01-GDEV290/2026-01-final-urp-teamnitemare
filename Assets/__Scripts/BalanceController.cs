@@ -204,6 +204,10 @@ public class BalanceController : MonoBehaviour, ISaveable
 
     void Update()
     {
+        if (GameManager.Instance.AreMoveControlsDisabled())
+        {
+            return;
+        }
         if (stopMovement)
         {
             if (!isFreefalling)
