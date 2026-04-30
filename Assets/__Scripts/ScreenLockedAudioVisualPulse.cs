@@ -179,6 +179,8 @@ public class ScreenLockedAudioVisualPulse : MonoBehaviour
         int count = Mathf.Clamp(circlesPerPulse, 1, ringPool.Count);
         Vector3 pulseDirection = cam.transform.right;
 
+        closest.PlaySound();
+
         for (int i = 0; i < count; i++)
         {
             LineRenderer lr = GetNextRing();
