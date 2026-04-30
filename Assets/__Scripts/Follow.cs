@@ -34,6 +34,11 @@ public class Follow : MonoBehaviour
         {
             followTrigger.OnNewBirbFollowing();
         }
+        ChirpAttract attract = GetComponent<ChirpAttract>();
+        if (attract != null)
+        {
+            attract.enabled = false;
+        }
     }
 
     // Update is called once per frame

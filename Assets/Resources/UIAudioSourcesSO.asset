@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28b3eab993c29154b8e7e3bb894cf9f9, type: 3}
   m_Name: UIAudioSourcesSO
   m_EditorClassIdentifier: 
-  UIMenuClick: {fileID: 0}
-  clickCard: {fileID: 0}
-  UIMenuCancel: {fileID: 0}
+  UIMenuClick: {fileID: 8300000, guid: 7efe41d2c6862a2439cde5feacc035a8, type: 3}
+  clickCard: {fileID: 8300000, guid: af9355c8cc31ef549a119ba0c2a2a258, type: 3}
+  UIMenuCancel: {fileID: 8300000, guid: af9355c8cc31ef549a119ba0c2a2a258, type: 3}

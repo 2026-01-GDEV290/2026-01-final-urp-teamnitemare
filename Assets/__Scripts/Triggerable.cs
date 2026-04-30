@@ -1,12 +1,29 @@
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(Collider))]
 public class Triggerable : MonoBehaviour, ISaveable
 {
     public bool isActive = true;
-    public GameObject playerOrNullForAll = null;
-    public UnityEngine.Events.UnityEvent onTrigger;
-    public UnityEngine.Events.UnityEvent onTriggerExit;
+    [SerializeField] public GameObject playerOrNullForAll = null;
+    [SerializeField] public UnityEngine.Events.UnityEvent onTrigger;
+    [SerializeField] public UnityEngine.Events.UnityEvent onTriggerExit;
+
+    //!
+    [SerializeField] GameObject billBoardObject = null;
+    [SerializeField] Vector3 billBoardOffset = new Vector3(0f, 2f, 0f);
+    [SerializeField] TMP_Text billBoardTextObject = null;
+    [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
+    [SerializeField] string billBoardInteractText = "Interact";
+    [SerializeField] bool showBillboardOnStart = true;
+
+    //[SerializeField] InkleStoryComponent inkStoryComponentOrNull = null;
+
+    //!!
+    [SerializeField] bool hideBillboardOnInteract = true;
+    [SerializeField] bool showBillboardOnInteractExit = true;
+    [SerializeField] bool triggerOnlyOnce = false;
+    
     public int triggeredCount = 0;
     bool isActiveInScene = false;
     bool bDataRestored = false;
@@ -18,6 +35,9 @@ public class Triggerable : MonoBehaviour, ISaveable
     }
     void Start()
     {
+
+        // SetBillboardVisibility(showBillboardOnStart);
+
         if (bDataRestored)
         {
             gameObject.SetActive(isActiveInScene);
@@ -47,6 +67,10 @@ public class Triggerable : MonoBehaviour, ISaveable
                 objectTriggeredBy = other.gameObject;
                 onTrigger.Invoke();
                 triggeredCount++;
+                // if (hideBillboardOnInteract)
+                // {
+                //     SetBillboardVisibility(false);
+                // }
             }
         }
     }
@@ -57,7 +81,12 @@ public class Triggerable : MonoBehaviour, ISaveable
             if (playerOrNullForAll == null || other.gameObject == playerOrNullForAll)
             {
                 onTriggerExit.Invoke();
-            }
+                // if (showBillboardOnInteractExit)
+                // {
+                //     SetBillboardVisibility(true);
+                // }
+                //inkStoryComponentOrNull?.ExitTriggerArea();
+            }            
         }
     }
 #region ISaveable implementation

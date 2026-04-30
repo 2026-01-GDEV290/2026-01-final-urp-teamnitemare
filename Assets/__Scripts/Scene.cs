@@ -70,6 +70,8 @@ public class Scene : MonoBehaviour
         visitCount = GameManager.Instance.gameState.GetSceneVisitCount(sceneName);
         Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount);
 
+        PlayerPreferences.Instance.RefreshAudioSettings();
+
         questManager = FindFirstObjectByType<QuestManager>();
         if (questManager == null)
         {
@@ -129,9 +131,9 @@ public class Scene : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("Scene->Awake: No SceneVisitTasks found for Scene: " + sceneName + ", Visit Count: " + visitCount);
-                    onSceneAwake = new UnityEvent();
-                    onSceneStart = new UnityEvent();
+                    Debug.LogWarning("Scene->Awake: No SceneVisitTasks found for Scene: " + sceneName + ", Visit Count: " + visitCount + " defaulting to 1st tasks in list");
+                    onSceneAwake = sceneVisitTasks[0].onSceneAwake;
+                    onSceneStart = sceneVisitTasks[0].onSceneStart;
                 }
             }
         }
@@ -204,6 +206,75 @@ public class Scene : MonoBehaviour
     }
 
 #endregion Scene Progression
+
+#region GameManager Helpers
+    public void DisableMoveControlsGM()
+    {
+        GameManager.Instance.DisableMoveControls();
+    }
+    public void EnableMoveControlsGM()
+    {
+        GameManager.Instance.EnableMoveControls();
+    }
+    public void DisableLookControlsGM()
+    {
+        GameManager.Instance.DisableLookControls();
+    }
+    public void EnableLookControlsGM()
+    {
+        GameManager.Instance.EnableLookControls();
+    }
+    public void PauseGame()
+    {
+        GameManager.Instance.PauseGame();
+    }
+    public void ResumeGame()
+    {
+        GameManager.Instance.ResumeGame();
+    }
+    public void SetModalDialogueOpen(bool mouseCursorForUI = true)
+    {
+        GameManager.Instance.ModalDialogueSetIsOpen(mouseCursorForUI);
+    }
+    public void SetModalDialogueClosed(bool mouseCursorForGame = true)
+    {
+        GameManager.Instance.ModalDialogueSetIsClosed(mouseCursorForGame);
+    }
+
+#endregion GameManager Helpers
+
+#region AudioManager Helpers
+// keeping to 1-parameter functions for ease of use in UnityEvents
+    public void PlaySound(AudioClip clip)
+    {
+        AudioManager.Play(clip);
+    }
+    public void StopSound()
+    {
+        AudioManager.Stop();
+    }
+    public void MuteAudio()
+    {
+        AudioManager.Mute();
+    }
+    public void UnMuteAudio()
+    {
+        AudioManager.UnMute();
+    }
+    public void PlayOneShot(AudioClip clip)
+    {
+        AudioManager.PlayOneShot(clip);
+    }
+    public void PlayOneShotFromArray(AudioClip[] clips)
+    {
+        AudioManager.PlayOneShotFromArray(clips);
+    }
+    public void SetOneShotVolume(float volume)
+    {
+        AudioManager.PlayVolumeForOneShot(volume);
+    }
+
+#endregion AudioManager Helpers
 
 
 // TODO: Remove these? (just drag object into events and set directly in inspector)

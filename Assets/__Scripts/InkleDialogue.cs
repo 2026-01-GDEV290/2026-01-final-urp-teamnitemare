@@ -78,7 +78,7 @@ public class InkleDialogue : MonoBehaviour
     [SerializeField] UnityEvent onChoiceSelection;
 
     [SerializeField] bool playerMovementDisabledDuringDialogue = true;
-    [SerializeField] bool playerMovementStopsDialogue = false;    
+    //[SerializeField] bool playerMovementStopsDialogue = false;    
 
     //[SerializeField] private TextAsset inkJSON;
 
@@ -865,10 +865,10 @@ public class InkleDialogue : MonoBehaviour
     {
         return playerMovementDisabledDuringDialogue;
     }
-    public bool DoesPlayerMovementStopDialogue()
-    {
-        return playerMovementStopsDialogue;
-    }
+    // public bool DoesPlayerMovementStopDialogue()
+    // {
+    //     return playerMovementStopsDialogue;
+    // }
     public void DisablePlayerMovementDuringDialogue()
     {
         playerMovementDisabledDuringDialogue = true;
@@ -885,10 +885,10 @@ public class InkleDialogue : MonoBehaviour
         }
         playerMovementDisabledDuringDialogue = false;
     }
-    public void SetPlayerMovementStopsDialogue(bool stops)
-    {
-        playerMovementStopsDialogue = stops;
-    }
+    // public void SetPlayerMovementStopsDialogue(bool stops)
+    // {
+    //     playerMovementStopsDialogue = stops;
+    // }
 #endregion Player Move Options
 
 #region Listeners: Dialogue events

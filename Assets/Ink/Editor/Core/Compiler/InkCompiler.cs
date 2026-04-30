@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections.Generic;
@@ -820,3 +821,4 @@ namespace Ink.UnityIntegration {
 		#endregion
 	}
 }
+#endif

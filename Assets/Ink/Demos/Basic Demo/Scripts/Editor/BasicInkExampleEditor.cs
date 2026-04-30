@@ -1,4 +1,5 @@
-﻿using Ink.Runtime;
+﻿#if UNITY_EDITOR
+using Ink.Runtime;
 using Ink.UnityIntegration;
 using UnityEditor;
 using UnityEngine;
@@ -24,3 +25,4 @@ public class BasicInkExampleEditor : Editor {
 		InkPlayerWindow.DrawStoryPropertyField(story, ref storyExpanded, new GUIContent("Story"));
 	}
 }
+#endif
