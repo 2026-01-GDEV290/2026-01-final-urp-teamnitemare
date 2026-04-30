@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using UnityEditor.EditorTools;
 
 // Text component is optional (created at runtime if not assigned)
 

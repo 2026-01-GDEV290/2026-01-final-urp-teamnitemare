@@ -14,6 +14,7 @@ using UnityEngine;
     MoveDown = 32,
     Jump = 64,
     Interact = 128,
+    Attack = 256,
     All = -1
  };
 

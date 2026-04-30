@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 
@@ -17,3 +18,4 @@ namespace Ink.UnityIntegration {
 		public virtual void OnInspectorGUI() {}
 	}
 }
+#endif

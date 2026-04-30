@@ -11,9 +11,6 @@ public class PlayerControllerBSK : MonoBehaviour
     private InputSystem_Actions playerControls;
     private InputAction moveAction;
     private InputAction lookAction;
-    private InputAction jumpAction;
-    private InputAction attackAction;
-    private InputAction interactAction;
 
     [Header("References")]
     [SerializeField] private Camera playerCamera;
@@ -299,12 +296,9 @@ public class PlayerControllerBSK : MonoBehaviour
         playerControls.Enable();
         moveAction = playerControls.Player.Move;
         lookAction = playerControls.Player.Look;
-        jumpAction = playerControls.Player.Jump;
-        attackAction = playerControls.Player.Attack;
-        jumpAction.performed += JumpActionPerformed;
-        attackAction.performed += AttackAction;
-        interactAction = playerControls.Player.Interact;
-        interactAction.performed += InteractAction;
+        playerControls.Player.Jump.performed += JumpActionPerformed;
+        playerControls.Player.Attack.performed += AttackAction;
+        playerControls.Player.Interact.performed += InteractAction;
 
         // get child InteractArea's InteractCollider and subscribe to its event
         InteractCollider[] interactColliders = GetComponentsInChildren<InteractCollider>();
@@ -323,19 +317,9 @@ public class PlayerControllerBSK : MonoBehaviour
     }
     void OnDisable()
     {
-        if (jumpAction != null)
-        {
-            jumpAction.performed -= JumpActionPerformed;
-        }
-
-        if (attackAction != null)
-        {
-            attackAction.performed -= AttackAction;
-        }
-        if (interactAction != null)
-        {
-            interactAction.performed -= InteractAction;
-        }
+        playerControls.Player.Jump.performed -= JumpActionPerformed;
+        playerControls.Player.Attack.performed -= AttackAction;
+        playerControls.Player.Interact.performed -= InteractAction;
 
         if (playerControls != null)
         {
@@ -374,24 +358,33 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void Update()
     {
-        Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        Vector2 lookInput = lookAction.ReadValue<Vector2>();
-
+        if (!GameManager.Instance.AreLookControlsDisabled())
+        {
+            Vector2 lookInput = lookAction.ReadValue<Vector2>();
+            HandleLook(lookInput);
+        }
         if (isGrappleMoveLocked)
         {
-            HandleLook(lookInput);
+            //HandleLook(lookInput);
             UpdateGrappleMoveLock();
             return;
         }
-
-        HandleLook(lookInput);
+        //HandleLook(lookInput);
         UpdateGrappleHighlight();
-        HandleMovement(moveInput);
+        if (!GameManager.Instance.AreMoveControlsDisabled())
+        {
+            Vector2 moveInput = moveAction.ReadValue<Vector2>();
+            HandleMovement(moveInput);
+        }
     }
 
     void JumpActionPerformed(InputAction.CallbackContext context)
     {
         if (isGrappleMoveLocked || characterController == null)
+        {
+            return;
+        }
+        if (GameManager.Instance.AreMoveControlsDisabled())
         {
             return;
         }
@@ -625,6 +618,10 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void AttackAction(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.AreControlsDisabled(DisabledControls.Attack))
+        {
+            return;
+        }
         if (isGrappleMoveLocked)
         {
             return;
@@ -640,6 +637,10 @@ public class PlayerControllerBSK : MonoBehaviour
 
     void InteractAction(InputAction.CallbackContext context)
     {
+        if (GameManager.Instance.AreControlsDisabled(DisabledControls.Interact))
+        {
+            return;
+        }
         if (isGrappleMoveLocked)
         {
             return;
@@ -913,6 +914,7 @@ public class PlayerControllerBSK : MonoBehaviour
         {
             Destroy(grappleDestinationAnchor.gameObject);
             grappleDestinationAnchor = null;
+            cameraSwitchTimed?.SwitchBackToPreviousCamera();
         }
 
         if (transform.parent != grapplePlayerOriginalParent)
@@ -933,7 +935,6 @@ public class PlayerControllerBSK : MonoBehaviour
 
         grappleLockedLights = null;
         grappleLockedQuestComponent = null;
-        cameraSwitchTimed?.SwitchBackToPreviousCamera();
     }
 
     void SetGrappleLineActive(bool isActive)

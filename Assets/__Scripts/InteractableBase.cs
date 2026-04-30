@@ -27,7 +27,7 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     [SerializeField] Collider interactionCollider = null;
     [SerializeField] bool autoInteractOnColliderTrigger = false;
     [SerializeField] bool autoInteractOnColliderExitTrigger = false;
-    [SerializeField]GameObject playerAutoInteractOrNullForAll = null;
+    [SerializeField] GameObject playerAutoInteractOrNullForAll = null;
 
     [SerializeField] GameObject billBoardObject = null;
     [SerializeField] Vector3 billBoardOffset = new Vector3(0f, 2f, 0f);
@@ -35,6 +35,11 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
     [SerializeField] Vector3 billBoardTextOffset = new Vector3(0f, 1f, 0f);
     [SerializeField] string billBoardInteractText = "Interact";
     [SerializeField] bool showBillboardOnStart = true;
+    //[SerializeField] InkleStoryComponent inkStoryComponentOrNull = null;
+
+    //!!
+    [SerializeField] bool hideBillboardOnInteract = true;
+    [SerializeField] bool showBillboardOnInteractExit = true;
 
     GameObject objectTriggeredBy = null;
     bool bDataRestored;
@@ -52,9 +57,18 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
             }
             // else it's possible to have BOTH a billboard (say, image) and billboardtext object
         }
+        if (interactionCollider == null)
+        {
+            interactionCollider = GetComponent<Collider>();
+            if (interactionCollider == null)
+            {
+                Debug.LogError("InteractableBase: No interaction collider assigned and no collider found on the object. Please assign a collider to be used as the interaction trigger.");
+            }
+        }
     }
     protected virtual void Start()
     {
+        //SetBillboardVisibility(showBillboardOnStart);
         if (billBoardObject != null)
         {
             billBoardObject.transform.position = transform.position + billBoardOffset;
@@ -64,10 +78,6 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
 
             billBoardTextObject.text = billBoardInteractText;
             billBoardTextObject.transform.position = transform.position + billBoardTextOffset;
-        }
-        if (!showBillboardOnStart)
-        {
-            SetBillboardVisibility(false);
         }
         Debug.Log("IB->Start: Starting interactable of type: " + interactableType + " with interactText: " + interactText + " and isInteractable: " + isInteractable);
         if (bDataRestored)
@@ -126,6 +136,7 @@ public abstract class InteractableBase : MonoBehaviour, ISaveable
             if (autoInteractOnColliderExitTrigger && isInteractable)
             {
                 InteractExit();
+                //inkStoryComponentOrNull?.ExitTriggerArea();
             }
             objectTriggeredBy = null;
         }
