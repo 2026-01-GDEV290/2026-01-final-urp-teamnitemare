@@ -70,6 +70,8 @@ public class Scene : MonoBehaviour
         visitCount = GameManager.Instance.gameState.GetSceneVisitCount(sceneName);
         Debug.Log("Scene->Awake: Scene (after GM->SceneAwake): " + sceneName + ", Visit Count: " + visitCount);
 
+        PlayerPreferences.Instance.RefreshAudioSettings();
+
         questManager = FindFirstObjectByType<QuestManager>();
         if (questManager == null)
         {

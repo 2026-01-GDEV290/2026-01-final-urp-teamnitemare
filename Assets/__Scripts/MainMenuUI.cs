@@ -41,7 +41,7 @@ public class MainMenuUI : MonoBehaviour
         bSettingVolumeSliderManually = true;
         mainVolumeSlider.value = PlayerPreferences.Instance.mainVolume;
         mouseSensitivitySlider.value = PlayerPreferences.Instance.mouseSensitivity;
-        // muteToggle.isOn = PlayerPreferences.Instance.mainMuted;
+        muteToggle.isOn = PlayerPreferences.Instance.mainMuted;
         mouseSensitivityValueText.text = PlayerPreferences.Instance.mouseSensitivity.ToString("0.00");
     }
 

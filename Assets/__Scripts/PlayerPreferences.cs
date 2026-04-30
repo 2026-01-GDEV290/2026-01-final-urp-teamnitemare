@@ -108,6 +108,11 @@ public class PlayerPreferences : MonoBehaviour
         }
     }
 
+    public void RefreshAudioSettings()
+    {
+        SetState();
+    }
+
     public void SetPlayerName(string name)
     {
         playerName = name;
