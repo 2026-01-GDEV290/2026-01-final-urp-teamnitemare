@@ -1,4 +1,5 @@
-﻿// Automatically creates JSON files from an ink placed within the Assets/Ink folder.
+﻿#if UNITY_EDITOR
+// Automatically creates JSON files from an ink placed within the Assets/Ink folder.
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -210,3 +211,4 @@ namespace Ink.UnityIntegration {
 		}
 	}
 }
+#endif

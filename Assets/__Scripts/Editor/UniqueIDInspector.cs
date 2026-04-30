@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -14,4 +15,4 @@ public class UniqueIDInspector : Editor
         EditorGUILayout.LabelField("Unique ID", uniqueID.ID);
     }
 }
-
+#endif

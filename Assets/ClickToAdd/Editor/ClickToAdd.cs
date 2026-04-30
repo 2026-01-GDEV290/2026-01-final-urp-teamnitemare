@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.Collections;
@@ -1007,5 +1008,4 @@ public class prefabToAdd
 	//used in selection of prefab
 	public float lotteryNumber = 0f;
 }
-
-
+#endif
