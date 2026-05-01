@@ -337,6 +337,12 @@ public class PlayerControllerDRM : MonoBehaviour
 
     void UpdateWalkSound(Vector3 horizontalMove, bool wasGroundedThisFrame)
     {
+        if (isRunning)
+        {
+            walkSoundDistanceAccumulator = 0f;
+            return;
+        }
+
         if (!wasGroundedThisFrame || walkSounds == null || walkSounds.Length == 0)
         {
             if (!wasGroundedThisFrame)

@@ -290,7 +290,7 @@ MonoBehaviour:
   playerCamera: {fileID: 7023657161891019773}
   moveSpeed: 5
   runSpeed: 8
-  lookSpeed: 3
+  lookSpeed: 8
   jumpHeight: 1.4
   gravity: -20
   coyoteTime: 0.12
@@ -307,8 +307,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ab9637a2491abbf4ca9c9601321cbb88, type: 3}
   - {fileID: 8300000, guid: 50b288ce0d5ac1e439827c5365c74c31, type: 3}
   - {fileID: 8300000, guid: 3b09d59f4499d45428baa7a21e954296, type: 3}
-  runningSoundClip: {fileID: 8300000, guid: f8c14f2814b4b124a894a65c32c44987, type: 3}
-  runningSoundVolume: 0.3
+  runningSoundClip: {fileID: 8300000, guid: 1e53b70527b5f0447884b3b55365dd8d, type: 3}
+  runningSoundVolume: 1
   walkSoundDistance: 1.8
   walkSoundVolume: 0.3
   walkSoundSource: {fileID: 0}

@@ -129,11 +129,11 @@ public class PlayerControllerBB : MonoBehaviour
         if (attacking)
         {
             //if (weapon.rotation.eulerAngles.x >= 90f)
-            if (weapon.localRotation.eulerAngles.z >= 45f)
+            if (weapon.localRotation.eulerAngles.z >= 60f)
             {
                 attacking = false;
                 retracting = true;
-                weapon.localRotation = Quaternion.Euler(weapon.localRotation.eulerAngles.x, weapon.localRotation.eulerAngles.y, 45f);
+                weapon.localRotation = Quaternion.Euler(weapon.localRotation.eulerAngles.x, weapon.localRotation.eulerAngles.y, 60f);
                 //weaponCollider.isTrigger = true;  // doesn't work to enable OnCollisionEnter calls
             }
             else

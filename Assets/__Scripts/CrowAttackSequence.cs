@@ -11,6 +11,8 @@ public class CrowAttackSequence : MonoBehaviour
     [SerializeField] Transform fleeTarget;
     [SerializeField] float timeBetweenCalls = 0.1f;
 
+    [SerializeField] AudioClip geometryFallApartSound;
+
     [SerializeField] List<GameObject> worldGeometryToFallApart = new List<GameObject>();
 
     [SerializeField] BalanceController playerBalanceController;
@@ -79,6 +81,14 @@ public class CrowAttackSequence : MonoBehaviour
         }
     }
 
+    void PlayGeometryFallApartSoundAgain()
+    {
+        if (geometryFallApartSound != null)
+        {
+            AudioManager.PlayOneShot(geometryFallApartSound, 0.7f);
+        }
+    }
+
     void WorldGeometryFallApart()
     {
         StartCoroutine(WorldGeometryFallApartCoroutine());
@@ -129,6 +139,11 @@ public class CrowAttackSequence : MonoBehaviour
         if (originalPositions.Count == 0)
         {
             yield break;
+        }
+        if (geometryFallApartSound != null)
+        {
+            AudioManager.PlayOneShot(geometryFallApartSound, 0.7f);
+            Invoke(nameof(PlayGeometryFallApartSoundAgain), 0.8f);
         }
 
         float duration = 5f;

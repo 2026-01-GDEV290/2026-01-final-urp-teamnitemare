@@ -71,6 +71,7 @@ public class BalanceController : MonoBehaviour, ISaveable
     bool waitingForCenteredForwardMove;
 
     bool stopMovement = false;
+    bool dontResetCameraOnStop = false;
     float canvasPPU = 100;
     Coroutine freefallCoroutine;
     bool isFreefalling;
@@ -210,7 +211,7 @@ public class BalanceController : MonoBehaviour, ISaveable
         }
         if (stopMovement)
         {
-            if (!isFreefalling)
+            if (!isFreefalling && !dontResetCameraOnStop)
             {
                 ResetLeanAndCamera();
             }
@@ -263,9 +264,12 @@ public class BalanceController : MonoBehaviour, ISaveable
         ResetLeanAndCamera();
     }
 
+    // This is called shortly before the CrowAttackSequence and World Geometry falls apart sequence
+    // and finally the freefall sequence, so stop movement, look down at crow attack
     public void StopMovementAndDisableBalanceVisuals()
     {
         StopMovement();
+        dontResetCameraOnStop = true;
         if (helpText != null)
         {
             helpText.gameObject.SetActive(false);
@@ -274,6 +278,35 @@ public class BalanceController : MonoBehaviour, ISaveable
         {
             needle.parent.gameObject.SetActive(false);
         }
+        // also rotate camera down over the course of 1 second
+        if (playerCam != null)
+        {
+            StartCoroutine(RotateCameraDown());
+        }
+    }
+    IEnumerator RotateCameraDown()
+    {
+        if (playerCam == null)
+        {
+            yield break;
+        }
+
+        Quaternion startRotation = playerCam.transform.localRotation;
+        // target is 25 degrees down, nothing to do with freefall
+        Quaternion targetRotation = cameraBaseLocalRotation * Quaternion.Euler(25f, 0f, 0f);
+        
+        float elapsed = 0f;
+        float duration = 0.8f;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            playerCam.transform.localRotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        playerCam.transform.localRotation = targetRotation;
     }
 
     public void ResumeMovement()

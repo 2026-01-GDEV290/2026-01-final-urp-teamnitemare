@@ -61,11 +61,15 @@ public class PlayerControllerBSK : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip featherJumpSound;
     [SerializeField] private AudioClip grappleLaunchSound;
+    [SerializeField] private float grappleLaunchVolume = 0.7f;
+    [SerializeField] private AudioSource grappleLaunchSource;
     [SerializeField] private AudioClip grapplingPullSound;
     [SerializeField] private AudioClip[] walkSounds;
     [SerializeField] private float walkSoundDistance = 1.8f;
     [SerializeField] private float walkSoundVolume = 0.7f;
+    [SerializeField] private float grapplePullVolume = 0.4f;
     [SerializeField] private AudioSource walkSoundSource;
+    private AudioSource grapplePullSource;
 
 
     Vector3[] fragmentDestinations = new Vector3[]
@@ -161,6 +165,30 @@ public class PlayerControllerBSK : MonoBehaviour
         walkSoundSource.playOnAwake = false;
         walkSoundSource.loop = false;
         walkSoundSource.spatialBlend = 0f;
+        // Grapple pull audio source (looped while grappling move is active)
+        if (grapplePullSource == null)
+        {
+            grapplePullSource = GetComponent<AudioSource>();
+            // If GetComponent returned the same source as walkSoundSource, add a dedicated one
+            if (grapplePullSource == walkSoundSource)
+            {
+                grapplePullSource = null;
+            }
+            if (grapplePullSource == null)
+            {
+                grapplePullSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
+        grapplePullSource.playOnAwake = false;
+        grapplePullSource.loop = true;
+        grapplePullSource.spatialBlend = 0f;    // 0 = 2D sound, not affected by 3D position
+        // use adjustable inspector value for volume so launch sound isn't drowned out
+        grapplePullSource.volume = Mathf.Clamp01(grapplePullVolume);
+        // Ensure any assigned launch source is non-spatial (2D) so it isn't affected by position
+        if (grappleLaunchSource != null)
+        {
+            grappleLaunchSource.spatialBlend = 0f;
+        }
         
         if (wingAnimationControl == null)
         {
@@ -765,7 +793,21 @@ public class PlayerControllerBSK : MonoBehaviour
 
         if (grappleLaunchSound != null)
         {
-            AudioSource.PlayClipAtPoint(grappleLaunchSound, transform.position);
+            if (grappleLaunchSource != null)
+            {
+                // Use assigned AudioSource (allows inspector control and separate mixer routing)
+                grappleLaunchSource.PlayOneShot(grappleLaunchSound, grappleLaunchVolume);
+            }
+            else if (walkSoundSource != null)
+            {
+                // Reuse player's walk sound source (non-spatial by default)
+                walkSoundSource.PlayOneShot(grappleLaunchSound, grappleLaunchVolume);
+            }
+            else
+            {
+                // Fallback to playing at player position
+                AudioSource.PlayClipAtPoint(grappleLaunchSound, transform.position, grappleLaunchVolume);
+            }
         }
 
         grappleMoveDestinationPosition = fragmentDestinations[destinationIndex];
@@ -794,6 +836,25 @@ public class PlayerControllerBSK : MonoBehaviour
         fractureAntiFallTriggered = false;
 
         cameraSwitchTimed?.SwitchToTargetCamera();
+        // Play grappling pull sound using existing grapplePullSource (created in Awake)
+        if (grapplingPullSound != null)
+        {
+            if (grapplePullSource != null)
+            {
+                if (grapplePullSource.clip != grapplingPullSound)
+                {
+                    grapplePullSource.clip = grapplingPullSound;
+                }
+                if (!grapplePullSource.isPlaying)
+                {
+                    grapplePullSource.Play();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("PlayerControllerBSK: grapplePullSource is null; cannot play grapplingPullSound.");
+            }
+        }
     }
 
     int GetFragmentDestinationIndex(string objectName)
@@ -935,6 +996,12 @@ public class PlayerControllerBSK : MonoBehaviour
 
         grappleLockedLights = null;
         grappleLockedQuestComponent = null;
+        // Stop grapple pull audio if playing
+        if (grapplePullSource != null && grapplePullSource.isPlaying)
+        {
+            grapplePullSource.Stop();
+            grapplePullSource.clip = null;
+        }
     }
 
     void SetGrappleLineActive(bool isActive)

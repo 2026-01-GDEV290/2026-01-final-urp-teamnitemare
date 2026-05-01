@@ -5810,7 +5810,7 @@ PrefabInstance:
     - target: {fileID: 1267806880347498889, guid: b66c43c3795be0845bb6263b265b2fbc,
         type: 3}
       propertyPath: rotateSpeed
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 1267806880347498889, guid: b66c43c3795be0845bb6263b265b2fbc,
         type: 3}
@@ -5880,7 +5880,7 @@ PrefabInstance:
     - target: {fileID: 2611780269305721761, guid: b66c43c3795be0845bb6263b265b2fbc,
         type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3653737358004881270, guid: b66c43c3795be0845bb6263b265b2fbc,
         type: 3}
@@ -24296,8 +24296,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 0
     m_Colors:
-    - _BaseColor: {r: 0.41959873, g: 0.7254902, b: 0.6862744, a: 1}
-    - _Color: {r: 0.41959873, g: 0.7254902, b: 0.6862744, a: 1}
+    - _BaseColor: {r: 0.41959804, g: 0.7254902, b: 0.6862744, a: 1}
+    - _Color: {r: 0.41959804, g: 0.7254902, b: 0.6862744, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
@@ -31093,7 +31093,7 @@ MonoBehaviour:
   playerPawn2: {fileID: 95577752}
   player1Controller: {fileID: 3661909431727661164}
   player2Controller: {fileID: 95577755}
-  enableHotKeySwitching: 1
+  enableHotKeySwitching: 0
 --- !u!114 &931949558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77596,7 +77596,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 350
   field of view: 60.000004
   orthographic: 0
   orthographic size: 5
@@ -78295,7 +78295,7 @@ MonoBehaviour:
   wingAnimationControl: {fileID: 2465854078594538313}
   fractureAntiFallTriggerY: -35
   fractureAntiFallBoostStrength: 15
-  rotateSpeed: 3
+  rotateSpeed: 8
   grappleHighlightCheckDistance: 33
   grappleScreenCenterToleranceX: 0.22
   grappleScreenCenterToleranceY: 0.22
@@ -78313,13 +78313,16 @@ MonoBehaviour:
   grappleLineWidth: 0.04
   grappleLineRenderer: {fileID: 0}
   featherJumpSound: {fileID: 8300000, guid: 78d1bb2c1ccca93439484c188dd0e7be, type: 3}
-  grappleLaunchSound: {fileID: 0}
-  grapplingPullSound: {fileID: 0}
+  grappleLaunchSound: {fileID: 8300000, guid: 84b634f33cbd63d4281052077878f9c1, type: 3}
+  grappleLaunchVolume: 0.7
+  grappleLaunchSource: {fileID: 0}
+  grapplingPullSound: {fileID: 8300000, guid: 36f23d566fdccc04ea510960881c54d2, type: 3}
   walkSounds:
   - {fileID: 8300000, guid: 42e65e088b3f4374e851b8dbd38f3df9, type: 3}
   - {fileID: 8300000, guid: 8bc94ec6ed537e743b481638bdcd503d, type: 3}
   walkSoundDistance: 1.8
   walkSoundVolume: 0.2
+  grapplePullVolume: 0.4
   walkSoundSource: {fileID: 0}
   helpText: {fileID: 0}
   audioCurvePrefab: {fileID: 140156937985370427, guid: 713b2f0818b772d4e857df854358b181,
