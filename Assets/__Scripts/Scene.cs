@@ -175,6 +175,47 @@ public class Scene : MonoBehaviour
         GameManager.Instance.SceneDestroyed();
     }
 
+
+    /*[ContextMenu("Manual OnSceneAwake Invoke")]
+    public void ManualOnSceneAwakeInvoke()
+    {
+        InvokeSceneVisitEventAtIndex(0, true);
+    }
+    [ContextMenu("Manual OnSceneStart Invoke")]
+    public void ManualOnSceneStartInvoke()
+    {
+        InvokeSceneVisitEventAtIndex(0, false);
+    }
+
+    private void InvokeSceneVisitEventAtIndex(int index, bool invokeAwakeEvent)
+    {
+        if (sceneVisitTasks == null || sceneVisitTasks.Count <= index || sceneVisitTasks[index] == null)
+        {
+            Debug.LogWarning("Scene->ManualInvoke: Scene visit task entry is missing at index " + index + ".");
+            return;
+        }
+
+        UnityEvent sceneEvent = invokeAwakeEvent
+            ? sceneVisitTasks[index].onSceneAwake
+            : sceneVisitTasks[index].onSceneStart;
+
+        if (sceneEvent == null)
+        {
+            Debug.LogWarning("Scene->ManualInvoke: Selected UnityEvent is null at index " + index + ".");
+            return;
+        }
+
+        Debug.Log(
+            "Scene->ManualInvoke: Invoking " + (invokeAwakeEvent ? "onSceneAwake" : "onSceneStart") +
+            " at index " + index +
+            ", persistent listeners: " + sceneEvent.GetPersistentEventCount() +
+            ", isPlaying: " + Application.isPlaying +
+            ". In edit mode, Runtime Only listeners will not execute."
+        );
+
+        sceneEvent.Invoke();
+    }*/
+
 #region Scene Progression
     // For use with Events in the inspector:
     public void LoadNextScene()

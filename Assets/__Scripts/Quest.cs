@@ -241,6 +241,19 @@ public class Quest : MonoBehaviour, ISaveable
         }
     }
 
+
+    [ContextMenu("Manual Force OnTaskComplete")]
+    public void ManualForceOnTaskComplete()
+    {
+        taskGroup.onTasksCompleted.Invoke();
+    }
+
+    [ContextMenu("Manual Force Complete Task Group")]
+    public void ManualForceCompleteTaskGroup()
+    {
+        ForceCompleteTaskGroup();
+    }
+
     public void ForceCompleteTaskGroup(bool actOnComplete = true)
     {
         Debug.Log("Force completing all tasks for group: " + taskGroup.taskGroupName + " in scene: " + sceneName);

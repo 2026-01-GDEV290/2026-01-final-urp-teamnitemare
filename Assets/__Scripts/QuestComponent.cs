@@ -32,6 +32,13 @@ public class QuestComponent : MonoBehaviour
     //     }
     // }
 
+    
+    [ContextMenu("Manual TaskCompletion")]
+    public void ManualTaskCompletion()
+    {
+        CompleteTask();
+    }
+
     public void CompleteTask()
     {
         QuestManager.Instance.CompleteTaskObjectForUnknownQuest(this);

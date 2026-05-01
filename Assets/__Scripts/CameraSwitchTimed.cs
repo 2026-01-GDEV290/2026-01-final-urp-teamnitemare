@@ -68,6 +68,36 @@ public class CameraSwitchTimed : MonoBehaviour
         Invoke(nameof(SwitchBackToPreviousCamera), duration);
     }
 
+    
+    [ContextMenu("Manual Camera Toggle")]
+    public void ManualCameraToggle()
+    {
+        SwitchCameraToggle();
+    }
+
+    public void SwitchCameraToggle()
+    {
+        if (fromCamera == null || targetCamera == null)
+        {
+            Debug.LogError("Camera references cannot be null.");
+            return;
+        }
+
+        if (targetCamera.enabled)
+        {
+            // Manual inspector toggles can reach this path without a prior scripted switch.
+            if (switchedFromCamera == null)
+            {
+                switchedFromCamera = fromCamera;
+            }
+            SwitchBackToPreviousCamera();
+        }
+        else
+        {
+            SwitchToTargetCamera();
+        }
+    }
+
     public void SwitchToTargetCamera()
     {
         if (fromCamera == null || targetCamera == null)
@@ -102,7 +132,7 @@ public class CameraSwitchTimed : MonoBehaviour
     {
         if (switchedFromCamera == null)
         {
-            Debug.LogError("No previous camera to switch back to.");
+            Debug.LogWarning("No previous camera to switch back to. Switch to target first or set fromCamera as fallback.");
             return;
         }
         SetCameraAndListenerEnabled(switchedFromCamera, fromCameraAudioListener, true);

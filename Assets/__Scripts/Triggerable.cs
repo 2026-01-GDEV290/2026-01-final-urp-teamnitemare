@@ -49,6 +49,16 @@ public class Triggerable : MonoBehaviour, ISaveable
         isActive = active;
     }
 
+    [ContextMenu("Manual Trigger")]
+    public void ManualTrigger()
+    {
+        if (isActive)
+        {
+            onTrigger.Invoke();
+            triggeredCount++;
+        }
+    }
+
     public void AddTriggerListener(UnityEngine.Events.UnityAction action)
     {
         onTrigger.AddListener(action);

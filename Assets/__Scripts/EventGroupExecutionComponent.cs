@@ -90,6 +90,13 @@ public class EventGroupExecutionComponent : MonoBehaviour
         return false;
     }
 
+
+    [ContextMenu("Execute Group From Start")]
+    public void ManualExecute()
+    {
+        ExecuteGroupAtStart();
+    }
+
     public void ExecuteGroupAtStart()
     {
         ExecuteGroupAtIndex(0);

@@ -29,6 +29,13 @@ public class PlayerControllerSwitcher : MonoBehaviour, ISaveable
         }
     }
 
+
+    [ContextMenu("Manual Switch")]
+    public void ManualSwitchPlayer()
+    {
+        SwitchPlayer();
+    }
+
     public void SwitchPlayer()
     {
         if (activePlayerPawn == playerPawn1)
