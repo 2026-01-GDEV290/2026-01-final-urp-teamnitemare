@@ -1,2 +1,2 @@
-Ugh, look at this mess.
-I'm too tired to clean this up now.
+What a mess.
+I'm too exhausted to clean this up now.

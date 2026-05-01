@@ -1,8 +1,7 @@
-Whoa.
+Whoa!
 What a weird dream. 
-It was almost like I didn't even have a dream at all.
-For a moment there, I thought it was real.
 Everything felt so real...
-Anyway...
-I never noticed how bad I let my apartment get.
-The urge to clean has never been stronger.
+...
+When's the last time I cleaned this place?
+I've been too tired to do anything recently.
+I should probably clean.

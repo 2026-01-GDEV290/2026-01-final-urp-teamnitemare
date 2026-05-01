@@ -4896,7 +4896,7 @@ PrefabInstance:
         type: 3}
       propertyPath: inkJSON
       value: 
-      objectReference: {fileID: 4900000, guid: 3a35f8aabe6a15348ae1a91053abe083, type: 3}
+      objectReference: {fileID: 4900000, guid: 1380342e4b02ba24cabb650a1b29a450, type: 3}
     - target: {fileID: 5652148306720035585, guid: 32611347f00890c428be8b065c9dbdee,
         type: 3}
       propertyPath: m_Size.x
@@ -13653,7 +13653,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: I got a lot done today, finally time to sleep.
+  m_text: I got a decent amount of work done today, finally time to sleep.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 06a63d36604c9a344bace11204958bed, type: 2}
   m_sharedMaterial: {fileID: -4372977417405691929, guid: 06a63d36604c9a344bace11204958bed,
@@ -14203,7 +14203,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: I forgot I still needed to put away my laundry...
+  m_text: I forgot I still needed to put my laundry away...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 06a63d36604c9a344bace11204958bed, type: 2}
   m_sharedMaterial: {fileID: -4372977417405691929, guid: 06a63d36604c9a344bace11204958bed,
@@ -14550,7 +14550,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: I think I should get some chores done before I go to sleep.
+  m_text: I still have some energy left... I should get some more chores done.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 06a63d36604c9a344bace11204958bed, type: 2}
   m_sharedMaterial: {fileID: -4372977417405691929, guid: 06a63d36604c9a344bace11204958bed,
@@ -23142,115 +23142,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1170255436}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1170610593
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1170610597}
-  - component: {fileID: 1170610596}
-  - component: {fileID: 1170610595}
-  - component: {fileID: 1170610594}
-  m_Layer: 0
-  m_Name: Outside Plane
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!64 &1170610594
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170610593}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &1170610595
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170610593}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a519263bf63bfbf4991590c91bb108ce, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1170610596
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170610593}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1170610597
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1170610593}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.50000054, y: -0.500001, z: 0.50000054, w: -0.499998}
-  m_LocalPosition: {x: -5.72, y: 2.5125, z: -3.0699978}
-  m_LocalScale: {x: 0.49936008, y: 0.49936008, z: 0.49936035}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 90, y: -180, z: 90}
 --- !u!1 &1171324221
 GameObject:
   m_ObjectHideFlags: 0
@@ -32245,7 +32136,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: The dishes have been piling up for days now....It's starting to smell.
+  m_text: The dishes have been piling up for so long....It's starting to smell.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 06a63d36604c9a344bace11204958bed, type: 2}
   m_sharedMaterial: {fileID: -4372977417405691929, guid: 06a63d36604c9a344bace11204958bed,
@@ -37875,115 +37766,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a2e3f72dab7baf409782bb3355c3452, type: 3}
---- !u!1 &1913218439
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1913218443}
-  - component: {fileID: 1913218442}
-  - component: {fileID: 1913218441}
-  - component: {fileID: 1913218440}
-  m_Layer: 0
-  m_Name: Outside Plane
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!64 &1913218440
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913218439}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &1913218441
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913218439}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: a519263bf63bfbf4991590c91bb108ce, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &1913218442
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913218439}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!4 &1913218443
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913218439}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.5000006, y: -0.49999902, z: 0.4999994, w: 0.50000113}
-  m_LocalPosition: {x: 11.162, y: 2.5125, z: -2.5699997}
-  m_LocalScale: {x: 0.4993602, y: 0.4993602, z: 0.49936008}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 90}
 --- !u!1 &1916616198
 GameObject:
   m_ObjectHideFlags: 0
@@ -43296,8 +43078,6 @@ SceneRoots:
   - {fileID: 1140904400}
   - {fileID: 1469751239}
   - {fileID: 404548834}
-  - {fileID: 1913218443}
-  - {fileID: 1170610597}
   - {fileID: 1718872046}
   - {fileID: 1474434604}
   - {fileID: 786487494}

@@ -1,1 +1,1 @@
-No classes today, but I should get my chores done anyway.
+I don't feel like doing anything, but I should get my chores done anyway.
