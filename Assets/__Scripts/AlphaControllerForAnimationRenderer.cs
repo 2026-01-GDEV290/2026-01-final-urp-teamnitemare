@@ -67,6 +67,10 @@ public class AlphaControllerForAnimationRenderer : MonoBehaviour
         //Debug.Log("Emission color: " + rend.material.GetColor("_EmissionColor"));
 
         //rend.material.color = new Color(rend.material.color.r, rend.material.color.g, rend.material.color.b, alpha);
+        //!! This line causes Editor & compilation issues when using rend.material,
+        // however the material becoes darker. But also the name of the material keeps changing with
+        // each change, which is a sign of instancing. So we have to use sharedMaterial,
+        // but that causes the alpha to not update in the editor. Issue is linked to OnValidate() (editor-only)
         var mat = rend.sharedMaterial;
         Color c = mat.color;
         c.a = alpha;
