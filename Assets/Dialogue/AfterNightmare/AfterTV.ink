@@ -1,1 +1,1 @@
-At one point I'll finally make sure to put these boxes away. They've been sitting here since I moved in.
+These boxes have been sitting here since I moved in. One day I'll put them away.
