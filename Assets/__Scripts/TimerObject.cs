@@ -51,6 +51,12 @@ public class TimerObject : MonoBehaviour, ISaveable
         return true;
     }
 
+
+    [ContextMenu("Manual Timer Trigger")]
+    public void ManualTimerTrigger()
+    {
+        TriggerImmediately();
+    }
     public void TriggerImmediately()
     {
         if (!isEnabled)

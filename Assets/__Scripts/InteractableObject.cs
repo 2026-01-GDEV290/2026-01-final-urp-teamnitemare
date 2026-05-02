@@ -34,6 +34,16 @@ public class InteractableObject : InteractableBase
         }
     }
 
+    [ContextMenu("Manual Trigger")]
+    public void ManualInteract()
+    {
+        if (isInteractable)
+        {
+            onInteract.Invoke();
+            interactionCount++;
+        }
+    }
+
     public override void Interact(bool forceOverride = false)
     {
         if (!isInteractable && !forceOverride)
