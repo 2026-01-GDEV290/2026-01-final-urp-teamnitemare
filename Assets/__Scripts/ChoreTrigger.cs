@@ -1,9 +1,10 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.Rendering;
 
 public class ChoreTrigger : MonoBehaviour
 {
-
+    public static int NumberOfChoresCompleted { get; private set; } = 0;
     private bool playerInRange;
    
     [SerializeField] private GameObject prompt;
@@ -13,6 +14,16 @@ public class ChoreTrigger : MonoBehaviour
     [SerializeField] private GameObject choreSound;
 
     [SerializeField] private GameObject fade;
+
+    [SerializeField] DormTransitionToNight dormTransition;
+
+    void Awake()
+    {
+        if (dormTransition == null)
+        {
+            dormTransition = FindObjectsByType<DormTransitionToNight>(FindObjectsSortMode.None)[0];
+        }
+    }
 
     void Update()
     {
@@ -37,7 +48,11 @@ public class ChoreTrigger : MonoBehaviour
     void ClearChore()
     {
         choreObject.gameObject.SetActive(false);
-
+        NumberOfChoresCompleted++;
+        if (NumberOfChoresCompleted == 3)
+        {
+            dormTransition.TransitionToNight();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -47,10 +62,7 @@ public class ChoreTrigger : MonoBehaviour
             prompt.gameObject.SetActive(true);
             fade.gameObject.SetActive(false);
             playerInRange = true;
-            
         }
-
-
     }
 
     private void OnTriggerExit(Collider other)
