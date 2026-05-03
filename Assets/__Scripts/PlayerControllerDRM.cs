@@ -127,7 +127,7 @@ public class PlayerControllerDRM : MonoBehaviour
         if (!GameManager.Instance.AreLookControlsDisabled())
         {
             Vector2 lookInput = lookAction.ReadValue<Vector2>();
-            HandleLook(lookInput);
+            HandleLook(lookInput, lookAction.activeControl?.device is Mouse);
         }
         if (!GameManager.Instance.AreMoveControlsDisabled())
         {
@@ -136,10 +136,14 @@ public class PlayerControllerDRM : MonoBehaviour
         }
     }
 
-    void HandleLook(Vector2 lookVector)
+    void HandleLook(Vector2 lookVector, bool isMouse)
     {
-        rotationY += lookVector.x * lookSpeed * Time.deltaTime;
-        rotationX -= lookVector.y * lookSpeed * Time.deltaTime;
+        // only multiply by deltaTime if using mouse input for smoother rotation, not for gamepad etc
+        // smooth rotation using lerp?
+        
+        float deltaTime = isMouse ? Time.deltaTime : 1f;
+        rotationY += lookVector.x * lookSpeed * deltaTime;
+        rotationX -= lookVector.y * lookSpeed * deltaTime;
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);
 
         transform.localRotation = Quaternion.Euler(0f, rotationY, 0f);

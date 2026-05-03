@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class PlayerControllerBB : MonoBehaviour
 {
@@ -114,7 +115,7 @@ public class PlayerControllerBB : MonoBehaviour
         if (!GameManager.Instance.AreLookControlsDisabled())
         {
             Vector2 lookInput = playerControls.Player.Look.ReadValue<Vector2>();
-            Rotate(lookInput);
+            Rotate(lookInput, playerControls.Player.Look.activeControl?.device is Mouse);
         }
         if (!GameManager.Instance.AreMoveControlsDisabled())
         {
@@ -212,13 +213,15 @@ public class PlayerControllerBB : MonoBehaviour
         }
     }
 
-    public void Rotate(Vector2 lookVector)
+    public void Rotate(Vector2 lookVector, bool isMouse)
     {
+        // only multiply by deltaTime if using mouse input for smoother rotation, not for gamepad which already accounts for frame rate
+        float deltaTime = isMouse ? Time.deltaTime : 1f;
         // x-axis of mouse controls pitch (looking up/down)
-        rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
+        rotationY += lookVector.x * rotateSpeed * deltaTime;
         // make sure to clamp the x rotation to prevent flipping over
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);        
-        rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
+        rotationX -= lookVector.y * rotateSpeed * deltaTime;
         //rotationX = Mathf.Clamp(rotationX, -90f, 90f);
         transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
     }

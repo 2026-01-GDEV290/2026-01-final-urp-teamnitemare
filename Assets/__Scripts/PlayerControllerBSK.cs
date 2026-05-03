@@ -389,7 +389,7 @@ public class PlayerControllerBSK : MonoBehaviour
         if (!GameManager.Instance.AreLookControlsDisabled())
         {
             Vector2 lookInput = lookAction.ReadValue<Vector2>();
-            HandleLook(lookInput);
+            HandleLook(lookInput, lookAction.activeControl?.device is Mouse);
         }
         if (isGrappleMoveLocked)
         {
@@ -476,11 +476,13 @@ public class PlayerControllerBSK : MonoBehaviour
         }
     }
 
-    void HandleLook(Vector2 lookVector)
+    void HandleLook(Vector2 lookVector, bool isMouse)
     {
+        // only multiply by deltaTime if using mouse input for smoother rotation, not for gamepad which already accounts for frame rate
+        float deltaTime = isMouse ? Time.deltaTime : 1f;
         // x-axis of mouse controls pitch (looking up/down)
-        rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
-        rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
+        rotationY += lookVector.x * rotateSpeed * deltaTime;
+        rotationX -= lookVector.y * rotateSpeed * deltaTime;
         if (isFractureScene)
         {
             rotationX = Mathf.Clamp(rotationX, -90f, 90f);

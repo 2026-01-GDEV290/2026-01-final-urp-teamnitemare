@@ -179,7 +179,7 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
 
             // Keep look active while the platform is auto-moving.
             Vector2 lockedLookVector = lookAction.ReadValue<Vector2>();
-            Rotate(lockedLookVector);
+            Rotate(lockedLookVector, lookAction.activeControl?.device is Mouse);
             return;
         }
 
@@ -202,7 +202,7 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
         // Handle look input
         Vector2 lookVector = lookAction.ReadValue<Vector2>();
         //characterController.Rotate(lookVector);
-        Rotate(lookVector);
+        Rotate(lookVector, lookAction.activeControl?.device is Mouse);
     }
 
     void JumpAction(InputAction.CallbackContext context)
@@ -952,11 +952,14 @@ public class PlayerControllerFR : MonoBehaviour, ISaveable
         characterController.Move(new Vector3(0, verticalVelocity, 0) * Time.deltaTime);
     }
 
-    public void Rotate(Vector2 lookVector)
+    public void Rotate(Vector2 lookVector, bool isMouse)
     {
+        // only multiply by deltaTime if using mouse input for smoother rotation, not for gamepad which already accounts for frame rate
+        float deltaTime = isMouse ? Time.deltaTime : 1f;
+
         // x-axis of mouse controls pitch (looking up/down)
-        rotationY += lookVector.x * rotateSpeed * Time.deltaTime;
-        rotationX -= lookVector.y * rotateSpeed * Time.deltaTime;
+        rotationY += lookVector.x * rotateSpeed * deltaTime;
+        rotationX -= lookVector.y * rotateSpeed * deltaTime;
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);
         ApplyLookRotation();
     }
