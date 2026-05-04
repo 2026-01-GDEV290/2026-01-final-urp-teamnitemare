@@ -2,7 +2,7 @@
 
 - Sunny
 - Duncan
-- Louis
+- Luis
 - Daniel C
 
 Web build @ https://github.com/dcrep/Caged-TeamNitemare
